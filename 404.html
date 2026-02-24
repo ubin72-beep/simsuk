@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 페이지를 찾을 수 없습니다 | 심석</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        
+        .gem-icon {
+            font-size: 4rem;
+            color: #d4af37;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #2c5f4f;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5f4f 0%, #1a4034 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(44, 95, 79, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #2c5f4f;
+            border: 2px solid #2c5f4f;
+        }
+        
+        .btn-secondary:hover {
+            background: #2c5f4f;
+            color: white;
+        }
+        
+        .suggestions {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .suggestions h3 {
+            font-size: 1.3rem;
+            color: #2c5f4f;
+            margin-bottom: 20px;
+        }
+        
+        .suggestion-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .suggestion-link {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .suggestion-link:hover {
+            background: #2c5f4f;
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .suggestion-link i {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #d4af37;
+        }
+        
+        .suggestion-link:hover i {
+            color: white;
+        }
+        
+        .suggestion-link span {
+            display: block;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 30px;
+            }
+            
+            .error-code {
+                font-size: 5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-gem gem-icon"></i>
+        <div class="error-code">404</div>
+        <h1>길을 잃으셨나요?</h1>
+        <p>
+            요청하신 페이지를 찾을 수 없습니다.<br>
+            주소가 잘못 입력되었거나 페이지가 이동/삭제되었을 수 있습니다.
+        </p>
+        
+        <div class="buttons">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                홈으로 돌아가기
+            </a>
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                이전 페이지로
+            </a>
+        </div>
+        
+        <div class="suggestions">
+            <h3>이런 페이지는 어떠세요?</h3>
+            <div class="suggestion-links">
+                <a href="/#products" class="suggestion-link">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>제품 둘러보기</span>
+                </a>
+                <a href="/#benefits" class="suggestion-link">
+                    <i class="fas fa-heart-pulse"></i>
+                    <span>건강 효능</span>
+                </a>
+                <a href="/#faq" class="suggestion-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>자주 묻는 질문</span>
+                </a>
+                <a href="/#contact" class="suggestion-link">
+                    <i class="fas fa-headset"></i>
+                    <span>고객 지원</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
