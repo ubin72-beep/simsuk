@@ -1,0 +1,475 @@
+/* 사주 큐레이션 스타일 */
+
+/* 생년월일 입력 섹션 */
+.birthdate-input-section {
+    background: linear-gradient(135deg, #2d3436 0%, #1a1d1e 100%);
+    padding: 40px 20px;
+    border-radius: 20px;
+    margin: 40px 0;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.birthdate-input-section h3 {
+    color: #d4af37;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.birthdate-input-section p {
+    color: #ffffff;
+    font-size: 16px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.birthdate-input-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.birthdate-input-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.birthdate-input-group input {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.birthdate-input-group input:focus {
+    outline: none;
+    border-color: #d4af37;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.birthdate-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.birthdate-submit-btn {
+    width: 100%;
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #d4af37 0%, #f9d76b 100%);
+    color: #1a1d1e;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+}
+
+.birthdate-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.birthdate-submit-btn:active {
+    transform: translateY(0);
+}
+
+/* 사주 큐레이션 결과 모달 */
+.saju-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+.saju-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.saju-modal-content {
+    background: linear-gradient(135deg, #2d3436 0%, #1a1d1e 100%);
+    padding: 0;
+    border-radius: 20px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.4s ease;
+}
+
+.saju-modal-close {
+    position: sticky;
+    top: 20px;
+    right: 20px;
+    float: right;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.saju-modal-close:hover {
+    background: rgba(212, 175, 55, 0.3);
+    transform: rotate(90deg);
+}
+
+/* 큐레이션 결과 스타일 */
+.saju-curation-result {
+    padding: 40px 30px;
+    color: #ffffff;
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+}
+
+.result-header h3 {
+    color: #d4af37;
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.birth-info {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.result-section {
+    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.result-section h4 {
+    color: #d4af37;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 탄생석 섹션 */
+.stone-card {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stone-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+}
+
+.stone-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #d4af37;
+    margin-bottom: 10px;
+}
+
+.stone-color {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 10px;
+}
+
+.stone-meaning {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* 오행 분석 */
+.ohang-chart {
+    margin-bottom: 25px;
+}
+
+.ohang-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.ohang-label {
+    min-width: 60px;
+    font-weight: 600;
+    color: #d4af37;
+}
+
+.ohang-bar-bg {
+    flex: 1;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ohang-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d4af37 0%, #f9d76b 100%);
+    border-radius: 15px;
+    transition: width 1s ease;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.ohang-score {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.ohang-summary {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #d4af37;
+}
+
+.ohang-summary p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.ohang-summary strong {
+    color: #d4af37;
+}
+
+.deficiency-note {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* 추천 원석 그리드 */
+.stones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stone-card.recommended {
+    background: linear-gradient(135deg, rgba(0, 150, 136, 0.2) 0%, rgba(0, 150, 136, 0.1) 100%);
+    border-color: rgba(0, 150, 136, 0.4);
+    text-align: left;
+}
+
+.stone-card.recommended .stone-name {
+    color: #26c6da;
+}
+
+.stone-reason {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+/* 추천 제품 */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.product-card-mini {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.product-card-mini:hover {
+    transform: translateY(-5px);
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.product-card-mini img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.product-card-mini h5 {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.product-reason {
+    font-size: 13px;
+    color: #26c6da;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.product-price {
+    font-size: 18px;
+    color: #d4af37;
+    font-weight: 700;
+}
+
+/* 푸터 */
+.result-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.disclaimer {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .saju-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .saju-curation-result {
+        padding: 30px 20px;
+    }
+    
+    .result-header h3 {
+        font-size: 24px;
+    }
+    
+    .result-section {
+        padding: 20px;
+    }
+    
+    .result-section h4 {
+        font-size: 20px;
+    }
+    
+    .birthdate-input-group {
+        flex-direction: column;
+    }
+    
+    .birthdate-input-group input {
+        min-width: 100%;
+    }
+    
+    .stones-grid,
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ohang-bar {
+        flex-wrap: wrap;
+    }
+    
+    .ohang-label {
+        min-width: 100%;
+    }
+}
+
+/* 로딩 스피너 */
+.saju-loading {
+    display: none;
+    text-align: center;
+    padding: 40px;
+}
+
+.saju-loading.active {
+    display: block;
+}
+
+.spinner {
+    border: 4px solid rgba(212, 175, 55, 0.3);
+    border-top: 4px solid #d4af37;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: #d4af37;
+    font-size: 16px;
+}
