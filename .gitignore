@@ -1,0 +1,82 @@
+# Git 제외 파일 설정
+
+# 테스트 파일
+test_*.html
+debug_*.html
+check_*.html
+create_*.html
+console_*.js
+
+# 디자인/미디어 파일
+business-card-*.html
+color-code-*.html
+background-*.html
+
+# 임시 가이드 문서
+*_GUIDE.md
+*_FIX.md
+*_TROUBLESHOOTING.md
+*_ERROR*.md
+*_ISSUE*.md
+*_REPORT*.md
+*_CHECKLIST.md
+*_SUMMARY.md
+
+# 중요 문서는 유지
+!README.md
+!CHANGELOG.md
+!DEPLOYMENT_GUIDE.md
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# IDE/Editor 설정
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# Node.js (사용하지 않지만 예방)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# 환경 변수 (민감 정보)
+.env
+.env.local
+.env.*.local
+
+# 빌드 폴더 (사용하지 않지만 예방)
+dist/
+build/
+.cache/
+
+# 백업 파일
+*.bak
+*.backup
+*-backup.*
+*_backup.*
+
+# 압축 파일
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# 로그 파일
+*.log
+logs/
+
+# OS 생성 파일
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
