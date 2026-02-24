@@ -1,0 +1,27 @@
+# 심석 (SIMSUK) - 헤마타이트 액세서리
+# www.simsuk.com
+
+# 모든 검색엔진 허용
+User-agent: *
+
+# 검색엔진에서 제외할 페이지
+Disallow: /admin.html
+Disallow: /test_*.html
+Disallow: /debug_*.html
+Disallow: /check_*.html
+Disallow: /create_*.html
+
+# 사이트맵 위치
+Sitemap: https://www.simsuk.com/sitemap.xml
+
+# 네이버 웹마스터 도구
+User-agent: Yeti
+Allow: /
+
+# 구글봇
+User-agent: Googlebot
+Allow: /
+
+# 다음(Daum) 검색
+User-agent: Daumoa
+Allow: /
