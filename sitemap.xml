@@ -1,0 +1,132 @@
+# 🔍 검색엔진 등록 완벽 가이드
+
+**목표**: 네이버, 구글, 다음 검색 시 www.simsuk.com 노출
+
+---
+
+## 📋 전체 프로세스 개요
+
+```
+1단계: 사이트 등록 (10-30분)
+   ↓
+2단계: 사이트맵 제출 (5분)
+   ↓
+3단계: 색인 요청 (5분)
+   ↓
+4단계: 대기 (1-2주)
+   ↓
+5단계: 검색 노출 시작!
+```
+
+---
+
+## 🎯 1. 네이버 검색 등록
+
+### 🔹 1-1. 네이버 웹마스터 도구 등록
+
+**URL**: https://searchadvisor.naver.com/
+
+#### Step 1: 로그인
+```
+1. 네이버 계정으로 로그인
+2. 계정이 없다면 회원가입
+```
+
+#### Step 2: 사이트 등록
+```
+1. "웹마스터 도구" 메뉴 클릭
+2. 좌측 상단 "사이트 추가" 버튼 클릭
+3. URL 입력: https://www.simsuk.com
+4. "확인" 버튼 클릭
+```
+
+#### Step 3: 사이트 소유 확인
+
+**방법 1: HTML 파일 업로드** (추천)
+```
+1. 네이버가 제공하는 HTML 파일 다운로드
+   (파일명 예: naver1234567890abc.html)
+
+2. 파일 내용 예시:
+   naver-site-verification: naver1234567890abc.html
+
+3. 이 파일을 사이트 루트에 업로드
+   (Genspark 플랫폼에서는 업로드 불가능할 수 있음)
+
+4. "소유 확인" 버튼 클릭
+```
+
+**방법 2: HTML 태그 추가** (권장 - 가장 쉬움)
+```
+1. 네이버가 제공하는 메타 태그 복사
+   예: <meta name="naver-site-verification" 
+        content="1234567890abcdef"/>
+
+2. index.html의 <head> 섹션에 추가
+
+3. 배포
+
+4. "소유 확인" 버튼 클릭
+```
+
+**방법 3: DNS TXT 레코드**
+```
+(도메인 관리가 가능한 경우)
+1. 제공된 TXT 레코드 복사
+2. DNS 설정에서 TXT 레코드 추가
+3. "소유 확인" 버튼 클릭
+```
+
+#### Step 4: 사이트맵 제출
+```
+1. 좌측 메뉴 "요청" → "사이트맵 제출"
+2. 사이트맵 URL 입력:
+   https://www.simsuk.com/sitemap.xml
+
+3. "확인" 버튼 클릭
+```
+
+#### Step 5: RSS 제출 (선택사항)
+```
+블로그가 있다면:
+https://www.simsuk.com/rss.xml
+```
+
+#### Step 6: 수집 요청
+```
+1. 좌측 메뉴 "요청" → "수집 요청"
+2. 주요 페이지 URL 입력:
+   - https://www.simsuk.com
+   - https://www.simsuk.com/admin.html (제외)
+3. "확인" 버튼 클릭
+```
+
+---
+
+### 🔹 1-2. 사이트맵 생성
+
+사이트맵이 없다면 생성해야 합니다.
+
+<function_calls>
+<invoke name="Write">
+<parameter name="content"><?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 메인 페이지 -->
+  <url>
+    <loc>https://www.simsuk.com/</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- 404 페이지 -->
+  <url>
+    <loc>https://www.simsuk.com/404.html</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  
+  <!-- 관리자 페이지는 제외 (검색엔진에 노출하지 않음) -->
+  <!-- admin.html은 포함하지 않음 -->
+</urlset>
