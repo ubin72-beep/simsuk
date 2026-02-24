@@ -136,7 +136,7 @@ export default function HomePage() {
               <div className="space-y-4 text-stone-400 leading-relaxed">
                 <p>
                   헤마타이트(Hematite)는 산화철(Fe₂O₃)로 이루어진 천연 광물로,
-                  그리스어로 &#39;피의 돌&#39;을 의미합니다. 깊고 어두운 금속 광택이 특징이며
+                  그리스어로 &apos;피의 돌&apos;을 의미합니다. 깊고 어두운 금속 광택이 특징이며
                   수천 년 전부터 장신구와 예술품에 활용되어 왔습니다.
                 </p>
                 <p>

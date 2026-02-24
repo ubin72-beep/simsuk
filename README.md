@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 심석(SIMSUK)
 
-## Getting Started
+**천연 헤마타이트 액세서리 쇼핑몰 | Natural Hematite Jewelry Online Store**
 
-First, run the development server:
+## 소개 | About
+
+심석(SIMSUK)은 천연 헤마타이트 원석 액세서리를 판매하는 온라인 쇼핑몰입니다.  
+SIMSUK is an online store specializing in natural hematite stone jewelry.
+
+## 기술 스택 | Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Language**: TypeScript
+- **Font**: System Korean font stack (Apple SD Gothic Neo, Malgun Gothic, NanumGothic)
+
+## 페이지 구성 | Pages
+
+| 경로 | 설명 |
+|------|------|
+| `/` | 홈 — 히어로, 추천 상품, 브랜드 소개 |
+| `/shop` | 쇼핑 — 전체 상품 목록, 카테고리/정렬 필터 |
+| `/shop/[id]` | 상품 상세 페이지 |
+| `/about` | 브랜드 스토리, 가치관 |
+| `/contact` | 문의, FAQ, 연락처 |
+
+## 개발 실행 | Getting Started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 배포 | Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploy on [Vercel](https://vercel.com/new) for the best experience.
