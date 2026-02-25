@@ -68,15 +68,105 @@ function stopAutoRefresh() {
 async function loadProducts(silent = false) {
     try {
         console.log('🔄 Loading products from API...');
-        const response = await fetch('tables/products?limit=100');
-        console.log('📡 Response status:', response.status);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // GitHub Pages는 서버 API를 지원하지 않으므로
+        // 데모 데이터를 사용합니다
+        console.log('⚠️ Using demo data (GitHub Pages static hosting)');
         
-        const result = await response.json();
-        console.log('📦 Products data received:', result);
+        // 데모 제품 데이터
+        const demoProducts = [
+            {
+                id: '1',
+                name: '헤마타이트 목걸이',
+                category: '목걸이',
+                price: 69000,
+                description: '강력한 자기력을 가진 헤마타이트 목걸이입니다. 혈액순환을 도와주고 스트레스를 완화시켜줍니다.',
+                materials: '헤마타이트',
+                benefits: '혈액순환 개선, 스트레스 완화',
+                image_url: 'https://via.placeholder.com/400x400?text=Hematite+Necklace',
+                featured: true,
+                in_stock: true,
+                birthstone_months: [1, 10],
+                special_occasions: ['일상', '건강']
+            },
+            {
+                id: '2',
+                name: '헤마타이트 팔찌',
+                category: '팔찌',
+                price: 49000,
+                description: '일상에서 착용하기 좋은 헤마타이트 팔찌입니다.',
+                materials: '헤마타이트',
+                benefits: '자기력 에너지, 혈액순환',
+                image_url: 'https://via.placeholder.com/400x400?text=Hematite+Bracelet',
+                featured: true,
+                in_stock: true,
+                birthstone_months: [1, 10],
+                special_occasions: ['일상']
+            },
+            {
+                id: '3',
+                name: '헤마타이트 반지',
+                category: '반지',
+                price: 39000,
+                description: '심플하고 세련된 헤마타이트 반지입니다.',
+                materials: '헤마타이트',
+                benefits: '집중력 향상, 에너지 균형',
+                image_url: 'https://via.placeholder.com/400x400?text=Hematite+Ring',
+                featured: false,
+                in_stock: true,
+                birthstone_months: [1, 10],
+                special_occasions: ['일상', '선물']
+            },
+            {
+                id: '4',
+                name: '가넷 목걸이 (1월 탄생석)',
+                category: '목걸이',
+                price: 79000,
+                description: '1월 탄생석 가넷이 박힌 아름다운 목걸이입니다.',
+                materials: '가넷, 실버',
+                benefits: '정열, 생명력 강화',
+                image_url: 'https://via.placeholder.com/400x400?text=Garnet+Necklace',
+                featured: true,
+                in_stock: true,
+                birthstone_months: [1],
+                special_occasions: ['생일', '기념일']
+            },
+            {
+                id: '5',
+                name: '자수정 팔찌 (2월 탄생석)',
+                category: '팔찌',
+                price: 59000,
+                description: '2월 탄생석 자수정 팔찌입니다. 마음의 평화를 가져다줍니다.',
+                materials: '자수정',
+                benefits: '평온, 지혜',
+                image_url: 'https://via.placeholder.com/400x400?text=Amethyst+Bracelet',
+                featured: false,
+                in_stock: true,
+                birthstone_months: [2],
+                special_occasions: ['생일', '힐링']
+            },
+            {
+                id: '6',
+                name: '아쿠아마린 반지 (3월 탄생석)',
+                category: '반지',
+                price: 89000,
+                description: '3월 탄생석 아쿠아마린 반지입니다.',
+                materials: '아쿠아마린, 실버',
+                benefits: '용기, 평온',
+                image_url: 'https://via.placeholder.com/400x400?text=Aquamarine+Ring',
+                featured: false,
+                in_stock: true,
+                birthstone_months: [3],
+                special_occasions: ['생일', '여행']
+            }
+        ];
+        
+        const result = {
+            data: demoProducts,
+            total: demoProducts.length
+        };
+        
+        console.log('📦 Products data loaded (demo):', result);
         
         if (result.data && result.data.length > 0) {
             allProducts = result.data;
