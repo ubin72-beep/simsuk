@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테스트 주문 생성 - 심석</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c5f4f;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2c5f4f;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            color: #2c5f4f;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5f4f 0%, #1a4034 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(44, 95, 79, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #2c5f4f;
+            border: 2px solid #2c5f4f;
+        }
+        
+        .btn-outline:hover {
+            background: #2c5f4f;
+            color: white;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c5f4f;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .links {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .links a {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            color: #2c5f4f;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .links a:hover {
+            background: #2c5f4f;
+            color: white;
+        }
+        
+        .order-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .order-details.active {
+            display: block;
+        }
+        
+        .order-details h3 {
+            color: #2c5f4f;
+            margin-bottom: 15px;
+        }
+        
+        .order-details p {
+            margin-bottom: 8px;
+            color: #333;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-box"></i> 테스트 주문 생성</h1>
+        <p class="subtitle">주문 시스템을 테스트하기 위한 페이지입니다</p>
+        
+        <div id="statusBox" class="status-box">
+            <div class="status-item">
+                <span class="status-label">현재 주문 개수</span>
+                <span class="status-value" id="orderCount">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">제품 개수</span>
+                <span class="status-value" id="productCount">-</span>
+            </div>
+        </div>
+        
+        <div id="messageBox"></div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>처리 중...</p>
+        </div>
+        
+        <button class="btn btn-primary" onclick="createTestOrder()">
+            <i class="fas fa-plus-circle"></i> 테스트 주문 생성
+        </button>
+        
+        <button class="btn btn-secondary" onclick="loadStatus()">
+            <i class="fas fa-sync"></i> 상태 새로고침
+        </button>
+        
+        <div id="orderDetails" class="order-details">
+            <h3><i class="fas fa-receipt"></i> 생성된 주문 정보</h3>
+            <div id="orderInfo"></div>
+        </div>
+        
+        <div class="links">
+            <a href="index.html">
+                <i class="fas fa-home"></i> 메인 페이지
+            </a>
+            <a href="admin.html">
+                <i class="fas fa-user-cog"></i> 관리자 페이지
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // 페이지 로드 시 상태 확인
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatus();
+        });
+        
+        // 상태 로드
+        async function loadStatus() {
+            try {
+                // 주문 개수 확인
+                const ordersResponse = await fetch('tables/orders?limit=1');
+                const ordersData = await ordersResponse.json();
+                document.getElementById('orderCount').textContent = ordersData.total || 0;
+                
+                // 제품 개수 확인
+                const productsResponse = await fetch('tables/products?limit=1');
+                const productsData = await productsResponse.json();
+                document.getElementById('productCount').textContent = productsData.total || 0;
+                
+                if (productsData.total === 0) {
+                    showMessage('제품이 없습니다. 먼저 제품을 추가해주세요.', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+                showMessage('상태를 불러오는 중 오류가 발생했습니다.', 'error');
+            }
+        }
+        
+        // 테스트 주문 생성
+        async function createTestOrder() {
+            const loading = document.getElementById('loading');
+            const messageBox = document.getElementById('messageBox');
+            const orderDetails = document.getElementById('orderDetails');
+            
+            loading.classList.add('active');
+            messageBox.innerHTML = '';
+            orderDetails.classList.remove('active');
+            
+            try {
+                // 1. 제품 목록 가져오기
+                const productsResponse = await fetch('tables/products?limit=100');
+                const productsData = await productsResponse.json();
+                
+                if (!productsData.data || productsData.data.length === 0) {
+                    throw new Error('제품이 없습니다. 먼저 제품을 추가해주세요.');
+                }
+                
+                // 2. 랜덤 제품 1-3개 선택
+                const products = productsData.data;
+                const numProducts = Math.floor(Math.random() * 3) + 1; // 1-3개
+                const selectedProducts = [];
+                const cartItems = [];
+                
+                for (let i = 0; i < numProducts; i++) {
+                    const randomIndex = Math.floor(Math.random() * products.length);
+                    const product = products[randomIndex];
+                    const quantity = Math.floor(Math.random() * 2) + 1; // 1-2개
+                    
+                    selectedProducts.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantity
+                    });
+                    
+                    cartItems.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantity,
+                        image_url: product.image_url
+                    });
+                }
+                
+                // 3. 총 금액 계산
+                const totalAmount = selectedProducts.reduce((sum, item) => 
+                    sum + (item.price * item.quantity), 0);
+                
+                // 4. 주문번호 생성
+                const orderNumber = 'ORD-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + 
+                    '-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                
+                // 5. 주문 데이터 생성
+                const orderData = {
+                    order_number: orderNumber,
+                    customer_name: '테스트 고객',
+                    customer_phone: '010-1234-5678',
+                    customer_email: 'test@simsuk.com',
+                    customer_kakao: 'test_kakao',
+                    shipping_address: '서울시 강남구 테스트동 123-45',
+                    special_request: '테스트 주문입니다. 배송 전 연락 부탁드립니다.',
+                    products: JSON.stringify(cartItems),
+                    total_amount: totalAmount,
+                    status: '접수',
+                    order_date: new Date().toISOString()
+                };
+                
+                // 6. API로 주문 생성
+                const response = await fetch('tables/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('주문 생성 실패');
+                }
+                
+                const result = await response.json();
+                
+                // 7. 성공 메시지 표시
+                loading.classList.remove('active');
+                showMessage('✅ 테스트 주문이 성공적으로 생성되었습니다!', 'success');
+                
+                // 8. 주문 상세 정보 표시
+                const orderInfo = document.getElementById('orderInfo');
+                orderInfo.innerHTML = `
+                    <p><strong>주문번호:</strong> ${orderNumber}</p>
+                    <p><strong>고객명:</strong> ${orderData.customer_name}</p>
+                    <p><strong>전화번호:</strong> ${orderData.customer_phone}</p>
+                    <p><strong>배송지:</strong> ${orderData.shipping_address}</p>
+                    <p><strong>주문 제품:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        ${selectedProducts.map(p => 
+                            `<li>${p.name} x ${p.quantity}개 = ${(p.price * p.quantity).toLocaleString()}원</li>`
+                        ).join('')}
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>총 금액:</strong> <span style="color: #d4af37; font-size: 1.2rem;">${totalAmount.toLocaleString()}원</span></p>
+                `;
+                orderDetails.classList.add('active');
+                
+                // 9. 상태 업데이트
+                await loadStatus();
+                
+            } catch (error) {
+                console.error('Error creating test order:', error);
+                loading.classList.remove('active');
+                showMessage('❌ 오류: ' + error.message, 'error');
+            }
+        }
+        
+        // 메시지 표시
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.innerHTML = `<div class="message ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
