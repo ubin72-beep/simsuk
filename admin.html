@@ -364,12 +364,14 @@
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-image"></i> 제품 이미지 *</label>
-                        <input type="file" id="imageUpload" accept="image/*" onchange="previewImage()">
-                        <input type="hidden" id="productImageUrl">
+                        <label><i class="fas fa-image"></i> 제품 이미지 URL *</label>
+                        <input type="url" id="productImageUrl" required placeholder="https://example.com/image.jpg" 
+                               oninput="previewImageFromUrl()">
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            💡 이미지 URL을 입력하세요 (예: https://via.placeholder.com/400)
+                        </small>
                         <div id="imagePreview" style="display:none; margin-top:10px;">
                             <img id="previewImg" style="max-width: 200px; border-radius: 8px;">
-                            <button type="button" onclick="clearImage()" class="btn btn-secondary" style="margin-top: 10px;">이미지 삭제</button>
                         </div>
                     </div>
                     
