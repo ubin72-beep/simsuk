@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 연결 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 5px solid #28a745; }
+        .error { border-left: 5px solid #dc3545; }
+        .warning { border-left: 5px solid #ffc107; }
+        .info { border-left: 5px solid #17a2b8; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button {
+            background: #2c5f4f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1e4537;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .product-card img {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 API 연결 테스트</h1>
+    
+    <div class="test-box info">
+        <h2>현재 URL 정보</h2>
+        <pre id="urlInfo"></pre>
+    </div>
+
+    <div>
+        <button onclick="testAPI1()">테스트 1: tables/products?limit=100</button>
+        <button onclick="testAPI2()">테스트 2: /tables/products?limit=100</button>
+        <button onclick="testAPI3()">테스트 3: ./tables/products?limit=100</button>
+        <button onclick="testAPI4()">테스트 4: 절대 경로</button>
+        <button onclick="location.reload()">🔄 새로고침</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        // URL 정보 표시
+        document.getElementById('urlInfo').textContent = `
+현재 페이지: ${window.location.href}
+Base URL: ${window.location.origin}
+Pathname: ${window.location.pathname}
+        `.trim();
+
+        async function testAPI1() {
+            await testAPICall('tables/products?limit=100', '테스트 1: 상대 경로 (tables/products)');
+        }
+
+        async function testAPI2() {
+            await testAPICall('/tables/products?limit=100', '테스트 2: 루트 상대 경로 (/tables/products)');
+        }
+
+        async function testAPI3() {
+            await testAPICall('./tables/products?limit=100', '테스트 3: 현재 디렉토리 (./tables/products)');
+        }
+
+        async function testAPI4() {
+            const baseUrl = window.location.origin;
+            await testAPICall(`${baseUrl}/tables/products?limit=100`, '테스트 4: 절대 경로');
+        }
+
+        async function testAPICall(url, title) {
+            const resultsDiv = document.getElementById('results');
+            const testId = Date.now();
+            
+            // 로딩 표시
+            const loadingBox = document.createElement('div');
+            loadingBox.id = `test-${testId}`;
+            loadingBox.className = 'test-box warning';
+            loadingBox.innerHTML = `
+                <h3>${title}</h3>
+                <p>🔄 로딩 중...</p>
+                <p><strong>URL:</strong> <code>${url}</code></p>
+            `;
+            resultsDiv.insertBefore(loadingBox, resultsDiv.firstChild);
+
+            try {
+                console.log(`Fetching: ${url}`);
+                const startTime = Date.now();
+                
+                const response = await fetch(url);
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                console.log(`Response status: ${response.status}`);
+                console.log(`Response time: ${duration}ms`);
+                
+                const contentType = response.headers.get('content-type');
+                let result;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    result = await response.text();
+                }
+                
+                console.log('Result:', result);
+                
+                if (response.ok) {
+                    loadingBox.className = 'test-box success';
+                    loadingBox.innerHTML = `
+                        <h3>✅ ${title}</h3>
+                        <p><strong>URL:</strong> <code>${url}</code></p>
+                        <p><strong>상태:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>응답 시간:</strong> ${duration}ms</p>
+                        <p><strong>Content-Type:</strong> ${contentType}</p>
+                        <h4>응답 데이터:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                        ${result.data ? `
+                            <h4>제품 목록 (${result.data.length}개):</h4>
+                            <div>
+                                ${result.data.slice(0, 3).map(p => `
+                                    <div class="product-card">
+                                        <img src="${p.image_url}" alt="${p.name}" onerror="this.style.display='none'">
+                                        <strong>${p.name}</strong> - ${p.price.toLocaleString()}원<br>
+                                        카테고리: ${p.category} | 재료: ${p.materials}
+                                    </div>
+                                `).join('')}
+                                ${result.data.length > 3 ? `<p>... 외 ${result.data.length - 3}개</p>` : ''}
+                            </div>
+                        ` : ''}
+                    `;
+                } else {
+                    loadingBox.className = 'test-box error';
+                    loadingBox.innerHTML = `
+                        <h3>❌ ${title}</h3>
+                        <p><strong>URL:</strong> <code>${url}</code></p>
+                        <p><strong>상태:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>응답 시간:</strong> ${duration}ms</p>
+                        <h4>응답 내용:</h4>
+                        <pre>${typeof result === 'string' ? result : JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                loadingBox.className = 'test-box error';
+                loadingBox.innerHTML = `
+                    <h3>❌ ${title}</h3>
+                    <p><strong>URL:</strong> <code>${url}</code></p>
+                    <p><strong>오류:</strong> ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+
+        // 페이지 로드 시 자동으로 테스트 1 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                console.log('Auto-running Test 1...');
+                testAPI1();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
