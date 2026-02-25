@@ -90,14 +90,17 @@ function handleLogin() {
 
 // 관리자 페이지 표시
 function showAdminPage() {
-    loadProducts();
-    loadOrders();
-    
-    // 알림 권한 요청
-    requestNotificationPermission();
-    
-    // 자동 새로고침 초기화
-    initializeAutoRefresh();
+    // 다른 스크립트 로드를 기다림
+    setTimeout(() => {
+        loadProducts();
+        loadOrders();
+        
+        // 알림 권한 요청
+        requestNotificationPermission();
+        
+        // 자동 새로고침 초기화
+        initializeAutoRefresh();
+    }, 100); // 100ms 대기
 }
 
 // 로그아웃
@@ -122,7 +125,11 @@ function switchTab(tabName, event) {
     document.getElementById(tabName + 'Tab').classList.add('active');
     
     if (tabName === 'dashboard') {
-        loadDashboard();
+        if (typeof loadDashboard === 'function') {
+            loadDashboard();
+        } else {
+            console.warn('⚠️ [Admin] loadDashboard 함수가 아직 로드되지 않음');
+        }
     } else if (tabName === 'products') {
         loadProducts();
     } else if (tabName === 'orders') {
@@ -287,7 +294,17 @@ function filterProducts() {
     }
     
     filteredProducts = filtered;
-    searchProducts(); // 검색 적용
+    
+    // searchProducts 함수가 로드되었는지 확인
+    if (typeof searchProducts === 'function') {
+        searchProducts(); // 검색 적용
+    } else {
+        console.warn('⚠️ [Admin] searchProducts 함수가 아직 로드되지 않음');
+        // 직접 렌더링
+        if (typeof renderProductsTable === 'function') {
+            renderProductsTable(filteredProducts);
+        }
+    }
 }
 
 // 통계 업데이트
@@ -650,7 +667,7 @@ async function handleProductSubmit(e) {
                     updated_at: Date.now()
                 };
                 console.log(`✅ [Admin] 제품 수정 완료: ${productData.name}`);
-                showToast('제품이 수정되었습니다', 'success');
+                showToast('제품이 수정되었습니다. 메인 페이지에서 5초 이내에 자동으로 업데이트됩니다.', 'success');
             } else {
                 throw new Error('제품을 찾을 수 없습니다');
             }
@@ -665,7 +682,7 @@ async function handleProductSubmit(e) {
             };
             adminProducts.push(newProduct);
             console.log(`✅ [Admin] 제품 추가 완료: ${productData.name}`);
-            showToast('제품이 추가되었습니다', 'success');
+            showToast('제품이 추가되었습니다. 메인 페이지에서 5초 이내에 자동으로 표시됩니다.', 'success');
         }
         
         // localStorage에 저장 (메인 페이지와 동기화)
@@ -673,7 +690,15 @@ async function handleProductSubmit(e) {
         console.log('💾 [Admin] 제품 데이터를 localStorage에 저장 (메인 페이지와 동기화)');
         
         closeProductModal();
-        loadProducts(); // 제품 목록 다시 렌더링
+        
+        // 제품 관리 탭으로 자동 전환 (새로 추가된 제품 확인 가능)
+        if (!currentEditId) {
+            switchTab('products');
+            console.log('📍 [Admin] 제품 관리 탭으로 자동 이동 (새 제품 확인)');
+        } else {
+            loadProducts(); // 수정 시에는 현재 탭 유지
+        }
+        
         updateStats(); // 통계 업데이트
         
     } catch (error) {
@@ -705,7 +730,7 @@ async function deleteProduct(productId) {
             console.log('💾 [Admin] 제품 삭제 후 localStorage 업데이트');
             
             console.log(`✅ [Admin] 제품 삭제 완료`);
-            showToast('제품이 삭제되었습니다', 'success');
+            showToast('제품이 삭제되었습니다. 메인 페이지에서 5초 이내에 자동으로 반영됩니다.', 'success');
             loadProducts(); // 제품 목록 다시 렌더링
             updateStats(); // 통계 업데이트
         } else {
@@ -756,7 +781,7 @@ async function copyProduct(productId) {
         console.log('💾 [Admin] 제품 복사 후 localStorage 업데이트');
         
         console.log(`✅ [Admin] 제품 복사 완료: ${newProduct.name}`);
-        showToast('제품이 복사되었습니다', 'success');
+        showToast('제품이 복사되었습니다. 메인 페이지에서 5초 이내에 자동으로 표시됩니다.', 'success');
         loadProducts(); // 제품 목록 다시 렌더링
         updateStats(); // 통계 업데이트
         
