@@ -924,6 +924,24 @@ function checkout() {
 
 // ===== Show Order Contact Form =====
 function showOrderContactForm() {
+    // 저장된 고객 정보 불러오기
+    const savedCustomer = localStorage.getItem('customerInfo');
+    let customerData = {
+        name: '',
+        phone: '',
+        email: '',
+        kakao: '',
+        address: ''
+    };
+    
+    if (savedCustomer) {
+        try {
+            customerData = JSON.parse(savedCustomer);
+            console.log('✅ 저장된 고객 정보 불러옴:', customerData);
+        } catch (e) {
+            console.error('고객 정보 파싱 오류:', e);
+        }
+    }
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('modalBody');
     
@@ -994,6 +1012,7 @@ function showOrderContactForm() {
                     <i class="fas fa-user"></i> 이름 *
                 </label>
                 <input type="text" id="orderName" required 
+                    value="${customerData.name || ''}"
                     style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
                     placeholder="홍길동">
             </div>
@@ -1003,6 +1022,7 @@ function showOrderContactForm() {
                     <i class="fas fa-phone"></i> 전화번호 *
                 </label>
                 <input type="tel" id="orderPhone" required 
+                    value="${customerData.phone || ''}"
                     style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
                     placeholder="010-1234-5678">
             </div>
@@ -1012,6 +1032,7 @@ function showOrderContactForm() {
                     <i class="fas fa-envelope"></i> 이메일 (선택)
                 </label>
                 <input type="email" id="orderEmail"
+                    value="${customerData.email || ''}"
                     style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
                     placeholder="example@email.com">
             </div>
@@ -1021,6 +1042,7 @@ function showOrderContactForm() {
                     <i class="fab fa-kickstarter"></i> 카카오톡 ID (선택)
                 </label>
                 <input type="text" id="orderKakao"
+                    value="${customerData.kakao || ''}"
                     style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
                     placeholder="카카오톡 ID">
             </div>
@@ -1029,6 +1051,17 @@ function showOrderContactForm() {
                 <label style="font-weight: 600; color: var(--dark-color);">
                     <i class="fas fa-map-marker-alt"></i> 배송지 주소 *
                 </label>
+                <textarea id="orderAddress" required rows="3"
+                    style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; resize: vertical;"
+                    placeholder="서울시 강남구 테헤란로 123, 456호">${customerData.address || ''}</textarea>
+                ${savedCustomer ? `
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 6px; margin-top: 5px;">
+                    <i class="fas fa-info-circle" style="color: #1976d2;"></i>
+                    <span style="color: #1565c0; font-size: 0.9rem; margin-left: 5px;">
+                        이전 주문 정보가 자동으로 입력되었습니다. 수정 가능합니다.
+                    </span>
+                </div>
+                ` : ''}
                 <textarea id="orderAddress" required rows="3"
                     style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; resize: vertical;"
                     placeholder="서울시 강남구 테헤란로 123&#10;아파트 101동 1001호"></textarea>
@@ -1105,6 +1138,17 @@ async function handleOrderSubmit(e) {
     const kakao = document.getElementById('orderKakao').value;
     const address = document.getElementById('orderAddress').value;
     const memo = document.getElementById('orderMemo').value;
+    
+    // 고객 정보 저장 (다음 주문 시 자동 입력용)
+    const customerInfo = {
+        name: name,
+        phone: phone,
+        email: email,
+        kakao: kakao,
+        address: address
+    };
+    localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+    console.log('✅ 고객 정보 저장됨:', customerInfo);
     
     // 가격 계산
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -1197,6 +1241,12 @@ ${memo || '없음'}
         
         // 이메일 클라이언트 열기
         window.location.href = `mailto:simsukbiz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        
+        // 주문 정보를 localStorage에 저장 (최근 주문 자동 입력용)
+        localStorage.setItem('lastOrderNumber', orderNumber);
+        localStorage.setItem('lastOrderPhone', phone);
+        localStorage.setItem('lastOrderDate', new Date().toISOString());
+        console.log('✅ 주문 정보 저장됨:', { orderNumber, phone });
         
         // 성공 메시지 표시
         setTimeout(() => {
@@ -1313,9 +1363,14 @@ ${memo || '없음'}
                         </p>
                     </div>
                     
-                    <button class="btn btn-primary" onclick="closeProductModal()" style="padding: 15px 40px; font-size: 1.1rem;">
-                        확인
-                    </button>
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn btn-primary" onclick="viewMyOrder()" style="flex: 1; padding: 15px; font-size: 1.1rem;">
+                            <i class="fas fa-search"></i> 내 주문 조회
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeProductModal()" style="padding: 15px 30px; font-size: 1.1rem;">
+                            <i class="fas fa-check"></i> 확인
+                        </button>
+                    </div>
                 </div>
             `;
             cart = [];
@@ -1446,6 +1501,47 @@ function openOrderTracking(e) {
     const modal = document.getElementById('orderTrackingModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // 최근 주문 정보 자동 입력
+    const lastOrderNumber = localStorage.getItem('lastOrderNumber');
+    const lastOrderPhone = localStorage.getItem('lastOrderPhone');
+    
+    if (lastOrderNumber) {
+        document.getElementById('trackingOrderNumber').value = lastOrderNumber;
+        console.log('✅ 최근 주문번호 자동 입력:', lastOrderNumber);
+    }
+    if (lastOrderPhone) {
+        document.getElementById('trackingPhone').value = lastOrderPhone;
+        console.log('✅ 최근 휴대폰 번호 자동 입력:', lastOrderPhone);
+    }
+    
+    // 자동 입력된 경우 안내 메시지
+    if (lastOrderNumber && lastOrderPhone) {
+        const resultsContainer = document.getElementById('trackingResults');
+        resultsContainer.innerHTML = `
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                <i class="fas fa-info-circle" style="color: #1976d2;"></i>
+                <span style="color: #1565c0; margin-left: 10px; font-weight: 500;">
+                    최근 주문 정보가 자동으로 입력되었습니다.
+                </span>
+                <p style="margin: 10px 0 0; color: #1976d2; font-size: 0.9rem;">
+                    "조회하기" 버튼을 클릭하시거나, 다른 주문을 조회하시려면 정보를 수정해주세요.
+                </p>
+            </div>
+        `;
+    }
+}
+
+// 주문 완료 후 바로 조회 페이지로
+function viewMyOrder() {
+    closeProductModal();
+    setTimeout(() => {
+        openOrderTracking();
+        // 자동으로 조회 실행
+        setTimeout(() => {
+            trackOrder();
+        }, 500);
+    }, 300);
 }
 
 function closeOrderTracking() {
