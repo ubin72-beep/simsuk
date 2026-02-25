@@ -145,6 +145,22 @@
                     </div>
                 </div>
                 
+                <!-- 최근 추가한 제품 -->
+                <div class="table-container" style="margin-top: 20px;">
+                    <div class="table-header">
+                        <h2><i class="fas fa-box-open"></i> 최근 추가한 제품</h2>
+                        <button class="btn btn-secondary" onclick="switchTab('products', event)">
+                            <i class="fas fa-list"></i> 전체 제품 보기
+                        </button>
+                    </div>
+                    <div id="recentProductsContainer" style="padding: 30px;">
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>데이터 로딩 중...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 최근 주문 -->
                 <div class="table-container" style="margin-top: 20px;">
                     <div class="table-header">
@@ -488,6 +504,19 @@
     <script src="js/admin-notifications.js"></script>
     <script src="js/admin-export.js"></script>
     <script src="js/admin-shipping.js"></script>
+    
+    <!-- ✅ 모든 스크립트 로드 확인 -->
+    <script>
+    console.log('✅ 모든 관리자 스크립트 로드 완료');
+    console.log('- searchProducts:', typeof searchProducts);
+    console.log('- renderProductsTable:', typeof renderProductsTable);
+    console.log('- loadDashboard:', typeof loadDashboard);
+    console.log('- loadRecentProducts:', typeof loadRecentProducts);
+    
+    // 전역 변수 등록 (다른 스크립트에서 접근 가능하도록)
+    window.adminProducts = window.adminProducts || [];
+    window.adminOrders = window.adminOrders || [];
+    </script>
     
     <!-- 🔧 주문 모달 수정 패치 (products 파싱 개선) -->
     <script>
