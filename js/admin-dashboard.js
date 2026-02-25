@@ -12,6 +12,7 @@ async function loadDashboard() {
             loadSalesChart(),
             loadCategoryChart(),
             loadTopProducts(),
+            loadRecentProducts(), // 최근 추가한 제품
             loadRecentOrders()
         ]);
     } catch (error) {
@@ -214,21 +215,21 @@ async function loadCategoryChart() {
     }
 }
 
-// 인기 제품 TOP 5
+// 인기 제품 TOP 5 - GitHub Pages 데모 데이터
 async function loadTopProducts() {
-    try {
-        const response = await fetch('tables/orders?limit=1000');
-        const result = await response.json();
-        
-        if (!result.data || result.data.length === 0) {
-            document.getElementById('topProductsContainer').innerHTML = '<div class="empty-state"><p>주문 데이터가 없습니다</p></div>';
-            return;
-        }
-        
-        // 제품별 판매 건수 집계
-        const productCounts = {};
-        
-        result.data.forEach(order => {
+    console.log('🏆 [Dashboard] 인기 제품 로딩...');
+    
+    const orders = window.adminOrders || [];
+    
+    if (orders.length === 0) {
+        document.getElementById('topProductsContainer').innerHTML = '<div class="empty-state"><p>주문 데이터가 없습니다</p></div>';
+        return;
+    }
+    
+    // 제품별 판매 건수 집계
+    const productCounts = {};
+    
+    orders.forEach(order => {
             if (order.status === '취소') return;
             
             try {
@@ -258,6 +259,8 @@ async function loadTopProducts() {
             return;
         }
         
+        console.log(`✅ [Dashboard] 인기 제품 TOP ${topProducts.length}`);
+        
         // HTML 생성
         const html = `
             <div style="display: grid; gap: 15px;">
@@ -277,29 +280,31 @@ async function loadTopProducts() {
         `;
         
         document.getElementById('topProductsContainer').innerHTML = html;
-        
     } catch (error) {
         console.error('인기 제품 로딩 오류:', error);
         document.getElementById('topProductsContainer').innerHTML = '<div class="empty-state"><p>데이터 로딩 실패</p></div>';
     }
 }
 
-// 최근 주문 5건
+// 최근 주문 5건 - GitHub Pages 데모 데이터
 async function loadRecentOrders() {
-    try {
-        const response = await fetch('tables/orders?limit=5&sort=-created_at');
-        const result = await response.json();
-        
-        if (!result.data || result.data.length === 0) {
-            document.getElementById('recentOrdersContainer').innerHTML = '<div class="empty-state"><p>최근 주문이 없습니다</p></div>';
-            return;
-        }
-        
-        displayOrders(result.data, 'recentOrdersContainer');
-        
-    } catch (error) {
-        console.error('최근 주문 로딩 오류:', error);
+    console.log('📋 [Dashboard] 최근 주문 로딩...');
+    
+    const orders = window.adminOrders || [];
+    
+    if (orders.length === 0) {
+        document.getElementById('recentOrdersContainer').innerHTML = '<div class="empty-state"><p>최근 주문이 없습니다</p></div>';
+        return;
     }
+    
+    // 최근 5건만 가져오기 (created_at 기준 내림차순)
+    const recentOrders = [...orders]
+        .sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+        .slice(0, 5);
+    
+    console.log(`✅ [Dashboard] 최근 주문 ${recentOrders.length}건`);
+    
+    displayOrders(recentOrders, 'recentOrdersContainer');
 }
 
 // displayOrders 함수 오버로드 (컨테이너 ID 지정 가능)
@@ -370,3 +375,87 @@ function displayOrdersInContainer(orders, containerId) {
         </table>
     `;
 }
+
+// 최근 추가한 제품 표시
+async function loadRecentProducts() {
+    console.log('📦 [Dashboard] 최근 추가한 제품 로딩...');
+    
+    const container = document.getElementById('recentProductsContainer');
+    
+    // adminProducts가 없으면 빈 배열 사용
+    const products = window.adminProducts || [];
+    
+    if (products.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>등록된 제품이 없습니다</h3>
+                <p style="color: #999; margin-top: 10px;">새 제품을 추가하여 시작하세요</p>
+                <button class="btn btn-primary" onclick="switchTab('products', event)" style="margin-top: 15px;">
+                    <i class="fas fa-plus"></i> 제품 추가하기
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // 최근 추가한 제품 순으로 정렬 (created_at 기준)
+    const recentProducts = [...products]
+        .sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+        .slice(0, 5);
+    
+    console.log(`✅ [Dashboard] 최근 제품 ${recentProducts.length}개 로드 완료`);
+    
+    container.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+            ${recentProducts.map((product, index) => {
+                const isNew = index === 0; // 가장 최근 제품
+                return `
+                    <div style="background: white; border: 2px solid ${isNew ? '#d4af37' : '#e0e0e0'}; border-radius: 12px; padding: 20px; position: relative; transition: all 0.3s;">
+                        ${isNew ? '<div style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #d4af37, #f4e4a3); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 8px rgba(212,175,55,0.3);"><i class="fas fa-star"></i> NEW</div>' : ''}
+                        
+                        <img src="${product.image_url}" 
+                             style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;"
+                             onerror="this.src='https://via.placeholder.com/280x180/2c5f4f/ffffff?text=No+Image'">
+                        
+                        <div style="margin-bottom: 10px;">
+                            <h3 style="font-size: 1.1rem; margin: 0 0 8px 0; color: #2c5f4f;">
+                                ${product.name}
+                                ${product.featured ? '<i class="fas fa-star" style="color:#d4af37;margin-left:5px;font-size:0.9rem;"></i>' : ''}
+                            </h3>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span style="background: #2c5f4f; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                    ${product.category}
+                                </span>
+                                <span style="color: #d4af37; font-size: 1.1rem; font-weight: 700;">
+                                    ${formatPrice(product.price)}원
+                                </span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #666;">
+                                ${product.in_stock ? '<span style="color:#4caf50;font-weight:600;">✓ 재고있음</span>' : '<span style="color:#f44336;font-weight:600;">✗ 품절</span>'}
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; margin-top: 15px;">
+                            <button class="btn btn-sm btn-secondary" onclick="editProduct('${product.id}')" style="flex: 1;">
+                                <i class="fas fa-edit"></i> 수정
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="copyProduct('${product.id}')" style="flex: 1;">
+                                <i class="fas fa-copy"></i> 복사
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        
+        ${products.length > 5 ? `
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="switchTab('products', event)">
+                    <i class="fas fa-list"></i> 전체 제품 보기 (${products.length}개)
+                </button>
+            </div>
+        ` : ''}
+    `;
+}
+
