@@ -19,52 +19,59 @@ async function loadDashboard() {
     }
 }
 
-// 매출 그래프 (최근 7일)
+// 매출 그래프 (최근 7일) - GitHub Pages 데모 데이터
 async function loadSalesChart() {
-    try {
-        const response = await fetch('tables/orders?limit=1000');
-        const result = await response.json();
+    console.log('📊 [Dashboard] 매출 그래프 로딩...');
+    
+    // adminOrders가 없으면 빈 배열 사용
+    const orders = window.adminOrders || [];
+    
+    if (orders.length === 0) {
+        console.log('⚠️ [Dashboard] 주문 데이터 없음');
+        return;
+    }
+    
+    // 최근 7일 날짜 생성
+    const days = [];
+    const salesData = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        days.push(`${date.getMonth() + 1}/${date.getDate()}`);
         
-        if (!result.data || result.data.length === 0) {
-            return;
-        }
+        // 해당 날짜의 매출 계산
+        const dayOrders = orders.filter(order => {
+            const orderDate = new Date(order.order_date || order.created_at);
+            return orderDate.toISOString().split('T')[0] === dateStr &&
+                   order.status !== '취소';
+        });
         
-        // 최근 7일 날짜 생성
-        const days = [];
-        const salesData = [];
-        const today = new Date();
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-            days.push(`${date.getMonth() + 1}/${date.getDate()}`);
-            
-            // 해당 날짜의 매출 계산
-            const dayOrders = result.data.filter(order => {
-                const orderDate = new Date(order.order_date || order.created_at);
-                return orderDate.toISOString().split('T')[0] === dateStr &&
-                       order.status !== '취소';
-            });
-            
-            const dayTotal = dayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
-            salesData.push(dayTotal);
-        }
-        
-        // 차트 생성
-        const ctx = document.getElementById('salesChart');
-        if (!ctx) return;
-        
-        if (salesChart) {
-            salesChart.destroy();
-        }
-        
-        salesChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: days,
-                datasets: [{
-                    label: '매출액 (원)',
+        const dayTotal = dayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+        salesData.push(dayTotal);
+    }
+    
+    console.log(`✅ [Dashboard] 매출 데이터: ${salesData.join(', ')}`);
+    
+    // 차트 생성
+    const ctx = document.getElementById('salesChart');
+    if (!ctx) {
+        console.warn('⚠️ [Dashboard] salesChart 요소를 찾을 수 없음');
+        return;
+    }
+    
+    if (salesChart) {
+        salesChart.destroy();
+    }
+    
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [{
+                label: '매출액 (원)',
                     data: salesData,
                     borderColor: '#2c5f4f',
                     backgroundColor: 'rgba(44, 95, 79, 0.1)',
