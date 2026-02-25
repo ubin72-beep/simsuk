@@ -134,8 +134,37 @@ function switchTab(tabName, event) {
 async function loadProducts() {
     console.log('📦 [Admin] 제품 로딩 시작...');
     
-    // GitHub Pages에서는 API가 없으므로 데모 데이터 사용
-    adminProducts = [
+    // localStorage에서 제품 불러오기
+    const savedProducts = localStorage.getItem('adminProducts');
+    
+    if (savedProducts) {
+        try {
+            adminProducts = JSON.parse(savedProducts);
+            console.log(`✅ [Admin] localStorage에서 제품 ${adminProducts.length}개 로드`);
+        } catch (e) {
+            console.warn('⚠️ [Admin] localStorage 파싱 오류:', e);
+            adminProducts = getDefaultProducts();
+            localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+        }
+    } else {
+        // localStorage에 제품이 없으면 기본 데이터 사용
+        console.log('⚠️ [Admin] localStorage에 제품 없음 - 기본 데이터 사용');
+        adminProducts = getDefaultProducts();
+        // localStorage에 저장
+        localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+        console.log('💾 [Admin] 기본 제품을 localStorage에 저장');
+    }
+    
+    filteredProducts = adminProducts;  // 초기화
+    console.log(`✅ [Admin] 제품 ${adminProducts.length}개 로드 완료`);
+    
+    updateStats();
+    filterProducts(); // 필터 적용하여 렌더링
+}
+
+// 기본 제품 데이터 반환
+function getDefaultProducts() {
+    return [
         {
             id: '1',
             name: '헤마타이트 목걸이',
@@ -215,12 +244,6 @@ async function loadProducts() {
             created_at: Date.now() - 86400000 * 5
         }
     ];
-    
-    filteredProducts = adminProducts;  // 초기화
-    console.log(`✅ [Admin] 제품 ${adminProducts.length}개 로드 완료 (데모 데이터)`);
-    
-    updateStats();
-    filterProducts(); // 필터 적용하여 렌더링
 }
 
 // 제품 필터링
@@ -645,6 +668,10 @@ async function handleProductSubmit(e) {
             showToast('제품이 추가되었습니다', 'success');
         }
         
+        // localStorage에 저장 (메인 페이지와 동기화)
+        localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+        console.log('💾 [Admin] 제품 데이터를 localStorage에 저장 (메인 페이지와 동기화)');
+        
         closeProductModal();
         loadProducts(); // 제품 목록 다시 렌더링
         updateStats(); // 통계 업데이트
@@ -672,6 +699,11 @@ async function deleteProduct(productId) {
         const index = adminProducts.findIndex(p => p.id === productId);
         if (index !== -1) {
             adminProducts.splice(index, 1);
+            
+            // localStorage에 저장 (메인 페이지와 동기화)
+            localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+            console.log('💾 [Admin] 제품 삭제 후 localStorage 업데이트');
+            
             console.log(`✅ [Admin] 제품 삭제 완료`);
             showToast('제품이 삭제되었습니다', 'success');
             loadProducts(); // 제품 목록 다시 렌더링
@@ -718,6 +750,11 @@ async function copyProduct(productId) {
         };
         
         adminProducts.push(newProduct);
+        
+        // localStorage에 저장 (메인 페이지와 동기화)
+        localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+        console.log('💾 [Admin] 제품 복사 후 localStorage 업데이트');
+        
         console.log(`✅ [Admin] 제품 복사 완료: ${newProduct.name}`);
         showToast('제품이 복사되었습니다', 'success');
         loadProducts(); // 제품 목록 다시 렌더링
