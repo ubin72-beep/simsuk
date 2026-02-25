@@ -656,7 +656,7 @@ function openTermsModal(e, type) {
                 <ul>
                     <li>개인정보 보호책임자: 심석</li>
                     <li>연락처: 0502-1909-7788</li>
-                    <li>이메일: info@simsuk.com</li>
+                    <li>이메일: simsukbiz@gmail.com</li>
                 </ul>
                 
                 <h3>8. 개인정보 처리방침 변경</h3>
@@ -1076,7 +1076,7 @@ ${memo || '없음'}
         `;
         
         // 이메일 클라이언트 열기
-        window.location.href = `mailto:info@simsuk.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = `mailto:simsukbiz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         
         // 성공 메시지 표시
         setTimeout(() => {
@@ -1189,7 +1189,7 @@ ${memo || '없음'}
                             <i class="fas fa-phone"></i> 
                             문의사항: <strong>0502-1909-7788</strong><br>
                             <i class="fas fa-envelope"></i> 
-                            이메일: <strong>info@simsuk.com</strong>
+                            이메일: <strong>simsukbiz@gmail.com</strong>
                         </p>
                     </div>
                     
@@ -1464,7 +1464,7 @@ async function trackOrder() {
                     <i class="fas fa-info-circle"></i> 
                     배송 관련 문의: <strong>0502-1909-7788</strong><br>
                     <i class="fas fa-envelope"></i> 
-                    이메일: <strong>info@simsuk.com</strong>
+                    이메일: <strong>simsukbiz@gmail.com</strong>
                 </p>
             </div>
         `;
