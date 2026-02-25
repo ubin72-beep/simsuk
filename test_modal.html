@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 모달 테스트</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c5f4f;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #2c5f4f;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .test-button:hover {
+            background: #1a4031;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #2c5f4f;
+        }
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 관리자 페이지 모달 테스트</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: JavaScript 파일 로딩 확인</h2>
+            <button class="test-button" onclick="testJavaScriptLoading()">테스트 실행</button>
+            <div id="test1-result" class="result" style="display:none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 2: showAddProductModal 함수 존재 확인</h2>
+            <button class="test-button" onclick="testFunctionExists()">테스트 실행</button>
+            <div id="test2-result" class="result" style="display:none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 3: 모달 HTML 요소 존재 확인</h2>
+            <button class="test-button" onclick="testModalElement()">테스트 실행</button>
+            <div id="test3-result" class="result" style="display:none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 4: 모달 열기 시뮬레이션</h2>
+            <button class="test-button" onclick="testOpenModal()">모달 열기</button>
+            <div id="test4-result" class="result" style="display:none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 5: 실제 admin.html에서 테스트</h2>
+            <a href="admin.html" target="_blank">
+                <button class="test-button">관리자 페이지 열기</button>
+            </a>
+            <p style="margin-top: 10px; color: #666;">
+                관리자 페이지를 열고 F12 → Console에서 다음 명령어를 입력하세요:
+            </p>
+            <code style="background: #f0f0f0; padding: 10px; display: block; border-radius: 5px;">
+                showAddProductModal()
+            </code>
+        </div>
+    </div>
+
+    <script>
+        function testJavaScriptLoading() {
+            const result = document.getElementById('test1-result');
+            result.style.display = 'block';
+            
+            let html = '<h3>JavaScript 파일 로딩 상태:</h3>';
+            
+            // Check if we're on the test page
+            html += '<p class="success">✅ 테스트 페이지 로딩 완료</p>';
+            html += '<p style="color: #666;">💡 실제 관리자 페이지에서는 다음 파일들이 로드되어야 합니다:</p>';
+            html += '<ul>';
+            html += '<li>js/admin.js</li>';
+            html += '<li>js/admin-search-sort.js</li>';
+            html += '<li>js/admin-dashboard.js</li>';
+            html += '<li>js/admin-notifications.js</li>';
+            html += '<li>js/admin-export.js</li>';
+            html += '<li>js/admin-shipping.js</li>';
+            html += '</ul>';
+            
+            result.innerHTML = html;
+        }
+        
+        function testFunctionExists() {
+            const result = document.getElementById('test2-result');
+            result.style.display = 'block';
+            
+            let html = '<h3>함수 존재 여부:</h3>';
+            
+            if (typeof showAddProductModal === 'function') {
+                html += '<p class="success">✅ showAddProductModal 함수가 존재합니다</p>';
+            } else {
+                html += '<p class="error">❌ showAddProductModal 함수를 찾을 수 없습니다</p>';
+                html += '<p style="color: #666;">이 테스트 페이지에는 admin.js가 로드되지 않았습니다.</p>';
+                html += '<p style="color: #666;">실제 admin.html 페이지에서 테스트해주세요.</p>';
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        function testModalElement() {
+            const result = document.getElementById('test3-result');
+            result.style.display = 'block';
+            
+            let html = '<h3>모달 HTML 요소:</h3>';
+            
+            const modal = document.getElementById('productModal');
+            if (modal) {
+                html += '<p class="success">✅ #productModal 요소가 존재합니다</p>';
+            } else {
+                html += '<p class="error">❌ #productModal 요소를 찾을 수 없습니다</p>';
+                html += '<p style="color: #666;">이 테스트 페이지에는 모달 HTML이 없습니다.</p>';
+                html += '<p style="color: #666;">실제 admin.html 페이지에서 테스트해주세요.</p>';
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        function testOpenModal() {
+            const result = document.getElementById('test4-result');
+            result.style.display = 'block';
+            
+            let html = '<h3>모달 열기 시뮬레이션:</h3>';
+            html += '<p style="color: #666;">실제 admin.html 페이지에서만 작동합니다.</p>';
+            html += '<p style="color: #666;">아래 "관리자 페이지 열기" 버튼을 클릭하여 테스트하세요.</p>';
+            
+            result.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
