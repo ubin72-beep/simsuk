@@ -7,24 +7,34 @@ let autoRefreshInterval = null;
 
 // ===== Initialize App =====
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM Content Loaded - Initializing app...');
     initApp();
 });
 
 async function initApp() {
+    console.log('🔧 Starting app initialization...');
+    
     // Load products
+    console.log('📦 Step 1: Loading products...');
     await loadProducts();
     
     // Setup event listeners
+    console.log('🎯 Step 2: Setting up event listeners...');
     setupEventListeners();
     
     // Initialize smooth scrolling
+    console.log('📜 Step 3: Initializing smooth scroll...');
     initSmoothScroll();
     
     // Initialize header scroll effect
+    console.log('📍 Step 4: Initializing header scroll...');
     initHeaderScroll();
     
     // Start auto-refresh (every 30 seconds)
+    console.log('🔄 Step 5: Starting auto-refresh...');
     startAutoRefresh();
+    
+    console.log('✅ App initialization complete!');
 }
 
 // ===== Auto Refresh =====
@@ -57,11 +67,20 @@ function stopAutoRefresh() {
 // ===== Load Products from API =====
 async function loadProducts(silent = false) {
     try {
+        console.log('🔄 Loading products from API...');
         const response = await fetch('tables/products?limit=100');
+        console.log('📡 Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
+        console.log('📦 Products data received:', result);
         
         if (result.data && result.data.length > 0) {
             allProducts = result.data;
+            console.log(`✅ Loaded ${allProducts.length} products`);
             
             // Only update display if not silent or filter is active
             if (!silent || currentFilter !== 'all') {
@@ -73,13 +92,18 @@ async function loadProducts(silent = false) {
                 displayProducts(allProducts);
             }
         } else {
+            console.warn('⚠️ No products found in response');
             // Show empty state
             if (!silent) {
                 showEmptyState();
             }
         }
     } catch (error) {
-        console.error('Error loading products:', error);
+        console.error('❌ Error loading products:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+        });
         if (!silent) {
             showErrorState();
             showNotification('제품을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요');
@@ -89,15 +113,19 @@ async function loadProducts(silent = false) {
 
 // ===== Display Products =====
 function displayProducts(products) {
+    console.log('🎨 Displaying products:', products.length);
     const productsGrid = document.getElementById('productsGrid');
     
     if (!productsGrid) {
-        console.error('productsGrid element not found!');
+        console.error('❌ productsGrid element not found!');
         showNotification('페이지 구성 요소를 찾을 수 없습니다. 페이지를 새로고침해주세요');
         return;
     }
     
+    console.log('✅ productsGrid element found');
+    
     if (products.length === 0) {
+        console.log('⚠️ No products to display');
         productsGrid.innerHTML = `
             <div class="loading">
                 <i class="fas fa-box-open"></i>
@@ -107,6 +135,7 @@ function displayProducts(products) {
         return;
     }
     
+    console.log(`📋 Rendering ${products.length} product cards...`);
     productsGrid.innerHTML = products.map(product => `
         <div class="product-card" data-id="${product.id}" onclick="openProductModal('${product.id}')">
             <div class="product-image">
@@ -127,6 +156,7 @@ function displayProducts(products) {
             </div>
         </div>
     `).join('');
+    console.log('✅ Products rendered successfully');
 }
 
 // ===== Filter Products =====
