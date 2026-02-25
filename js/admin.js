@@ -578,48 +578,46 @@ function editProduct(productId) {
     document.body.style.overflow = 'hidden';
 }
 
-// 이미지 미리보기
-function previewImage() {
-    const file = document.getElementById('imageUpload').files[0];
-    if (!file) return;
+// URL에서 이미지 미리보기
+function previewImageFromUrl() {
+    const url = document.getElementById('productImageUrl').value.trim();
+    const previewImg = document.getElementById('previewImg');
+    const imagePreview = document.getElementById('imagePreview');
     
-    // 파일 타입 확인
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-        showToast('JPG, PNG, GIF, WebP 형식의 이미지만 업로드 가능합니다', 'error');
-        document.getElementById('imageUpload').value = '';
+    if (!url) {
+        imagePreview.style.display = 'none';
         return;
     }
     
-    // 파일 크기 확인 (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        showToast('이미지 크기는 5MB 이하여야 합니다', 'error');
-        document.getElementById('imageUpload').value = '';
+    // URL 유효성 간단 체크
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        imagePreview.style.display = 'none';
         return;
     }
     
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        document.getElementById('productImageUrl').value = e.target.result;
-        document.getElementById('previewImg').src = e.target.result;
-        document.getElementById('imagePreview').style.display = 'block';
-        showToast('이미지가 업로드되었습니다', 'success');
+    // 이미지 로드 테스트
+    const img = new Image();
+    img.onload = function() {
+        previewImg.src = url;
+        imagePreview.style.display = 'block';
     };
-    
-    reader.onerror = function() {
-        showToast('이미지 업로드 중 오류가 발생했습니다', 'error');
-        document.getElementById('imageUpload').value = '';
+    img.onerror = function() {
+        imagePreview.style.display = 'none';
     };
-    
-    reader.readAsDataURL(file);
+    img.src = url;
 }
 
-// 이미지 삭제
+// 이미지 미리보기 (기존 함수 - 사용 안 함)
+function previewImage() {
+    console.warn('⚠️ previewImage() 함수는 더 이상 사용되지 않습니다. URL 입력을 사용하세요.');
+// 이미지 미리보기 (기존 함수 - 사용 안 함)
+function previewImage() {
+    console.warn('⚠️ previewImage() 함수는 더 이상 사용되지 않습니다. URL 입력을 사용하세요.');
+}
+
+// 이미지 삭제 (기존 함수 - 사용 안 함)
 function clearImage() {
-    document.getElementById('imageUpload').value = '';
-    document.getElementById('productImageUrl').value = '';
-    document.getElementById('imagePreview').style.display = 'none';
+    console.warn('⚠️ clearImage() 함수는 더 이상 사용되지 않습니다.');
 }
 
 // 제품 저장 (GitHub Pages - 로컬 배열 업데이트)
@@ -686,8 +684,23 @@ async function handleProductSubmit(e) {
         }
         
         // localStorage에 저장 (메인 페이지와 동기화)
-        localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
-        console.log('💾 [Admin] 제품 데이터를 localStorage에 저장 (메인 페이지와 동기화)');
+        try {
+            localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+            console.log('💾 [Admin] 제품 데이터를 localStorage에 저장 (메인 페이지와 동기화)');
+        } catch (storageError) {
+            if (storageError.name === 'QuotaExceededError') {
+                console.error('❌ [Admin] localStorage 용량 초과!');
+                showToast('❌ 저장 공간 부족: 이미지 URL을 사용해주세요 (base64 불가)', 'error');
+                
+                // 방금 추가한 제품 롤백
+                if (!currentEditId) {
+                    adminProducts.pop();
+                }
+                
+                throw new Error('localStorage 용량 초과. 제품 이미지는 URL을 사용해주세요.');
+            }
+            throw storageError;
+        }
         
         closeProductModal();
         
@@ -726,8 +739,13 @@ async function deleteProduct(productId) {
             adminProducts.splice(index, 1);
             
             // localStorage에 저장 (메인 페이지와 동기화)
-            localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
-            console.log('💾 [Admin] 제품 삭제 후 localStorage 업데이트');
+            try {
+                localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+                console.log('💾 [Admin] 제품 삭제 후 localStorage 업데이트');
+            } catch (storageError) {
+                console.error('❌ [Admin] localStorage 저장 실패:', storageError);
+                showToast('저장 중 오류가 발생했습니다', 'error');
+            }
             
             console.log(`✅ [Admin] 제품 삭제 완료`);
             showToast('제품이 삭제되었습니다. 메인 페이지에서 5초 이내에 자동으로 반영됩니다.', 'success');
@@ -777,8 +795,18 @@ async function copyProduct(productId) {
         adminProducts.push(newProduct);
         
         // localStorage에 저장 (메인 페이지와 동기화)
-        localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
-        console.log('💾 [Admin] 제품 복사 후 localStorage 업데이트');
+        try {
+            localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
+            console.log('💾 [Admin] 제품 복사 후 localStorage 업데이트');
+        } catch (storageError) {
+            if (storageError.name === 'QuotaExceededError') {
+                console.error('❌ [Admin] localStorage 용량 초과!');
+                adminProducts.pop(); // 롤백
+                showToast('❌ 저장 공간 부족: 제품을 복사할 수 없습니다', 'error');
+                throw new Error('localStorage 용량 초과');
+            }
+            throw storageError;
+        }
         
         console.log(`✅ [Admin] 제품 복사 완료: ${newProduct.name}`);
         showToast('제품이 복사되었습니다. 메인 페이지에서 5초 이내에 자동으로 표시됩니다.', 'success');
