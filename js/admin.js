@@ -1,5 +1,5 @@
 // 전역 변수 (변수명 충돌 방지를 위해 admin 접두사 사용)
-const ADMIN_PASSWORD = 'simsuk2024';
+const ADMIN_PASSWORD = 'admin';  // 간단한 비밀번호로 변경
 let adminProducts = [];  // main.js의 allProducts와 충돌 방지
 let adminOrders = [];    // 주문 데이터
 let currentEditId = null;
@@ -47,6 +47,9 @@ function showLoginForm() {
                             style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;"
                             onkeypress="if(event.key==='Enter') handleLogin();"
                         >
+                        <div style="margin-top: 8px; padding: 8px 12px; background: #e3f2fd; border-radius: 6px; font-size: 0.85rem; color: #1565c0;">
+                            <i class="fas fa-info-circle"></i> 기본 비밀번호: <strong>admin</strong>
+                        </div>
                     </div>
                     
                     <button 
@@ -579,9 +582,11 @@ function clearImage() {
     document.getElementById('imagePreview').style.display = 'none';
 }
 
-// 제품 저장
+// 제품 저장 (GitHub Pages - 로컬 배열 업데이트)
 async function handleProductSubmit(e) {
     e.preventDefault();
+    
+    console.log('💾 [Admin] 제품 저장 시작...');
     
     // 탄생석 월 수집
     const birthstoneMonths = [];
@@ -609,63 +614,93 @@ async function handleProductSubmit(e) {
         special_occasions: specialOccasions
     };
     
-    try {
-        let response;
-        
-        if (currentEditId) {
-            response = await fetch(`tables/products/${currentEditId}`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(productData)
-            });
-        } else {
-            response = await fetch('tables/products', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(productData)
-            });
-        }
-        
-        if (response.ok) {
-            showToast(currentEditId ? '제품이 수정되었습니다' : '제품이 추가되었습니다', 'success');
-            closeProductModal();
-            loadProducts();
-        }
-    } catch (error) {
-        console.error('제품 저장 오류:', error);
-        showToast('제품 저장 중 오류가 발생했습니다. 다시 시도해주세요', 'error');
-    }
-}
-
-// 제품 삭제
-async function deleteProduct(productId) {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+    console.log('📝 [Admin] 제품 데이터:', productData);
     
     try {
-        const response = await fetch(`tables/products/${productId}`, {
-            method: 'DELETE'
-        });
-        
-        if (response.ok) {
-            showToast('제품이 삭제되었습니다', 'success');
-            loadProducts();
+        if (currentEditId) {
+            // 수정: adminProducts 배열에서 해당 제품 찾아서 업데이트
+            const index = adminProducts.findIndex(p => p.id === currentEditId);
+            if (index !== -1) {
+                adminProducts[index] = {
+                    ...adminProducts[index],
+                    ...productData,
+                    updated_at: Date.now()
+                };
+                console.log(`✅ [Admin] 제품 수정 완료: ${productData.name}`);
+                showToast('제품이 수정되었습니다', 'success');
+            } else {
+                throw new Error('제품을 찾을 수 없습니다');
+            }
+        } else {
+            // 추가: adminProducts 배열에 새 제품 추가
+            const newProduct = {
+                id: 'product_' + Date.now(),
+                ...productData,
+                stock: 10,
+                created_at: Date.now(),
+                updated_at: Date.now()
+            };
+            adminProducts.push(newProduct);
+            console.log(`✅ [Admin] 제품 추가 완료: ${productData.name}`);
+            showToast('제품이 추가되었습니다', 'success');
         }
+        
+        closeProductModal();
+        loadProducts(); // 제품 목록 다시 렌더링
+        updateStats(); // 통계 업데이트
+        
     } catch (error) {
-        console.error('삭제 오류:', error);
-        showToast('제품 삭제 중 오류가 발생했습니다. 다시 시도해주세요', 'error');
+        console.error('❌ [Admin] 제품 저장 오류:', error);
+        showToast('제품 저장 중 오류가 발생했습니다: ' + error.message, 'error');
     }
 }
 
-// 제품 복사
+// 제품 삭제 (GitHub Pages - 로컬 배열에서 삭제)
+async function deleteProduct(productId) {
+    const product = adminProducts.find(p => p.id === productId);
+    if (!product) {
+        showToast('제품을 찾을 수 없습니다', 'error');
+        return;
+    }
+    
+    if (!confirm(`"${product.name}"을(를) 정말 삭제하시겠습니까?`)) return;
+    
+    console.log(`🗑️ [Admin] 제품 삭제: ${product.name}`);
+    
+    try {
+        // adminProducts 배열에서 제품 제거
+        const index = adminProducts.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            adminProducts.splice(index, 1);
+            console.log(`✅ [Admin] 제품 삭제 완료`);
+            showToast('제품이 삭제되었습니다', 'success');
+            loadProducts(); // 제품 목록 다시 렌더링
+            updateStats(); // 통계 업데이트
+        } else {
+            throw new Error('제품을 찾을 수 없습니다');
+        }
+    } catch (error) {
+        console.error('❌ [Admin] 삭제 오류:', error);
+        showToast('제품 삭제 중 오류가 발생했습니다: ' + error.message, 'error');
+    }
+}
+
+// 제품 복사 (GitHub Pages - 로컬 배열에 복사본 추가)
 async function copyProduct(productId) {
     const product = adminProducts.find(p => p.id === productId);
-    if (!product) return;
+    if (!product) {
+        showToast('제품을 찾을 수 없습니다', 'error');
+        return;
+    }
     
     if (!confirm(`"${product.name}"을(를) 복사하시겠습니까?`)) return;
     
+    console.log(`📋 [Admin] 제품 복사: ${product.name}`);
+    
     try {
-        // 새 제품 데이터 생성 (ID 제외)
-        const newProductData = {
+        // 새 제품 데이터 생성 (ID 제외, 복사본 표시)
+        const newProduct = {
+            id: 'product_copy_' + Date.now(),
             name: product.name + ' (복사본)',
             category: product.category,
             price: product.price,
@@ -675,29 +710,22 @@ async function copyProduct(productId) {
             description: product.description,
             featured: false, // 복사본은 추천 해제
             in_stock: product.in_stock,
+            stock: product.stock || 10,
             birthstone_months: product.birthstone_months || [],
-            special_occasions: product.special_occasions || []
+            special_occasions: product.special_occasions || [],
+            created_at: Date.now(),
+            updated_at: Date.now()
         };
         
-        const response = await fetch('tables/products', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(newProductData)
-        });
+        adminProducts.push(newProduct);
+        console.log(`✅ [Admin] 제품 복사 완료: ${newProduct.name}`);
+        showToast('제품이 복사되었습니다', 'success');
+        loadProducts(); // 제품 목록 다시 렌더링
+        updateStats(); // 통계 업데이트
         
-        if (response.ok) {
-            const newProduct = await response.json();
-            showToast('제품이 복사되었습니다', 'success');
-            loadProducts();
-            
-            // 복사된 제품 자동 수정 모드로
-            setTimeout(() => {
-                editProduct(newProduct.id);
-            }, 500);
-        }
     } catch (error) {
-        console.error('제품 복사 오류:', error);
-        showToast('제품 복사 중 오류가 발생했습니다. 다시 시도해주세요', 'error');
+        console.error('❌ [Admin] 복사 오류:', error);
+        showToast('제품 복사 중 오류가 발생했습니다: ' + error.message, 'error');
     }
 }
 
