@@ -1,7 +1,7 @@
-// 전역 변수
+// 전역 변수 (변수명 충돌 방지를 위해 admin 접두사 사용)
 const ADMIN_PASSWORD = 'simsuk2024';
-let allProducts = [];
-let allOrders = [];
+let adminProducts = [];  // main.js의 allProducts와 충돌 방지
+let adminOrders = [];    // 주문 데이터
 let currentEditId = null;
 let filteredProducts = [];  // 검색/필터링된 제품
 let filteredOrders = [];    // 검색/필터링된 주문
@@ -127,31 +127,106 @@ function switchTab(tabName, event) {
     }
 }
 
-// 제품 로드
+// 제품 로드 (GitHub Pages - 데모 데이터 사용)
 async function loadProducts() {
-    try {
-        const response = await fetch('tables/products?limit=100');
-        const result = await response.json();
-        
-        if (result.data) {
-            allProducts = result.data;
-            filteredProducts = allProducts;  // 초기화
-            updateStats();
-            filterProducts(); // 필터 적용하여 렌더링
+    console.log('📦 [Admin] 제품 로딩 시작...');
+    
+    // GitHub Pages에서는 API가 없으므로 데모 데이터 사용
+    adminProducts = [
+        {
+            id: '1',
+            name: '헤마타이트 목걸이',
+            category: '목걸이',
+            price: 69000,
+            stock: 15,
+            description: '대지의 에너지를 담은 헤마타이트 목걸이',
+            image_url: 'https://via.placeholder.com/400x400/2c5f4f/ffffff?text=Hematite+Necklace',
+            birthstone_months: [1, 2, 3],
+            special_occasions: ['생일', '기념일'],
+            is_featured: true,
+            created_at: Date.now() - 86400000 * 10
+        },
+        {
+            id: '2',
+            name: '헤마타이트 팔찌',
+            category: '팔찌',
+            price: 49000,
+            stock: 20,
+            description: '그라운딩 효과가 뛰어난 헤마타이트 팔찌',
+            image_url: 'https://via.placeholder.com/400x400/2c5f4f/ffffff?text=Hematite+Bracelet',
+            birthstone_months: [4, 5, 6],
+            special_occasions: ['생일'],
+            is_featured: true,
+            created_at: Date.now() - 86400000 * 9
+        },
+        {
+            id: '3',
+            name: '헤마타이트 반지',
+            category: '반지',
+            price: 39000,
+            stock: 25,
+            description: '일상에서 착용 가능한 헤마타이트 반지',
+            image_url: 'https://via.placeholder.com/400x400/2c5f4f/ffffff?text=Hematite+Ring',
+            birthstone_months: [7, 8, 9],
+            special_occasions: ['기념일'],
+            is_featured: true,
+            created_at: Date.now() - 86400000 * 8
+        },
+        {
+            id: '4',
+            name: '가넷 목걸이 (1월)',
+            category: '목걸이',
+            price: 79000,
+            stock: 10,
+            description: '1월의 탄생석 가넷 목걸이',
+            image_url: 'https://via.placeholder.com/400x400/c41e3a/ffffff?text=Garnet+Necklace',
+            birthstone_months: [1],
+            special_occasions: ['생일', '기념일', '졸업'],
+            is_featured: false,
+            created_at: Date.now() - 86400000 * 7
+        },
+        {
+            id: '5',
+            name: '자수정 팔찌 (2월)',
+            category: '팔찌',
+            price: 59000,
+            stock: 12,
+            description: '2월의 탄생석 자수정 팔찌',
+            image_url: 'https://via.placeholder.com/400x400/9966cc/ffffff?text=Amethyst+Bracelet',
+            birthstone_months: [2],
+            special_occasions: ['생일'],
+            is_featured: false,
+            created_at: Date.now() - 86400000 * 6
+        },
+        {
+            id: '6',
+            name: '아쿠아마린 반지 (3월)',
+            category: '반지',
+            price: 89000,
+            stock: 8,
+            description: '3월의 탄생석 아쿠아마린 반지',
+            image_url: 'https://via.placeholder.com/400x400/7fffd4/333333?text=Aquamarine+Ring',
+            birthstone_months: [3],
+            special_occasions: ['기념일', '졸업'],
+            is_featured: false,
+            created_at: Date.now() - 86400000 * 5
         }
-    } catch (error) {
-        console.error('제품 로딩 오류:', error);
-        showToast('제품을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요', 'error');
-    }
+    ];
+    
+    filteredProducts = adminProducts;  // 초기화
+    console.log(`✅ [Admin] 제품 ${adminProducts.length}개 로드 완료 (데모 데이터)`);
+    
+    updateStats();
+    filterProducts(); // 필터 적용하여 렌더링
 }
 
 // 제품 필터링
 function filterProducts() {
-    const categoryFilter = document.getElementById('productCategoryFilter').value;
-    const birthstoneFilter = document.getElementById('productBirthstoneFilter').value;
-    const occasionFilter = document.getElementById('productOccasionFilter').value;
+    const categoryFilter = document.getElementById('productCategoryFilter')?.value || 'all';
+    const birthstoneFilter = document.getElementById('productBirthstoneFilter')?.value || 'all';
+    const occasionFilter = document.getElementById('productOccasionFilter')?.value || 'all';
     
-    let filtered = allProducts;
+    let filtered = adminProducts;
     
     // 카테고리 필터
     if (categoryFilter !== 'all') {
@@ -191,10 +266,10 @@ function filterProducts() {
 
 // 통계 업데이트
 function updateStats() {
-    const total = allProducts.length;
-    const necklaces = allProducts.filter(p => p.category === '목걸이').length;
-    const bracelets = allProducts.filter(p => p.category === '팔찌').length;
-    const rings = allProducts.filter(p => p.category === '반지').length;
+    const total = adminProducts.length;
+    const necklaces = adminProducts.filter(p => p.category === '목걸이').length;
+    const bracelets = adminProducts.filter(p => p.category === '팔찌').length;
+    const rings = adminProducts.filter(p => p.category === '반지').length;
     
     document.getElementById('totalProducts').textContent = total;
     document.getElementById('necklaceCount').textContent = necklaces;
@@ -207,35 +282,59 @@ function updateStats() {
     updateOrderStats();
 }
 
-// 주문 통계 업데이트
+// 주문 통계 업데이트 (GitHub Pages - 데모 데이터)
 async function updateOrderStats() {
-    try {
-        const response = await fetch('tables/orders?limit=1000');
-        const result = await response.json();
-        
-        if (result.data) {
-            const orders = result.data;
-            const totalOrders = orders.length;
-            const pendingOrders = orders.filter(o => o.status === '접수' || o.status === '확인중').length;
-            
-            document.getElementById('totalOrders').textContent = totalOrders;
-            document.getElementById('pendingOrders').textContent = pendingOrders;
-            
-            // 탭 배지 업데이트
-            updateTabBadges();
+    console.log('📊 [Admin] 주문 통계 업데이트...');
+    
+    // GitHub Pages에서는 API가 없으므로 데모 데이터 사용
+    adminOrders = [
+        {
+            id: 'ord1',
+            order_number: 'ORD-20260225-0001',
+            customer_name: '홍길동',
+            customer_phone: '010-1234-5678',
+            status: '접수',
+            total_amount: 69000,
+            created_at: Date.now() - 86400000 * 1
+        },
+        {
+            id: 'ord2',
+            order_number: 'ORD-20260224-0002',
+            customer_name: '김영희',
+            customer_phone: '010-9876-5432',
+            status: '배송중',
+            total_amount: 118000,
+            created_at: Date.now() - 86400000 * 2
+        },
+        {
+            id: 'ord3',
+            order_number: 'ORD-20260223-0003',
+            customer_name: '이철수',
+            customer_phone: '010-5555-6666',
+            status: '배송완료',
+            total_amount: 49000,
+            created_at: Date.now() - 86400000 * 5
         }
-    } catch (error) {
-        console.error('주문 통계 오류:', error);
-        showToast('주문 통계를 불러오는 중 오류가 발생했습니다', 'error');
-    }
+    ];
+    
+    const totalOrders = adminOrders.length;
+    const pendingOrders = adminOrders.filter(o => o.status === '접수' || o.status === '확인중').length;
+            
+    document.getElementById('totalOrders').textContent = totalOrders;
+    document.getElementById('pendingOrders').textContent = pendingOrders;
+    
+    console.log(`✅ [Admin] 주문 통계: 전체 ${totalOrders}개, 대기 ${pendingOrders}개 (데모 데이터)`);
+    
+    // 탭 배지 업데이트
+    updateTabBadges();
 }
 
 // 탭 배지 업데이트
 function updateTabBadges() {
     // 제품 배지
     const productsBadge = document.getElementById('productsTabBadge');
-    if (productsBadge && allProducts.length > 0) {
-        productsBadge.textContent = allProducts.length;
+    if (productsBadge && adminProducts.length > 0) {
+        productsBadge.textContent = adminProducts.length;
         productsBadge.style.display = 'block';
     }
     
@@ -389,7 +488,7 @@ function showAddProductModal() {
 
 // 제품 수정
 function editProduct(productId) {
-    const product = allProducts.find(p => p.id === productId);
+    const product = adminProducts.find(p => p.id === productId);
     if (!product) return;
     
     currentEditId = productId;
@@ -559,7 +658,7 @@ async function deleteProduct(productId) {
 
 // 제품 복사
 async function copyProduct(productId) {
-    const product = allProducts.find(p => p.id === productId);
+    const product = adminProducts.find(p => p.id === productId);
     if (!product) return;
     
     if (!confirm(`"${product.name}"을(를) 복사하시겠습니까?`)) return;
@@ -610,22 +709,79 @@ function closeProductModal() {
 }
 
 // 주문 로드
+// 주문 로드 (GitHub Pages - 데모 데이터)
 async function loadOrders() {
-    try {
-        const response = await fetch('tables/orders?limit=1000&sort=-created_at');
-        const result = await response.json();
-        
-        if (result.data && result.data.length > 0) {
-            allOrders = result.data;
-            filteredOrders = allOrders;  // 초기화
-            filterOrders();  // 필터 적용
-        } else {
-            document.getElementById('ordersTableContainer').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><h3>주문이 없습니다</h3></div>';
+    console.log('📦 [Admin] 주문 로딩 시작...');
+    
+    // GitHub Pages에서는 API가 없으므로 데모 데이터 사용
+    adminOrders = [
+        {
+            id: 'ord1',
+            order_number: 'ORD-20260225-0001',
+            customer_name: '홍길동',
+            customer_phone: '010-1234-5678',
+            customer_email: 'hong@example.com',
+            customer_kakao: 'hong_kakao',
+            shipping_address: '서울시 강남구 테헤란로 123\n아파트 101동 1001호',
+            special_request: '부재 시 경비실에 맡겨주세요',
+            products: JSON.stringify([
+                {id: '1', name: '헤마타이트 목걸이', price: 69000, quantity: 1}
+            ]),
+            subtotal: 69000,
+            shipping_fee: 0,
+            discount: 0,
+            total_amount: 69000,
+            status: '접수',
+            order_date: new Date(Date.now() - 86400000 * 1).toISOString(),
+            created_at: Date.now() - 86400000 * 1
+        },
+        {
+            id: 'ord2',
+            order_number: 'ORD-20260224-0002',
+            customer_name: '김영희',
+            customer_phone: '010-9876-5432',
+            customer_email: 'kim@example.com',
+            customer_kakao: '',
+            shipping_address: '서울시 송파구 올림픽로 300',
+            special_request: '빠른 배송 부탁드립니다',
+            products: JSON.stringify([
+                {id: '2', name: '헤마타이트 팔찌', price: 49000, quantity: 1},
+                {id: '1', name: '헤마타이트 목걸이', price: 69000, quantity: 1}
+            ]),
+            subtotal: 118000,
+            shipping_fee: 0,
+            discount: 0,
+            total_amount: 118000,
+            status: '배송중',
+            order_date: new Date(Date.now() - 86400000 * 2).toISOString(),
+            created_at: Date.now() - 86400000 * 2
+        },
+        {
+            id: 'ord3',
+            order_number: 'ORD-20260223-0003',
+            customer_name: '이철수',
+            customer_phone: '010-5555-6666',
+            customer_email: '',
+            customer_kakao: 'lee_kakao',
+            shipping_address: '부산시 해운대구 센텀중앙로 79',
+            special_request: '',
+            products: JSON.stringify([
+                {id: '2', name: '헤마타이트 팔찌', price: 49000, quantity: 1}
+            ]),
+            subtotal: 49000,
+            shipping_fee: 0,
+            discount: 0,
+            total_amount: 49000,
+            status: '배송완료',
+            order_date: new Date(Date.now() - 86400000 * 5).toISOString(),
+            created_at: Date.now() - 86400000 * 5
         }
-    } catch (error) {
-        console.error('주문 로딩 오류:', error);
-        showToast('주문을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요', 'error');
-    }
+    ];
+    
+    filteredOrders = adminOrders;  // 초기화
+    console.log(`✅ [Admin] 주문 ${adminOrders.length}개 로드 완료 (데모 데이터)`);
+    
+    filterOrders();  // 필터 적용
 }
 
 // 주문 표시
@@ -648,15 +804,16 @@ function displayOrders(orders, containerId = 'ordersTableContainer') {
 
 // 주문 필터
 function filterOrders() {
-    const filterValue = document.getElementById('orderStatusFilter').value;
-    const filtered = filterValue === 'all' ? allOrders : allOrders.filter(o => o.status === filterValue);
+    const filterElement = document.getElementById('orderStatusFilter');
+    const filterValue = filterElement ? filterElement.value : 'all';
+    const filtered = filterValue === 'all' ? adminOrders : adminOrders.filter(o => o.status === filterValue);
     filteredOrders = filtered;
     searchOrders(); // 검색 적용
 }
 
 // 주문 상세보기 - 🔧 products 파싱 수정
 function viewOrderDetail(orderId) {
-    const order = allOrders.find(o => o.id === orderId);
+    const order = adminOrders.find(o => o.id === orderId);
     if (!order) return;
     
     // 🔧 핵심 수정: products 파싱 개선
@@ -811,23 +968,22 @@ function closeOrderModal() {
     }
 }
 
-// 주문 상태 변경
+// 주문 상태 변경 (GitHub Pages - 로컬 업데이트만)
 async function updateOrderStatus(orderId, newStatus) {
-    try {
-        const response = await fetch(`tables/orders/${orderId}`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ status: newStatus })
-        });
-        
-        if (response.ok) {
-            showToast('주문 상태가 변경되었습니다', 'success');
-            closeOrderModal();
-            loadOrders();
-        }
-    } catch (error) {
-        console.error('상태 변경 오류:', error);
-        showToast('주문 상태 변경 중 오류가 발생했습니다. 다시 시도해주세요', 'error');
+    console.log(`📝 [Admin] 주문 상태 변경: ${orderId} → ${newStatus}`);
+    
+    // 로컬 adminOrders 배열에서 해당 주문 찾아서 상태 업데이트
+    const order = adminOrders.find(o => o.id === orderId);
+    if (order) {
+        order.status = newStatus;
+        console.log(`✅ [Admin] 주문 ${order.order_number} 상태 → ${newStatus}`);
+        showToast('주문 상태가 변경되었습니다', 'success');
+        closeOrderModal();
+        loadOrders(); // 테이블 다시 렌더링
+        updateStats(); // 통계 업데이트
+    } else {
+        console.error(`❌ [Admin] 주문 ${orderId}를 찾을 수 없습니다`);
+        showToast('주문을 찾을 수 없습니다', 'error');
     }
 }
 
