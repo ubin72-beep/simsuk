@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 데이터 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 5px solid #28a745; }
+        .error { border-left: 5px solid #dc3545; }
+        .warning { border-left: 5px solid #ffc107; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+        button {
+            background: #2c5f4f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛒 주문 데이터 테스트</h1>
+    
+    <div class="test-box">
+        <button onclick="testOrdersAPI()">📡 주문 API 테스트</button>
+        <button onclick="createTestOrder()">➕ 테스트 주문 생성</button>
+        <button onclick="location.href='admin.html'">⚙️ 관리자 페이지</button>
+        <button onclick="location.reload()">🔄 새로고침</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        async function testOrdersAPI() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="test-box warning"><p>⏳ 로딩 중...</p></div>';
+            
+            try {
+                console.log('📡 API 호출: tables/orders');
+                const response = await fetch('tables/orders?limit=100&sort=-created_at');
+                console.log('📥 응답 상태:', response.status);
+                
+                const result = await response.json();
+                console.log('📦 응답 데이터:', result);
+                
+                if (result.data && result.data.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="test-box success">
+                            <h3>✅ 주문 데이터 발견!</h3>
+                            <p><strong>총 주문 수:</strong> ${result.data.length}개</p>
+                            <h4>주문 목록:</h4>
+                            ${result.data.map((order, index) => `
+                                <div class="order-card">
+                                    <strong>${index + 1}. 주문번호:</strong> ${order.order_number || 'N/A'}<br>
+                                    <strong>고객명:</strong> ${order.customer_name || 'N/A'}<br>
+                                    <strong>전화번호:</strong> ${order.customer_phone || 'N/A'}<br>
+                                    <strong>주문 상태:</strong> ${order.status || 'N/A'}<br>
+                                    <strong>총 금액:</strong> ${(order.total_amount || 0).toLocaleString()}원<br>
+                                    <strong>주문일시:</strong> ${order.order_date ? new Date(order.order_date).toLocaleString() : 'N/A'}
+                                </div>
+                            `).join('')}
+                            <details>
+                                <summary>📋 전체 데이터 보기 (JSON)</summary>
+                                <pre>${JSON.stringify(result, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="test-box warning">
+                            <h3>⚠️ 주문 데이터 없음</h3>
+                            <p>등록된 주문이 없습니다.</p>
+                            <p>응답 데이터:</p>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                            <button onclick="createTestOrder()">테스트 주문 생성하기</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ 오류:', error);
+                resultsDiv.innerHTML = `
+                    <div class="test-box error">
+                        <h3>❌ API 오류</h3>
+                        <p><strong>오류 메시지:</strong> ${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function createTestOrder() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="test-box warning"><p>⏳ 테스트 주문 생성 중...</p></div>';
+            
+            const testOrder = {
+                order_number: `ORD-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}${String(new Date().getDate()).padStart(2,'0')}-${String(Math.floor(Math.random()*9999)+1).padStart(4,'0')}`,
+                customer_name: '테스트 고객',
+                customer_phone: '010-1234-5678',
+                customer_email: 'test@example.com',
+                customer_kakao: 'test_kakao',
+                shipping_address: '서울시 강남구 테헤란로 123',
+                special_request: '테스트 주문입니다',
+                products: JSON.stringify([
+                    {
+                        id: 'test1',
+                        name: '테스트 제품1',
+                        price: 45000,
+                        quantity: 1
+                    },
+                    {
+                        id: 'test2',
+                        name: '테스트 제품2',
+                        price: 52000,
+                        quantity: 2
+                    }
+                ]),
+                total_amount: 149000,
+                status: '접수',
+                order_date: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch('tables/orders', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(testOrder)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="test-box success">
+                            <h3>✅ 테스트 주문 생성 완료!</h3>
+                            <p><strong>주문번호:</strong> ${testOrder.order_number}</p>
+                            <p><strong>고객명:</strong> ${testOrder.customer_name}</p>
+                            <p><strong>총 금액:</strong> ${testOrder.total_amount.toLocaleString()}원</p>
+                            <button onclick="testOrdersAPI()">주문 목록 다시 확인</button>
+                            <details>
+                                <summary>생성된 데이터 보기</summary>
+                                <pre>${JSON.stringify(result, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="test-box error">
+                            <h3>❌ 주문 생성 실패</h3>
+                            <p><strong>상태:</strong> ${response.status}</p>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="test-box error">
+                        <h3>❌ 오류 발생</h3>
+                        <p>${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // 페이지 로드 시 자동 테스트
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(testOrdersAPI, 500);
+        });
+    </script>
+</body>
+</html>
