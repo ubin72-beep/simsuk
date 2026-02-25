@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 (수정됨) - 심석</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .temp-notice {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 10000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="temp-notice">
+        ✅ 주문 상세보기 수정 버전
+    </div>
+    
+    <!-- 원본 HTML 내용을 그대로 포함 -->
+    <script>
+        // admin.html의 원본 내용을 로드
+        fetch('admin.html')
+            .then(response => response.text())
+            .then(html => {
+                // body 내용만 추출하여 삽입
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const bodyContent = doc.body.innerHTML;
+                document.body.innerHTML += bodyContent;
+                
+                // 수정된 JavaScript 로드
+                loadFixedScript();
+            });
+        
+        function loadFixedScript() {
+            // admin.js 로드 후 viewOrderDetail 함수만 덮어쓰기
+            const script = document.createElement('script');
+            script.src = 'js/admin.js';
+            script.onload = function() {
+                // viewOrderDetail 함수 재정의
+                window.viewOrderDetail = function(orderId) {
+                    const order = allOrders.find(o => o.id === orderId);
+                    if (!order) return;
+                    
+                    // 🔧 수정: products 파싱 개선
+                    let products;
+                    try {
+                        if (typeof order.products === 'string') {
+                            products = JSON.parse(order.products || '[]');
+                        } else if (Array.isArray(order.products)) {
+                            products = order.products;
+                        } else if (typeof order.products === 'object') {
+                            // 객체를 배열로 변환
+                            products = [order.products];
+                        } else {
+                            products = [];
+                        }
+                    } catch (e) {
+                        console.error('제품 데이터 파싱 오류:', e);
+                        console.log('원본 데이터:', order.products);
+                        products = [];
+                    }
+                    
+                    const orderDate = new Date(order.order_date || order.created_at);
+                    
+                    // Create modal
+                    const modal = document.createElement('div');
+                    modal.className = 'modal active';
+                    modal.id = 'orderDetailModal';
+                    modal.innerHTML = `
+                        <div class="modal-overlay" onclick="closeOrderModal()"></div>
+                        <div class="modal-content" style="max-width: 700px;">
+                            <div class="modal-header">
+                                <h2><i class="fas fa-receipt"></i> 주문 상세</h2>
+                                <button class="modal-close" onclick="closeOrderModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                                <div style="display: grid; gap: 25px;">
+                                    <!-- 주문 정보 -->
+                                    <div style="background: var(--light-color); padding: 20px; border-radius: 10px;">
+                                        <h3 style="margin-bottom: 15px; color: var(--primary-color);">
+                                            <i class="fas fa-info-circle"></i> 주문 정보
+                                        </h3>
+                                        <div style="display: grid; gap: 10px;">
+                                            <p><strong>주문번호:</strong> ${order.order_number}</p>
+                                            <p><strong>주문일시:</strong> ${orderDate.toLocaleString('ko-KR')}</p>
+                                            <p><strong>주문상태:</strong> <span style="color: #2196f3; font-weight: 600;">${order.status}</span></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 고객 정보 -->
+                                    <div style="background: var(--light-color); padding: 20px; border-radius: 10px;">
+                                        <h3 style="margin-bottom: 15px; color: var(--primary-color);">
+                                            <i class="fas fa-user"></i> 고객 정보
+                                        </h3>
+                                        <div style="display: grid; gap: 10px;">
+                                            <p><strong>이름:</strong> ${order.customer_name}</p>
+                                            <p><strong>전화번호:</strong> ${order.customer_phone}</p>
+                                            <p><strong>이메일:</strong> ${order.customer_email || '미입력'}</p>
+                                            <p><strong>카카오톡 ID:</strong> ${order.customer_kakao || '미입력'}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 배송 정보 -->
+                                    <div style="background: var(--light-color); padding: 20px; border-radius: 10px;">
+                                        <h3 style="margin-bottom: 15px; color: var(--primary-color);">
+                                            <i class="fas fa-map-marker-alt"></i> 배송 정보
+                                        </h3>
+                                        <p style="white-space: pre-wrap;">${order.shipping_address}</p>
+                                        ${order.special_request ? `
+                                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                                                <p><strong>요청사항:</strong></p>
+                                                <p style="white-space: pre-wrap; margin-top: 5px;">${order.special_request}</p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    
+                                    <!-- 주문 상품 -->
+                                    <div style="background: var(--light-color); padding: 20px; border-radius: 10px;">
+                                        <h3 style="margin-bottom: 15px; color: var(--primary-color);">
+                                            <i class="fas fa-shopping-cart"></i> 주문 상품
+                                        </h3>
+                                        <div style="display: grid; gap: 10px;">
+                                            ${products.length > 0 ? products.map(product => `
+                                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 8px;">
+                                                    <div>
+                                                        <p style="font-weight: 600;">${product.name || '제품명 없음'}</p>
+                                                        <p style="font-size: 0.9rem; color: #666;">수량: ${product.quantity || 1}개</p>
+                                                    </div>
+                                                    <p style="font-weight: 600; color: var(--accent-color);">
+                                                        ${formatPrice((product.price || 0) * (product.quantity || 1))}원
+                                                    </p>
+                                                </div>
+                                            `).join('') : '<p style="color: #999;">주문 제품 정보가 없습니다.</p>'}
+                                        </div>
+                                        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--border-color); text-align: right;">
+                                            <p style="font-size: 1.3rem; font-weight: 700; color: var(--accent-color);">
+                                                총 ${formatPrice(order.total_amount)}원
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 상태 변경 버튼 -->
+                                <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <button class="btn btn-secondary" onclick="updateOrderStatus('${order.id}', '접수')" style="flex: 1;">접수</button>
+                                    <button class="btn btn-secondary" onclick="updateOrderStatus('${order.id}', '확인중')" style="flex: 1;">확인중</button>
+                                    <button class="btn btn-secondary" onclick="updateOrderStatus('${order.id}', '배송준비')" style="flex: 1;">배송준비</button>
+                                    <button class="btn btn-secondary" onclick="updateOrderStatus('${order.id}', '배송중')" style="flex: 1;">배송중</button>
+                                    <button class="btn btn-primary" onclick="updateOrderStatus('${order.id}', '배송완료')" style="flex: 1;">배송완료</button>
+                                    <button class="btn btn-secondary" onclick="updateOrderStatus('${order.id}', '취소')" style="flex: 1; background: #f44336;">취소</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    document.body.style.overflow = 'hidden';
+                };
+                
+                console.log('✅ viewOrderDetail 함수 수정 완료!');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>
