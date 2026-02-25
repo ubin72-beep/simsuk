@@ -1053,7 +1053,7 @@ function showOrderContactForm() {
                 </label>
                 <textarea id="orderAddress" required rows="3"
                     style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; resize: vertical;"
-                    placeholder="서울시 강남구 테헤란로 123, 456호">${customerData.address || ''}</textarea>
+                    placeholder="서울시 강남구 테헤란로 123&#10;아파트 101동 1001호">${customerData.address || ''}</textarea>
                 ${savedCustomer ? `
                 <div style="background: #e3f2fd; padding: 10px; border-radius: 6px; margin-top: 5px;">
                     <i class="fas fa-info-circle" style="color: #1976d2;"></i>
@@ -1062,9 +1062,6 @@ function showOrderContactForm() {
                     </span>
                 </div>
                 ` : ''}
-                <textarea id="orderAddress" required rows="3"
-                    style="padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; resize: vertical;"
-                    placeholder="서울시 강남구 테헤란로 123&#10;아파트 101동 1001호"></textarea>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 8px;">
