@@ -4,6 +4,7 @@ let currentFilter = 'all';
 let currentBirthstoneFilter = null;
 let cart = [];
 let autoRefreshInterval = null;
+let activeDiscount = null;
 
 // ===== Initialize App =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initApp() {
     console.log('🔧 Starting app initialization...');
+    
+    // Load discount first
+    console.log('💰 Step 0: Loading active discount...');
+    loadActiveDiscount();
     
     // Load products
     console.log('📦 Step 1: Loading products...');
@@ -30,9 +35,18 @@ async function initApp() {
     console.log('📍 Step 4: Initializing header scroll...');
     initHeaderScroll();
     
-    // Start auto-refresh (every 30 seconds)
+    // Start auto-refresh (every 5 seconds for faster sync)
     console.log('🔄 Step 5: Starting auto-refresh...');
     startAutoRefresh();
+    
+    // localStorage 변경 감지 (다른 탭/창에서 제품 추가 시)
+    console.log('👂 Step 6: Setting up localStorage listener...');
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'adminProducts' && e.newValue) {
+            console.log('🔔 [Main] 관리자 페이지에서 제품이 업데이트되었습니다!');
+            loadProducts(false); // 즉시 새로고침
+        }
+    });
     
     console.log('✅ App initialization complete!');
 }
@@ -44,7 +58,7 @@ function startAutoRefresh() {
         clearInterval(autoRefreshInterval);
     }
     
-    // Refresh products every 30 seconds
+    // Refresh products every 5 seconds (faster sync with admin page)
     autoRefreshInterval = setInterval(async () => {
         const currentProductCount = allProducts.length;
         await loadProducts(true); // Silent refresh
@@ -52,9 +66,9 @@ function startAutoRefresh() {
         
         // Show notification if products changed
         if (newProductCount !== currentProductCount) {
-            console.log('Products updated automatically');
+            console.log(`🔄 [Main] 제품 자동 업데이트: ${currentProductCount} → ${newProductCount}`);
         }
-    }, 30000); // 30 seconds
+    }, 5000); // 5 seconds (빠른 동기화)
 }
 
 function stopAutoRefresh() {
@@ -62,6 +76,64 @@ function stopAutoRefresh() {
         clearInterval(autoRefreshInterval);
         autoRefreshInterval = null;
     }
+}
+
+// ===== Load Active Discount =====
+function loadActiveDiscount() {
+    try {
+        const savedDiscounts = localStorage.getItem('adminDiscounts');
+        
+        if (!savedDiscounts) {
+            console.log('💰 [Discount] 저장된 할인 없음');
+            activeDiscount = null;
+            return;
+        }
+        
+        const discounts = JSON.parse(savedDiscounts);
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 활성화되고 기간 내인 할인 찾기
+        activeDiscount = discounts.find(d => 
+            d.active && 
+            d.startDate <= today && 
+            d.endDate >= today
+        );
+        
+        if (activeDiscount) {
+            console.log(`💰 [Discount] 활성 할인: ${activeDiscount.name} (${activeDiscount.rate}% 할인)`);
+        } else {
+            console.log('💰 [Discount] 현재 활성 할인 없음');
+        }
+        
+    } catch (error) {
+        console.error('❌ [Discount] 할인 로드 실패:', error);
+        activeDiscount = null;
+    }
+}
+
+// ===== Calculate Discount Price =====
+function calculateDiscountPrice(originalPrice) {
+    if (!activeDiscount || activeDiscount.rate === 0) {
+        return {
+            hasDiscount: false,
+            originalPrice: originalPrice,
+            discountedPrice: originalPrice,
+            discountRate: 0,
+            savings: 0
+        };
+    }
+    
+    const savings = Math.floor(originalPrice * activeDiscount.rate / 100);
+    const discountedPrice = originalPrice - savings;
+    
+    return {
+        hasDiscount: true,
+        originalPrice: originalPrice,
+        discountedPrice: discountedPrice,
+        discountRate: activeDiscount.rate,
+        savings: savings,
+        discountName: activeDiscount.name
+    };
 }
 
 // ===== Load Products from localStorage or demo data =====
@@ -98,7 +170,7 @@ async function loadProducts(silent = false) {
                     description: '강력한 자기력을 가진 헤마타이트 목걸이입니다. 혈액순환을 도와주고 스트레스를 완화시켜줍니다.',
                     materials: '헤마타이트',
                     benefits: '혈액순환 개선, 스트레스 완화',
-                    image_url: 'https://via.placeholder.com/400x400/2c5f4f/ffffff?text=Hematite+Necklace',
+                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace',
                     featured: true,
                     in_stock: true,
                     birthstone_months: [1, 10],
@@ -112,7 +184,7 @@ async function loadProducts(silent = false) {
                     description: '일상에서 착용하기 좋은 헤마타이트 팔찌입니다.',
                     materials: '헤마타이트',
                     benefits: '자기력 에너지, 혈액순환',
-                    image_url: 'https://via.placeholder.com/400x400/2c5f4f/ffffff?text=Hematite+Bracelet',
+                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet',
                     featured: true,
                     in_stock: true,
                     birthstone_months: [1, 10],
@@ -126,7 +198,7 @@ async function loadProducts(silent = false) {
                     description: '심플하고 세련된 헤마타이트 반지입니다.',
                     materials: '헤마타이트',
                     benefits: '집중력 향상, 에너지 균형',
-                    image_url: 'https://via.placeholder.com/400x400/2c5f4f/ffffff?text=Hematite+Ring',
+                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring',
                     featured: false,
                     in_stock: true,
                     birthstone_months: [1, 10],
@@ -140,7 +212,7 @@ async function loadProducts(silent = false) {
                     description: '1월 탄생석 가넷이 박힌 아름다운 목걸이입니다.',
                     materials: '가넷, 실버',
                     benefits: '정열, 생명력 강화',
-                    image_url: 'https://via.placeholder.com/400x400/8b0000/ffffff?text=Garnet+Necklace',
+                    image_url: 'https://placehold.co/400x400/8b0000/ffffff?text=Garnet+Necklace',
                     featured: true,
                     in_stock: true,
                     birthstone_months: [1],
@@ -154,7 +226,7 @@ async function loadProducts(silent = false) {
                     description: '2월 탄생석 자수정 팔찌입니다. 마음의 평화를 가져다줍니다.',
                     materials: '자수정',
                     benefits: '평온, 지혜',
-                    image_url: 'https://via.placeholder.com/400x400/9966cc/ffffff?text=Amethyst+Bracelet',
+                    image_url: 'https://placehold.co/400x400/9966cc/ffffff?text=Amethyst+Bracelet',
                     featured: false,
                     in_stock: true,
                     birthstone_months: [2],
@@ -168,7 +240,7 @@ async function loadProducts(silent = false) {
                     description: '3월 탄생석 아쿠아마린 반지입니다.',
                     materials: '아쿠아마린, 실버',
                     benefits: '용기, 평온',
-                    image_url: 'https://via.placeholder.com/400x400/7fffd4/000000?text=Aquamarine+Ring',
+                    image_url: 'https://placehold.co/400x400/7fffd4/000000?text=Aquamarine+Ring',
                     featured: false,
                     in_stock: true,
                     birthstone_months: [3],
@@ -248,11 +320,26 @@ function displayProducts(products) {
     }
     
     console.log(`📋 Rendering ${products.length} product cards...`);
-    productsGrid.innerHTML = products.map(product => `
+    
+    // 활성 할인 가져오기
+    const activeDiscount = getActiveDiscountFromStorage();
+    
+    productsGrid.innerHTML = products.map(product => {
+        const originalPrice = product.price;
+        let discountedPrice = originalPrice;
+        let hasDiscount = false;
+        
+        if (activeDiscount) {
+            discountedPrice = Math.floor(originalPrice * (1 - activeDiscount.rate / 100));
+            hasDiscount = true;
+        }
+        
+        return `
         <div class="product-card" data-id="${product.id}" onclick="openProductModal('${product.id}')">
             <div class="product-image">
                 <img src="${product.image_url}" alt="${product.name}">
                 ${product.featured ? '<span class="product-badge">추천</span>' : ''}
+                ${hasDiscount ? `<span class="product-badge" style="background: #e74c3c; top: 10px; left: 10px;">${activeDiscount.rate}% OFF</span>` : ''}
             </div>
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
@@ -260,14 +347,22 @@ function displayProducts(products) {
                 <div class="product-materials"><i class="fas fa-gem"></i> ${product.materials}</div>
                 <div class="product-benefits">${product.benefits}</div>
                 <div class="product-footer">
-                    <div class="product-price">${formatPrice(product.price)}원</div>
+                    <div class="product-price">
+                        ${hasDiscount ? `
+                            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">${formatPrice(originalPrice)}원</span>
+                                <span style="color: #e74c3c; font-size: 1.3rem; font-weight: 700;">${formatPrice(discountedPrice)}원</span>
+                            </div>
+                        ` : `${formatPrice(originalPrice)}원`}
+                    </div>
                     <button class="add-to-cart-btn" onclick="addToCart(event, '${product.id}')">
                         <i class="fas fa-shopping-bag"></i>
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
     console.log('✅ Products rendered successfully');
 }
 
@@ -455,6 +550,40 @@ function openProductModal(productId) {
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('modalBody');
     
+    // 활성 할인 가져오기
+    const activeDiscount = getActiveDiscountFromStorage();
+    let priceHTML = '';
+    
+    if (activeDiscount) {
+        const originalPrice = product.price;
+        const discountedPrice = Math.floor(originalPrice * (1 - activeDiscount.rate / 100));
+        priceHTML = `
+            <div class="product-price" style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                        ${activeDiscount.rate}% 할인
+                    </span>
+                    <span style="background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                        ${activeDiscount.name}
+                    </span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="text-decoration: line-through; color: #999; font-size: 1.1rem;">
+                        ${formatPrice(originalPrice)}원
+                    </span>
+                    <span style="color: #e74c3c; font-size: 1.5rem; font-weight: 700;">
+                        ${formatPrice(discountedPrice)}원
+                    </span>
+                </div>
+                <span style="color: #4caf50; font-size: 0.95rem; font-weight: 600;">
+                    💰 ${formatPrice(originalPrice - discountedPrice)}원 절약!
+                </span>
+            </div>
+        `;
+    } else {
+        priceHTML = `<div class="product-price">${formatPrice(product.price)}원</div>`;
+    }
+    
     modalBody.innerHTML = `
         <div class="modal-product">
             <div class="modal-product-image">
@@ -463,7 +592,7 @@ function openProductModal(productId) {
             <div class="modal-product-info">
                 <div class="product-category">${product.category}</div>
                 <h2>${product.name}</h2>
-                <div class="product-price">${formatPrice(product.price)}원</div>
+                ${priceHTML}
                 
                 <div class="modal-product-section">
                     <h3><i class="fas fa-gem"></i> 재료</h3>
@@ -510,6 +639,13 @@ function addToCart(event, productId, closeModal = false) {
     const product = allProducts.find(p => p.id === productId);
     if (!product) return;
     
+    // 활성 할인 확인
+    const activeDiscount = getActiveDiscountFromStorage();
+    const originalPrice = product.price;
+    const discountedPrice = activeDiscount 
+        ? Math.floor(originalPrice * (1 - activeDiscount.rate / 100))
+        : originalPrice;
+    
     // Check if product already in cart
     const existingItem = cart.find(item => item.id === productId);
     
@@ -518,12 +654,15 @@ function addToCart(event, productId, closeModal = false) {
     } else {
         cart.push({
             ...product,
+            price: discountedPrice, // 할인가로 저장
+            originalPrice: originalPrice, // 원가 보관
+            discountRate: activeDiscount ? activeDiscount.rate : 0,
             quantity: 1
         });
     }
     
     updateCartBadge();
-    showNotification(`${product.name}이(가) 장바구니에 추가되었습니다`);
+    showNotification(`${product.name}이(가) 장바구니에 추가되었습니다${activeDiscount ? ` (${activeDiscount.rate}% 할인 적용)` : ''}`);
     
     if (closeModal) {
         closeProductModal();
@@ -569,6 +708,33 @@ function showNotification(message) {
 // ===== Format Price =====
 function formatPrice(price) {
     return new Intl.NumberFormat('ko-KR').format(price);
+}
+
+// ===== Get Active Discount =====
+function getActiveDiscountFromStorage() {
+    try {
+        const savedDiscounts = localStorage.getItem('adminDiscounts');
+        if (!savedDiscounts) return null;
+        
+        const discounts = JSON.parse(savedDiscounts);
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 활성화되고 기간 내인 할인 찾기
+        const activeDiscount = discounts.find(d => 
+            d.active && 
+            d.startDate <= today && 
+            d.endDate >= today
+        );
+        
+        if (activeDiscount) {
+            console.log(`💰 [Main] 활성 할인 적용: ${activeDiscount.name} (${activeDiscount.rate}%)`);
+        }
+        
+        return activeDiscount;
+    } catch (e) {
+        console.error('❌ [Main] 할인 정보 로드 실패:', e);
+        return null;
+    }
 }
 
 // ===== Scroll to Top =====
@@ -748,6 +914,26 @@ function openTermsModal(e, type) {
                 <h3>제8조 (개인정보보호)</h3>
                 <p>회사는 이용자의 개인정보 수집 시 서비스제공을 위하여 필요한 범위에서 최소한의 개인정보를 수집합니다.</p>
                 
+                <h3>제9조 (전자금융거래)</h3>
+                <p>1. 회사는 전자금융거래법에 따라 전자금융거래 서비스를 제공합니다.</p>
+                <p>2. 이용자는 거래내용 확인 및 오류 정정 요청권을 가집니다.</p>
+                <p>3. 전자금융거래와 관련한 분쟁처리 및 피해보상은 전자금융거래법에 따릅니다.</p>
+                
+                <h3>제10조 (미성년자 보호)</h3>
+                <p>1. 만 14세 미만 아동의 경우 법정대리인의 동의가 필요합니다.</p>
+                <p>2. 회사는 미성년자 보호를 위해 필요한 조치를 취합니다.</p>
+                
+                <h3>제11조 (분쟁 해결)</h3>
+                <p>1. 회사는 소비자의 불만사항 및 분쟁해결을 위해 최선을 다합니다.</p>
+                <p>2. 분쟁이 해결되지 않을 경우:</p>
+                <ul>
+                    <li>한국소비자원 전자거래분쟁조정위원회 (www.ecmc.or.kr)</li>
+                    <li>공정거래위원회 소비자상담센터 (국번없이 1372)</li>
+                </ul>
+                
+                <h3>제12조 (소비자분쟁해결기준)</h3>
+                <p>회사는 소비자분쟁해결기준(공정거래위원회 고시)에 따라 소비자 피해를 보상합니다.</p>
+                
                 <p style="margin-top: 30px; text-align: right; color: #666;">시행일: 2025년 1월 1일</p>
             </div>
         `;
@@ -796,12 +982,32 @@ function openTermsModal(e, type) {
                 <h3>7. 개인정보 보호책임자</h3>
                 <p>회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다:</p>
                 <ul>
-                    <li>개인정보 보호책임자: 심석</li>
+                    <li>개인정보 보호책임자: 김유빈</li>
                     <li>연락처: 0502-1909-7788</li>
                     <li>이메일: simsukbiz@gmail.com</li>
                 </ul>
                 
-                <h3>8. 개인정보 처리방침 변경</h3>
+                <h3>8. 개인정보의 안전성 확보조치</h3>
+                <p>회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:</p>
+                <ul>
+                    <li>관리적 조치: 내부관리계획 수립·시행, 정기적 직원 교육</li>
+                    <li>기술적 조치: 개인정보처리시스템 등의 접근권한 관리, 접근통제시스템 설치, 고유식별정보 등의 암호화, 보안프로그램 설치</li>
+                    <li>물리적 조치: 전산실, 자료보관실 등의 접근통제</li>
+                </ul>
+                
+                <h3>9. 개인정보 자동 수집 장치의 설치·운영 및 거부</h3>
+                <p>회사는 이용정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용합니다. 이용자는 웹브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다.</p>
+                
+                <h3>10. 권익침해 구제방법</h3>
+                <p>정보주체는 개인정보침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
+                <ul>
+                    <li>개인정보분쟁조정위원회: (국번없이) 1833-6972 (www.kopico.go.kr)</li>
+                    <li>개인정보침해신고센터: (국번없이) 118 (privacy.kisa.or.kr)</li>
+                    <li>대검찰청 사이버수사과: (국번없이) 1301 (www.spo.go.kr)</li>
+                    <li>경찰청 사이버안전국: (국번없이) 182 (cyberbureau.police.go.kr)</li>
+                </ul>
+                
+                <h3>11. 개인정보 처리방침 변경</h3>
                 <p>이 개인정보처리방침은 2025년 1월 1일부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.</p>
                 
                 <p style="margin-top: 30px; text-align: right; color: #666;">시행일: 2025년 1월 1일</p>
@@ -878,15 +1084,41 @@ function showCart() {
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('modalBody');
     
-    const cartItems = cart.map(item => `
+    // 활성 할인 가져오기
+    const activeDiscount = getActiveDiscountFromStorage();
+    
+    const cartItems = cart.map(item => {
+        let pricePerItem = item.price;
+        let discountedPricePerItem = item.price;
+        
+        if (activeDiscount) {
+            discountedPricePerItem = Math.floor(item.price * (1 - activeDiscount.rate / 100));
+        }
+        
+        const itemTotal = (activeDiscount ? discountedPricePerItem : pricePerItem) * item.quantity;
+        
+        return `
         <div style="display: flex; gap: 20px; padding: 20px; border-bottom: 1px solid #e0e0e0; align-items: center;">
             <img src="${item.image_url}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
             <div style="flex: 1;">
                 <h4 style="margin-bottom: 5px;">${item.name}</h4>
                 <p style="color: #666; font-size: 0.9rem;">${item.category}</p>
+                ${activeDiscount ? `
+                    <div style="margin-top: 8px;">
+                        <span style="text-decoration: line-through; color: #999; font-size: 0.85rem;">
+                            ${formatPrice(pricePerItem)}원
+                        </span>
+                        <span style="color: #e74c3c; font-size: 0.95rem; font-weight: 600; margin-left: 8px;">
+                            ${formatPrice(discountedPricePerItem)}원
+                        </span>
+                        <span style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; margin-left: 6px;">
+                            ${activeDiscount.rate}% OFF
+                        </span>
+                    </div>
+                ` : ''}
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 700; color: #2c5f4f; margin-bottom: 10px;">${formatPrice(item.price * item.quantity)}원</div>
+                <div style="font-weight: 700; color: ${activeDiscount ? '#e74c3c' : '#2c5f4f'}; margin-bottom: 10px;">${formatPrice(itemTotal)}원</div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <button onclick="updateCartQuantity('${item.id}', -1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">-</button>
                     <span>${item.quantity}</span>
@@ -894,20 +1126,55 @@ function showCart() {
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
     
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // 총 금액 계산 (할인 적용)
+    let subtotal = 0;
+    let totalDiscount = 0;
+    
+    cart.forEach(item => {
+        const originalPrice = item.price * item.quantity;
+        subtotal += originalPrice;
+        
+        if (activeDiscount) {
+            const discountedPrice = Math.floor(item.price * (1 - activeDiscount.rate / 100)) * item.quantity;
+            totalDiscount += (originalPrice - discountedPrice);
+        }
+    });
+    
+    const totalPrice = subtotal - totalDiscount;
     
     modalBody.innerHTML = `
-        <h2 style="margin-bottom: 30px;">장바구니</h2>
+        <h2 style="margin-bottom: 30px;">
+            장바구니
+            ${activeDiscount ? `<span style="background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-left: 12px;">${activeDiscount.name} ${activeDiscount.rate}% 할인 적용</span>` : ''}
+        </h2>
         <div style="max-height: 400px; overflow-y: auto;">
             ${cartItems}
         </div>
         <div style="padding: 30px 20px; background: #f8f8f8; border-radius: 10px; margin-top: 20px;">
+            ${activeDiscount ? `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ddd;">
+                    <span style="color: #666;">상품 금액</span>
+                    <span style="color: #666;">${formatPrice(subtotal)}원</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #ddd;">
+                    <span style="color: #e74c3c; font-weight: 600;">할인 금액 (-${activeDiscount.rate}%)</span>
+                    <span style="color: #e74c3c; font-weight: 600;">-${formatPrice(totalDiscount)}원</span>
+                </div>
+            ` : ''}
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <span style="font-size: 1.2rem; font-weight: 500;">총 금액</span>
-                <span style="font-size: 1.8rem; font-weight: 700; color: #d4af37;">${formatPrice(totalPrice)}원</span>
+                <span style="font-size: 1.2rem; font-weight: 500;">최종 결제 금액</span>
+                <span style="font-size: 1.8rem; font-weight: 700; color: ${activeDiscount ? '#e74c3c' : '#d4af37'};">${formatPrice(totalPrice)}원</span>
             </div>
+            ${activeDiscount ? `
+                <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                    <span style="color: #2e7d32; font-weight: 600;">
+                        💰 ${formatPrice(totalDiscount)}원 절약했어요!
+                    </span>
+                </div>
+            ` : ''}
             <div style="display: flex; gap: 15px;">
                 <button class="btn btn-primary" style="flex: 1;" onclick="checkout()">
                     주문하기
@@ -967,38 +1234,98 @@ function showOrderContactForm() {
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('modalBody');
     
+    // 활성 할인 가져오기
+    const activeDiscount = getActiveDiscountFromStorage();
+    
     // 장바구니 상품 목록
-    const orderItems = cart.map(item => 
-        `${item.name} x ${item.quantity}개 = ${formatPrice(item.price * item.quantity)}원`
-    ).join('\n');
+    let orderItems;
+    if (activeDiscount) {
+        orderItems = cart.map(item => {
+            const originalPrice = item.price * item.quantity;
+            const discountedPrice = Math.floor(item.price * (1 - activeDiscount.rate / 100)) * item.quantity;
+            return `${item.name} x ${item.quantity}개 = ${formatPrice(originalPrice)}원 → ${formatPrice(discountedPrice)}원 (${activeDiscount.rate}% 할인)`;
+        }).join('\n');
+    } else {
+        orderItems = cart.map(item => 
+            `${item.name} x ${item.quantity}개 = ${formatPrice(item.price * item.quantity)}원`
+        ).join('\n');
+    }
     
     // 가격 계산
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const originalSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    let discount = 0;
+    
+    if (activeDiscount) {
+        discount = cart.reduce((sum, item) => {
+            const originalPrice = item.price * item.quantity;
+            const discountedPrice = Math.floor(item.price * (1 - activeDiscount.rate / 100)) * item.quantity;
+            return sum + (originalPrice - discountedPrice);
+        }, 0);
+    }
+    
+    const subtotal = originalSubtotal - discount;
     const shippingFee = subtotal >= 50000 ? 0 : 3000;
-    const discount = 0;
-    const totalPrice = subtotal + shippingFee - discount;
+    const totalPrice = subtotal + shippingFee;
     
     modalBody.innerHTML = `
         <h2 style="margin-bottom: 30px; color: var(--primary-color);">
             <i class="fas fa-shopping-cart"></i> 주문하기
+            ${activeDiscount ? `<span style="background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-left: 10px;">${activeDiscount.name} ${activeDiscount.rate}% 할인 중</span>` : ''}
         </h2>
         
         <div style="background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
             <h3 style="margin-bottom: 15px; color: var(--primary-color);">주문 상품</h3>
-            ${cart.map(item => `
-                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
-                    <div>
-                        <div style="font-weight: 500; color: #333;">${item.name}</div>
-                        <div style="font-size: 0.9rem; color: #666;">${formatPrice(item.price)}원 × ${item.quantity}개</div>
+            ${cart.map(item => {
+                let itemPriceHTML = '';
+                let itemTotalOriginal = item.price * item.quantity;
+                let itemTotalDiscounted = itemTotalOriginal;
+                
+                if (activeDiscount) {
+                    itemTotalDiscounted = Math.floor(item.price * (1 - activeDiscount.rate / 100)) * item.quantity;
+                    itemPriceHTML = `
+                        <div>
+                            <div style="font-weight: 500; color: #333;">${item.name}</div>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                <span style="text-decoration: line-through;">${formatPrice(item.price)}원</span>
+                                <span style="color: #e74c3c; font-weight: 600; margin-left: 5px;">${formatPrice(Math.floor(item.price * (1 - activeDiscount.rate / 100)))}원</span>
+                                × ${item.quantity}개
+                            </div>
+                        </div>
+                        <div style="font-weight: 600; color: #e74c3c;">
+                            ${formatPrice(itemTotalDiscounted)}원
+                        </div>
+                    `;
+                } else {
+                    itemPriceHTML = `
+                        <div>
+                            <div style="font-weight: 500; color: #333;">${item.name}</div>
+                            <div style="font-size: 0.9rem; color: #666;">${formatPrice(item.price)}원 × ${item.quantity}개</div>
+                        </div>
+                        <div style="font-weight: 600; color: var(--primary-color);">
+                            ${formatPrice(itemTotalOriginal)}원
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                        ${itemPriceHTML}
                     </div>
-                    <div style="font-weight: 600; color: var(--primary-color);">
-                        ${formatPrice(item.price * item.quantity)}원
-                    </div>
-                </div>
-            `).join('')}
+                `;
+            }).join('')}
             <div style="border-top: 2px solid var(--primary-color); margin-top: 15px; padding-top: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #666;">
-                    <span>상품 금액</span>
+                ${activeDiscount ? `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #666;">
+                        <span>원래 상품 금액</span>
+                        <span>${formatPrice(originalSubtotal)}원</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #e74c3c; font-weight: 600;">할인 금액 (-${activeDiscount.rate}%)</span>
+                        <span style="color: #e74c3c; font-weight: 600;">-${formatPrice(discount)}원</span>
+                    </div>
+                ` : ''}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: ${activeDiscount ? '#e74c3c' : '#666'}; ${activeDiscount ? 'font-weight: 600;' : ''}">
+                    <span>${activeDiscount ? '할인 적용 금액' : '상품 금액'}</span>
                     <span>${formatPrice(subtotal)}원</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -1007,16 +1334,17 @@ function showOrderContactForm() {
                         ${shippingFee === 0 ? '무료 🎉' : formatPrice(shippingFee) + '원'}
                     </span>
                 </div>
-                ${discount > 0 ? `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="color: #666;">할인</span>
-                    <span style="color: #f44336; font-weight: 600;">-${formatPrice(discount)}원</span>
-                </div>
-                ` : ''}
                 <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #e0e0e0;">
                     <strong style="font-size: 1.2rem; color: var(--primary-color);">총 결제 금액</strong>
-                    <strong style="font-size: 1.3rem; color: var(--accent-color);">${formatPrice(totalPrice)}원</strong>
+                    <strong style="font-size: 1.3rem; color: ${activeDiscount ? '#e74c3c' : 'var(--accent-color)'};">${formatPrice(totalPrice)}원</strong>
                 </div>
+                ${activeDiscount ? `
+                    <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center;">
+                        <span style="color: #2e7d32; font-weight: 600; font-size: 0.95rem;">
+                            💰 총 ${formatPrice(discount)}원 절약했어요!
+                        </span>
+                    </div>
+                ` : ''}
             </div>
             ${subtotal < 50000 ? `
             <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; margin-top: 15px;">
