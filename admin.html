@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/admin.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -611,21 +610,39 @@
         </div>
     </div>
 
-    <script src="js/admin.js"></script>
-    <script src="js/admin-search-sort.js"></script>
-    <script src="js/admin-dashboard.js"></script>
-    <script src="js/admin-discounts.js"></script>
-    <script src="js/admin-notifications.js"></script>
-    <script src="js/admin-export.js"></script>
-    <script src="js/admin-shipping.js"></script>
+    <script src="js/admin.js?v=2.5.18"></script>
+    <script src="js/admin-search-sort.js?v=2.5.18"></script>
+    <script src="js/admin-dashboard.js?v=2.5.18"></script>
+    <script src="js/admin-discounts.js?v=2.5.18"></script>
+    <script src="js/admin-notifications.js?v=2.5.18"></script>
+    <script src="js/admin-export.js?v=2.5.18"></script>
+    <script src="js/admin-shipping.js?v=2.5.18"></script>
     
-    <!-- ✅ 모든 스크립트 로드 확인 -->
+    <!-- ✅ 모든 스크립트 로드 확인 및 강제 초기화 -->
     <script>
-    console.log('✅ 모든 관리자 스크립트 로드 완료');
-    console.log('- searchProducts:', typeof searchProducts);
-    console.log('- renderProductsTable:', typeof renderProductsTable);
-    console.log('- loadDashboard:', typeof loadDashboard);
-    console.log('- loadRecentProducts:', typeof loadRecentProducts);
+    // 스크립트 로드 완료 후 실행
+    window.addEventListener('load', function() {
+        console.log('✅ 모든 관리자 스크립트 로드 완료');
+        console.log('- searchProducts:', typeof searchProducts);
+        console.log('- renderProductsTable:', typeof renderProductsTable);
+        console.log('- loadDashboard:', typeof loadDashboard);
+        console.log('- loadRecentProducts:', typeof loadRecentProducts);
+        
+        // 강제 초기화 - 로그인되어 있으면 대시보드 로드
+        const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (isLoggedIn === 'true') {
+            console.log('🔄 [Init] 강제 초기화 시작...');
+            // 1초 후 대시보드 로드 (모든 스크립트가 완전히 로드되도록 충분한 시간 제공)
+            setTimeout(function() {
+                if (typeof loadDashboard === 'function') {
+                    console.log('✅ [Init] 대시보드 로드 시작');
+                    loadDashboard();
+                } else {
+                    console.error('❌ [Init] loadDashboard 함수를 찾을 수 없음');
+                }
+            }, 1000);
+        }
+    });
     
     // 전역 변수 등록 (다른 스크립트에서 접근 가능하도록)
     window.adminProducts = window.adminProducts || [];
