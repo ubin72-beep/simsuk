@@ -95,6 +95,21 @@ function showAdminPage() {
         loadProducts();
         loadOrders();
         
+        // 대시보드 로드 (초기 화면)
+        if (typeof loadDashboard === 'function') {
+            loadDashboard();
+        } else {
+            console.warn('⚠️ [Admin] loadDashboard 함수가 아직 로드되지 않음');
+            // 500ms 후 재시도
+            setTimeout(() => {
+                if (typeof loadDashboard === 'function') {
+                    loadDashboard();
+                } else {
+                    console.error('❌ [Admin] loadDashboard 함수를 로드할 수 없음');
+                }
+            }, 500);
+        }
+        
         // 알림 권한 요청
         requestNotificationPermission();
         
@@ -1126,3 +1141,21 @@ function showToast(message, type) {
         toast.classList.remove('show');
     }, 3000);
 }
+
+// ===== 전역 함수 노출 =====
+// 다른 스크립트나 HTML에서 접근 가능하도록 window 객체에 할당
+window.adminProducts = adminProducts;
+window.adminOrders = adminOrders;
+window.renderProductsTable = renderProductsTable;
+window.updateStats = updateStats;
+window.switchTab = switchTab;
+window.loadProducts = loadProducts;
+window.loadOrders = loadOrders;
+window.showToast = showToast;
+window.viewOrderDetail = viewOrderDetail;
+window.closeOrderModal = closeOrderModal;
+window.updateOrderStatus = updateOrderStatus;
+window.handleLogin = handleLogin;
+window.logout = logout;
+
+console.log('✅ [Admin] admin.js 로드 완료 - 모든 함수 전역 노출됨');
