@@ -134,6 +134,12 @@ function switchTab(tabName, event) {
         loadProducts();
     } else if (tabName === 'orders') {
         loadOrders();
+    } else if (tabName === 'discounts') {
+        if (typeof loadDiscounts === 'function') {
+            loadDiscounts();
+        } else {
+            console.warn('⚠️ [Admin] loadDiscounts 함수가 아직 로드되지 않음');
+        }
     }
 }
 
@@ -313,11 +319,13 @@ function updateStats() {
     const necklaces = adminProducts.filter(p => p.category === '목걸이').length;
     const bracelets = adminProducts.filter(p => p.category === '팔찌').length;
     const rings = adminProducts.filter(p => p.category === '반지').length;
+    const phoneStraps = adminProducts.filter(p => p.category === '핸드폰 줄').length;
     
     document.getElementById('totalProducts').textContent = total;
     document.getElementById('necklaceCount').textContent = necklaces;
     document.getElementById('braceletCount').textContent = bracelets;
     document.getElementById('ringCount').textContent = rings;
+    document.getElementById('phoneStrapCount').textContent = phoneStraps;
     
     // 탭 배지 업데이트
     updateTabBadges();
