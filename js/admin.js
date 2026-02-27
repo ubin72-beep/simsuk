@@ -1142,6 +1142,74 @@ function showToast(message, type) {
     }, 3000);
 }
 
+// 자동 새로고침 관련 함수
+let autoRefreshInterval = null;
+let isAutoRefreshEnabled = true;
+
+// 자동 새로고침 초기화
+function initializeAutoRefresh() {
+    console.log('🔄 [Admin] 자동 새로고침 초기화...');
+    startAutoRefresh();
+}
+
+// 자동 새로고침 시작
+function startAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    autoRefreshInterval = setInterval(() => {
+        if (isAutoRefreshEnabled) {
+            console.log('🔄 [Admin] 자동 새로고침 실행...');
+            const currentTab = document.querySelector('.tab-btn.active');
+            if (currentTab) {
+                const tabName = currentTab.textContent.trim();
+                if (tabName.includes('대시보드')) {
+                    if (typeof loadDashboard === 'function') {
+                        loadDashboard();
+                    }
+                } else if (tabName.includes('제품')) {
+                    loadProducts();
+                } else if (tabName.includes('주문')) {
+                    loadOrders();
+                }
+            }
+            updateStats();
+        }
+    }, 30000); // 30초마다
+}
+
+// 자동 새로고침 토글
+function toggleAutoRefresh() {
+    isAutoRefreshEnabled = !isAutoRefreshEnabled;
+    const btn = document.getElementById('autoRefreshToggle');
+    
+    if (isAutoRefreshEnabled) {
+        btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> 자동새로고침 중';
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+        console.log('✅ [Admin] 자동 새로고침 활성화');
+        showToast('자동 새로고침이 활성화되었습니다', 'success');
+    } else {
+        btn.innerHTML = '<i class="fas fa-sync"></i> 자동새로고침 꺼짐';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+        console.log('⏸️ [Admin] 자동 새로고침 비활성화');
+        showToast('자동 새로고침이 비활성화되었습니다', 'info');
+    }
+}
+
+// 알림 권한 요청
+function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('✅ [Admin] 알림 권한 승인됨');
+            }
+        });
+    }
+}
+
 // ===== 전역 함수 노출 =====
 // 다른 스크립트나 HTML에서 접근 가능하도록 window 객체에 할당
 window.adminProducts = adminProducts;
@@ -1157,5 +1225,8 @@ window.closeOrderModal = closeOrderModal;
 window.updateOrderStatus = updateOrderStatus;
 window.handleLogin = handleLogin;
 window.logout = logout;
+window.toggleAutoRefresh = toggleAutoRefresh;
+window.initializeAutoRefresh = initializeAutoRefresh;
+window.requestNotificationPermission = requestNotificationPermission;
 
 console.log('✅ [Admin] admin.js 로드 완료 - 모든 함수 전역 노출됨');
