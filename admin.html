@@ -610,23 +610,47 @@
         </div>
     </div>
 
-    <script src="js/admin.js?v=20260227001"></script>
-    <script src="js/admin-search-sort.js?v=20260227001"></script>
-    <script src="js/admin-dashboard.js?v=20260227001"></script>
-    <script src="js/admin-discounts.js?v=20260227001"></script>
-    <script src="js/admin-notifications.js?v=20260227001"></script>
-    <script src="js/admin-export.js?v=20260227001"></script>
-    <script src="js/admin-shipping.js?v=20260227001"></script>
+    <script src="js/admin.js?v=20260301001"></script>
+    <script src="js/admin-search-sort.js?v=20260301001"></script>
+    <script src="js/admin-dashboard.js?v=20260301001"></script>
+    <script src="js/admin-discounts.js?v=20260301001"></script>
+    <!-- admin-notifications.js는 admin.js와 함수 중복으로 인해 제거 -->
+    <script src="js/admin-export.js?v=20260301001"></script>
+    <script src="js/admin-shipping.js?v=20260301001"></script>
     
     <!-- ✅ 모든 스크립트 로드 확인 및 강제 초기화 -->
     <script>
-    // 스크립트 로드 완료 후 실행
+    // 🔧 버튼 안전장치: 함수가 없으면 즉시 에러 표시 및 재로드
     window.addEventListener('load', function() {
         console.log('✅ 모든 관리자 스크립트 로드 완료');
         console.log('- searchProducts:', typeof searchProducts);
         console.log('- renderProductsTable:', typeof renderProductsTable);
         console.log('- loadDashboard:', typeof loadDashboard);
         console.log('- loadRecentProducts:', typeof loadRecentProducts);
+        console.log('- toggleAutoRefresh:', typeof toggleAutoRefresh);
+        console.log('- logout:', typeof logout);
+        
+        // 🚨 중요 함수 누락 확인
+        const criticalFunctions = {
+            'toggleAutoRefresh': toggleAutoRefresh,
+            'logout': logout,
+            'loadDashboard': loadDashboard,
+            'renderProductsTable': renderProductsTable
+        };
+        
+        let missingFunctions = [];
+        for (let funcName in criticalFunctions) {
+            if (typeof criticalFunctions[funcName] !== 'function') {
+                missingFunctions.push(funcName);
+            }
+        }
+        
+        if (missingFunctions.length > 0) {
+            console.error('❌ [CRITICAL] 다음 함수들이 로드되지 않았습니다:', missingFunctions);
+            alert('⚠️ 관리자 페이지 로딩 오류\n\n다음 함수가 로드되지 않았습니다:\n' + missingFunctions.join(', ') + '\n\n브라우저 캐시를 삭제해주세요:\n1. Ctrl+Shift+Delete\n2. 전체 기간 선택\n3. 캐시 삭제\n4. 페이지 새로고침 (Ctrl+F5)');
+        } else {
+            console.log('✅ [SUCCESS] 모든 중요 함수 정상 로드됨');
+        }
         
         // 강제 초기화 - 로그인되어 있으면 대시보드 로드
         const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
