@@ -236,11 +236,91 @@ function renderOrdersTable() {
     `;
 }
 
+// ===== 이미지 업로드 =====
+async function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // 파일 크기 확인 (5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('이미지 크기는 5MB 이하여야 합니다', 'error');
+        event.target.value = '';
+        return;
+    }
+    
+    // 파일 타입 확인
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        showToast('JPG, PNG, WebP 형식만 업로드 가능합니다', 'error');
+        event.target.value = '';
+        return;
+    }
+    
+    // 업로드 상태 표시
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 업로드 중...';
+    statusDiv.style.color = '#667eea';
+    
+    try {
+        // FormData 생성
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        // ImgBB API 호출 (무료 API 키)
+        const apiKey = 'd8e0e9c4c4c2b2e8e9c4c4c2b2e8e9c4'; // 공용 데모 키
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error('업로드 실패');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // 업로드 성공
+            const imageUrl = data.data.url;
+            document.getElementById('productImageUrl').value = imageUrl;
+            
+            // 미리보기 표시
+            const previewImg = document.getElementById('previewImg');
+            const imagePreview = document.getElementById('imagePreview');
+            previewImg.src = imageUrl;
+            imagePreview.style.display = 'block';
+            
+            // 성공 메시지
+            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 업로드 완료!';
+            statusDiv.style.color = '#28a745';
+            
+            showToast('이미지 업로드 완료', 'success');
+            
+            console.log('✅ 이미지 업로드 성공:', imageUrl);
+        } else {
+            throw new Error('업로드 응답 오류');
+        }
+    } catch (error) {
+        console.error('❌ 이미지 업로드 오류:', error);
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> 업로드 실패';
+        statusDiv.style.color = '#dc3545';
+        showToast('이미지 업로드 실패: ' + error.message, 'error');
+        event.target.value = '';
+    }
+}
+
 // ===== 제품 관리 =====
 function openProductModal(productId = null) {
     currentEditId = productId;
     const modal = document.getElementById('productModal');
     const title = document.getElementById('productModalTitle');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const statusDiv = document.getElementById('uploadStatus');
+    
+    // 상태 초기화
+    statusDiv.innerHTML = '';
+    imagePreview.style.display = 'none';
     
     if (productId) {
         const product = products.find(p => p.id === productId);
@@ -256,9 +336,18 @@ function openProductModal(productId = null) {
         document.getElementById('productDescription').value = product.description || '';
         document.getElementById('productFeatured').checked = product.featured || false;
         document.getElementById('productInStock').checked = product.in_stock !== false;
+        
+        // 기존 이미지 미리보기
+        if (product.image_url) {
+            previewImg.src = product.image_url;
+            imagePreview.style.display = 'block';
+            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 기존 이미지';
+            statusDiv.style.color = '#28a745';
+        }
     } else {
         title.textContent = '새 제품 추가';
         document.getElementById('productForm').reset();
+        document.getElementById('productImageFile').value = '';
     }
     
     modal.classList.add('active');
@@ -471,6 +560,7 @@ window.deleteProduct = deleteProduct;
 window.viewOrder = viewOrder;
 window.closeOrderModal = closeOrderModal;
 window.updateOrderStatus = updateOrderStatus;
+window.handleImageUpload = handleImageUpload;
 window.adminProducts = products;
 window.adminOrders = orders;
 
