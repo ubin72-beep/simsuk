@@ -2114,3 +2114,13 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// ===== Export Global Functions =====
+window.openProductModal = openProductModal;
+window.closeProductModal = closeProductModal;
+window.addToCart = addToCart;
+window.filterProducts = filterProducts;
+window.filterByBirthstone = filterByBirthstone;
+window.showCart = showCart;
+window.updateCartQuantity = updateCartQuantity;
+window.checkout = checkout;
