@@ -8,6 +8,16 @@ console.log('✅ 심석 관리자 v3.0 (완전판) 로드 시작...');
 
 // ===== 전역 변수 =====
 const ADMIN_PASSWORD = 'admin';
+
+// GitHub 설정 (이미지 호스팅용)
+const GITHUB_CONFIG = {
+    username: 'YOUR_GITHUB_USERNAME',        // GitHub 사용자 이름 (예: simsuk-official)
+    repo: 'YOUR_REPO_NAME',                  // 저장소 이름 (예: simsuk-images)
+    token: 'YOUR_GITHUB_TOKEN',              // Personal Access Token (ghp_로 시작)
+    branch: 'main',                          // 브랜치 이름
+    path: 'images'                           // 이미지 저장 폴더
+};
+
 let products = [];
 let orders = [];
 let currentEditId = null;
@@ -236,14 +246,14 @@ function renderOrdersTable() {
     `;
 }
 
-// ===== 이미지 업로드 =====
+// ===== 이미지 업로드 (GitHub + jsDelivr CDN - 완전 무료, 무제한 용량) =====
 async function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
-    // 파일 크기 확인 (5MB 제한)
-    if (file.size > 5 * 1024 * 1024) {
-        showToast('이미지 크기는 5MB 이하여야 합니다', 'error');
+    // 파일 크기 확인 (100MB - GitHub 제한)
+    if (file.size > 100 * 1024 * 1024) {
+        showToast('이미지 크기는 100MB 이하여야 합니다', 'error');
         event.target.value = '';
         return;
     }
@@ -256,50 +266,112 @@ async function handleImageUpload(event) {
         return;
     }
     
+    // GitHub 설정 확인
+    if (GITHUB_CONFIG.username === 'YOUR_GITHUB_USERNAME' || 
+        GITHUB_CONFIG.token === 'YOUR_GITHUB_TOKEN') {
+        showToast('⚠️ GitHub 설정이 필요합니다!\n\nGitHub_이미지호스팅_설정가이드.md를 참고하세요.', 'error');
+        event.target.value = '';
+        return;
+    }
+    
     // 업로드 상태 표시
     const statusDiv = document.getElementById('uploadStatus');
-    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 업로드 중...';
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GitHub에 업로드 중...';
     statusDiv.style.color = '#667eea';
     
     try {
-        // FormData 생성
-        const formData = new FormData();
-        formData.append('image', file);
+        // 파일명 생성 (타임스탬프 + 원본 이름)
+        const timestamp = Date.now();
+        const extension = file.name.split('.').pop();
+        const filename = `product_${timestamp}.${extension}`;
         
-        // ImgBB API 호출 (무료 API 키)
-        const apiKey = 'd8e0e9c4c4c2b2e8e9c4c4c2b2e8e9c4'; // 공용 데모 키
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-            method: 'POST',
-            body: formData
-        });
+        // FileReader로 Base64 변환
+        const reader = new FileReader();
         
-        if (!response.ok) {
-            throw new Error('업로드 실패');
-        }
+        reader.onload = async function(e) {
+            try {
+                // Base64 데이터 추출 (data:image/jpeg;base64, 제거)
+                const base64Data = e.target.result.split(',')[1];
+                
+                // GitHub API 호출
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}/${filename}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify({
+                            message: `Upload ${filename} - 심석 제품 이미지`,
+                            content: base64Data,
+                            branch: GITHUB_CONFIG.branch
+                        })
+                    }
+                );
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'GitHub 업로드 실패');
+                }
+                
+                const data = await response.json();
+                
+                // jsDelivr CDN URL 생성 (빠른 전송)
+                const cdnUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}@${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.path}/${filename}`;
+                
+                // Hidden input에 CDN URL 저장
+                document.getElementById('productImageUrl').value = cdnUrl;
+                
+                // 미리보기 표시
+                const previewImg = document.getElementById('previewImg');
+                const imagePreview = document.getElementById('imagePreview');
+                previewImg.src = cdnUrl;
+                imagePreview.style.display = 'block';
+                
+                // 성공 메시지
+                statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> GitHub 업로드 완료! (jsDelivr CDN)';
+                statusDiv.style.color = '#28a745';
+                
+                showToast('이미지 업로드 완료 (GitHub + CDN)', 'success');
+                
+                console.log('✅ GitHub 업로드 성공:', cdnUrl);
+                console.log('📊 파일 정보:', {
+                    filename: filename,
+                    size: Math.round(file.size / 1024) + ' KB',
+                    type: file.type,
+                    cdnUrl: cdnUrl
+                });
+                
+            } catch (uploadError) {
+                console.error('❌ GitHub 업로드 오류:', uploadError);
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> GitHub 업로드 실패';
+                statusDiv.style.color = '#dc3545';
+                
+                let errorMessage = 'GitHub 업로드 실패: ' + uploadError.message;
+                if (uploadError.message.includes('Bad credentials')) {
+                    errorMessage = '⚠️ GitHub Token이 올바르지 않습니다.\n\nGitHub_이미지호스팅_설정가이드.md를 확인하세요.';
+                } else if (uploadError.message.includes('Not Found')) {
+                    errorMessage = '⚠️ GitHub 저장소를 찾을 수 없습니다.\n\n사용자 이름과 저장소 이름을 확인하세요.';
+                }
+                
+                showToast(errorMessage, 'error');
+                event.target.value = '';
+            }
+        };
         
-        const data = await response.json();
+        reader.onerror = function() {
+            console.error('❌ 파일 읽기 오류');
+            statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> 파일 읽기 실패';
+            statusDiv.style.color = '#dc3545';
+            showToast('파일 읽기 실패', 'error');
+            event.target.value = '';
+        };
         
-        if (data.success) {
-            // 업로드 성공
-            const imageUrl = data.data.url;
-            document.getElementById('productImageUrl').value = imageUrl;
-            
-            // 미리보기 표시
-            const previewImg = document.getElementById('previewImg');
-            const imagePreview = document.getElementById('imagePreview');
-            previewImg.src = imageUrl;
-            imagePreview.style.display = 'block';
-            
-            // 성공 메시지
-            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 업로드 완료!';
-            statusDiv.style.color = '#28a745';
-            
-            showToast('이미지 업로드 완료', 'success');
-            
-            console.log('✅ 이미지 업로드 성공:', imageUrl);
-        } else {
-            throw new Error('업로드 응답 오류');
-        }
+        // Base64 변환 시작
+        reader.readAsDataURL(file);
+        
     } catch (error) {
         console.error('❌ 이미지 업로드 오류:', error);
         statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> 업로드 실패';
