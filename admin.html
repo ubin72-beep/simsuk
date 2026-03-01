@@ -54,6 +54,10 @@
                     <i class="fas fa-shopping-cart"></i> 주문 관리
                     <span class="badge" id="ordersCount">0</span>
                 </button>
+                <button class="tab-btn" onclick="switchTab('discounts')">
+                    <i class="fas fa-tags"></i> 할인 관리
+                    <span class="badge" id="discountsTabBadge">0</span>
+                </button>
             </div>
 
             <!-- Tab Content: Dashboard -->
@@ -156,6 +160,17 @@
                 </div>
                 <div id="ordersTableContainer"></div>
             </div>
+
+            <!-- Tab Content: Discounts -->
+            <div id="discountsTab" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-tags"></i> 할인 관리</h2>
+                    <button class="btn btn-primary" onclick="showAddDiscountModal()">
+                        <i class="fas fa-plus"></i> 새 할인 추가
+                    </button>
+                </div>
+                <div id="discountsTableContainer"></div>
+            </div>
         </div>
     </main>
 
@@ -214,6 +229,42 @@
                         <label>설명</label>
                         <textarea id="productDescription" rows="3"></textarea>
                     </div>
+                    <div class="form-group full-width">
+                        <label>탄생석 (선택)</label>
+                        <select id="productBirthstone" multiple style="height: 120px;">
+                            <option value="1월-가넷">1월 - 가넷 (Garnet)</option>
+                            <option value="2월-자수정">2월 - 자수정 (Amethyst)</option>
+                            <option value="3월-아쿠아마린">3월 - 아쿠아마린 (Aquamarine)</option>
+                            <option value="4월-다이아몬드">4월 - 다이아몬드 (Diamond)</option>
+                            <option value="5월-에메랄드">5월 - 에메랄드 (Emerald)</option>
+                            <option value="6월-진주">6월 - 진주 (Pearl)</option>
+                            <option value="7월-루비">7월 - 루비 (Ruby)</option>
+                            <option value="8월-페리도트">8월 - 페리도트 (Peridot)</option>
+                            <option value="9월-사파이어">9월 - 사파이어 (Sapphire)</option>
+                            <option value="10월-오팔">10월 - 오팔 (Opal)</option>
+                            <option value="11월-토파즈">11월 - 토파즈 (Topaz)</option>
+                            <option value="12월-터키석">12월 - 터키석 (Turquoise)</option>
+                        </select>
+                        <small style="color: #999; display: block; margin-top: 4px;">
+                            <i class="fas fa-info-circle"></i> Ctrl 키를 누르고 클릭하여 여러 개 선택
+                        </small>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>특별한 날 (선택)</label>
+                        <select id="productSpecialDay" multiple style="height: 100px;">
+                            <option value="생일">생일</option>
+                            <option value="크리스마스">크리스마스</option>
+                            <option value="발렌타인데이">발렌타인데이</option>
+                            <option value="화이트데이">화이트데이</option>
+                            <option value="어버이날">어버이날</option>
+                            <option value="졸업">졸업</option>
+                            <option value="입학">입학</option>
+                            <option value="결혼기념일">결혼기념일</option>
+                        </select>
+                        <small style="color: #999; display: block; margin-top: 4px;">
+                            <i class="fas fa-info-circle"></i> Ctrl 키를 누르고 클릭하여 여러 개 선택
+                        </small>
+                    </div>
                     <div class="form-group">
                         <label>
                             <input type="checkbox" id="productFeatured"> 추천 제품
@@ -244,8 +295,54 @@
         </div>
     </div>
 
+    <!-- Discount Modal -->
+    <div id="discountModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="discountModalTitle"><i class="fas fa-tags"></i> 새 할인 추가</h2>
+                <button class="modal-close" onclick="closeDiscountModal()">&times;</button>
+            </div>
+            <form id="discountForm" onsubmit="handleDiscountSubmit(event)">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>할인명 *</label>
+                        <input type="text" id="discountName" required placeholder="예: 봄 맞이 할인">
+                    </div>
+                    <div class="form-group">
+                        <label>할인율 (%) *</label>
+                        <input type="number" id="discountRate" required min="1" max="100" placeholder="10">
+                    </div>
+                    <div class="form-group">
+                        <label>활성화</label>
+                        <label style="display: flex; align-items: center; margin-top: 8px;">
+                            <input type="checkbox" id="discountActive" checked>
+                            <span style="margin-left: 8px;">할인 활성화</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>시작일 *</label>
+                        <input type="date" id="discountStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>종료일 *</label>
+                        <input type="date" id="discountEndDate" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>설명</label>
+                        <textarea id="discountDescription" rows="3" placeholder="할인에 대한 설명을 입력하세요"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeDiscountModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JavaScript -->
-    <script src="js/admin.js?v=20260301012"></script>
+    <script src="js/admin.js?v=20260301014"></script>
+    <script src="js/admin-discounts.js?v=20260301014"></script>
     
     <script>
         // 페이지 로드 후 함수 확인
