@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>심석 관리자 - 캐시 삭제 도구</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c5f4f;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .status-value {
+            font-family: monospace;
+            color: #666;
+        }
+        
+        .status-value.success {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .status-value.error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .version-info {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-gem"></i> 심석 관리자</h1>
+        <div class="subtitle">캐시 삭제 및 버전 확인 도구</div>
+        
+        <div id="alert" class="alert"></div>
+        
+        <div class="status">
+            <div class="status-item">
+                <span class="status-label">현재 페이지 버전</span>
+                <span class="status-value" id="currentVersion">확인 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">admin.js 로드 상태</span>
+                <span class="status-value" id="adminJsStatus">확인 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">toggleAutoRefresh</span>
+                <span class="status-value" id="toggleStatus">확인 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">logout 함수</span>
+                <span class="status-value" id="logoutStatus">확인 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">loadDashboard</span>
+                <span class="status-value" id="dashboardStatus">확인 중...</span>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="clearCache()">
+            <i class="fas fa-trash-alt"></i> 캐시 삭제하기
+        </button>
+        
+        <button class="btn btn-success" onclick="forceReload()">
+            <i class="fas fa-sync-alt"></i> 강제 새로고침 (Ctrl+F5)
+        </button>
+        
+        <button class="btn btn-warning" onclick="goToAdmin()">
+            <i class="fas fa-arrow-right"></i> 관리자 페이지로 이동
+        </button>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> 버튼이 작동하지 않을 때</h3>
+            <ol>
+                <li><strong>Ctrl + Shift + Delete</strong> (Mac: Command + Shift + Delete)</li>
+                <li><strong>"전체 기간"</strong> 선택</li>
+                <li><strong>"쿠키 및 사이트 데이터" + "캐시된 이미지/파일"</strong> 체크</li>
+                <li><strong>"데이터 삭제"</strong> 클릭</li>
+                <li><strong>브라우저 완전 종료</strong> 후 재시작</li>
+                <li>이 페이지로 돌아와서 <strong>"강제 새로고침"</strong> 버튼 클릭</li>
+            </ol>
+        </div>
+        
+        <div class="version-info">
+            최신 버전: v20260301001 | 수정일: 2026-03-01
+        </div>
+    </div>
+    
+    <script>
+        // 페이지 로드 시 상태 확인
+        window.addEventListener('load', function() {
+            checkStatus();
+        });
+        
+        function checkStatus() {
+            // 현재 버전 확인
+            const scripts = document.querySelectorAll('script[src*="admin.js"]');
+            if (scripts.length > 0) {
+                const src = scripts[0].src;
+                const versionMatch = src.match(/v=(\d+)/);
+                const version = versionMatch ? versionMatch[1] : '알 수 없음';
+                document.getElementById('currentVersion').textContent = version;
+                document.getElementById('currentVersion').className = 'status-value' + (version === '20260301001' ? ' success' : ' error');
+            } else {
+                document.getElementById('currentVersion').textContent = '스크립트 없음';
+                document.getElementById('currentVersion').className = 'status-value';
+            }
+            
+            // admin.js 로드 확인 (iframe 사용)
+            checkAdminJs();
+        }
+        
+        function checkAdminJs() {
+            // localStorage에서 마지막 캐시 클리어 시간 확인
+            const lastClear = localStorage.getItem('lastCacheClear');
+            const now = Date.now();
+            
+            if (lastClear) {
+                const elapsed = Math.floor((now - parseInt(lastClear)) / 1000 / 60); // 분 단위
+                if (elapsed < 5) {
+                    document.getElementById('adminJsStatus').textContent = `${elapsed}분 전 캐시 삭제됨`;
+                    document.getElementById('adminJsStatus').className = 'status-value success';
+                } else {
+                    document.getElementById('adminJsStatus').textContent = `${elapsed}분 전 캐시 삭제`;
+                    document.getElementById('adminJsStatus').className = 'status-value';
+                }
+            } else {
+                document.getElementById('adminJsStatus').textContent = '캐시 삭제 필요';
+                document.getElementById('adminJsStatus').className = 'status-value error';
+            }
+            
+            // 함수 상태는 직접 확인 불가 (보안상 이유)
+            document.getElementById('toggleStatus').textContent = '관리자 페이지에서 확인';
+            document.getElementById('logoutStatus').textContent = '관리자 페이지에서 확인';
+            document.getElementById('dashboardStatus').textContent = '관리자 페이지에서 확인';
+        }
+        
+        function clearCache() {
+            // localStorage 기록
+            localStorage.setItem('lastCacheClear', Date.now().toString());
+            
+            // Service Worker 삭제 (있는 경우)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+            
+            // 캐시 스토리지 삭제
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                });
+            }
+            
+            // 성공 메시지
+            showAlert('success', '✅ 캐시가 삭제되었습니다! 이제 아래 단계를 따라주세요:\n\n1. 브라우저를 완전히 종료하세요\n2. 브라우저를 다시 실행하세요\n3. "강제 새로고침" 버튼을 클릭하세요');
+            
+            checkStatus();
+        }
+        
+        function forceReload() {
+            // Ctrl+F5와 동일한 효과
+            window.location.reload(true);
+        }
+        
+        function goToAdmin() {
+            window.location.href = 'admin.html?t=' + Date.now();
+        }
+        
+        function showAlert(type, message) {
+            const alert = document.getElementById('alert');
+            alert.className = 'alert alert-' + type + ' show';
+            alert.textContent = message;
+            
+            setTimeout(() => {
+                alert.className = 'alert';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
