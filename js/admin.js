@@ -147,6 +147,7 @@ function switchTab(tabName) {
     
     if (tabName === 'products') renderProductsTable();
     else if (tabName === 'orders') renderOrdersTable();
+    else if (tabName === 'discounts') loadDiscounts();
 }
 
 // ===== 제품 테이블 =====
@@ -168,6 +169,8 @@ function renderProductsTable() {
                         <th>제품명</th>
                         <th>카테고리</th>
                         <th>가격</th>
+                        <th>탄생석</th>
+                        <th>특별한 날</th>
                         <th>재고</th>
                         <th>액션</th>
                     </tr>
@@ -175,10 +178,23 @@ function renderProductsTable() {
                 <tbody>
                     ${products.map(p => `
                         <tr>
-                            <td><img src="${p.image_url}" alt="${p.name}"></td>
-                            <td>${p.name}</td>
+                            <td><img src="${p.image_url}" alt="${p.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                            <td>
+                                <strong>${p.name}</strong>
+                                ${p.featured ? '<span class="badge badge-warning" style="margin-left: 5px;">추천</span>' : ''}
+                            </td>
                             <td>${p.category}</td>
                             <td>${p.price.toLocaleString()}원</td>
+                            <td>
+                                ${p.birthstone && p.birthstone.length > 0 
+                                    ? p.birthstone.map(b => `<span class="badge badge-info" style="margin: 2px;">${b.split('-')[0]}</span>`).join('') 
+                                    : '<span style="color: #999;">-</span>'}
+                            </td>
+                            <td>
+                                ${p.special_day && p.special_day.length > 0 
+                                    ? p.special_day.map(d => `<span class="badge badge-secondary" style="margin: 2px;">${d}</span>`).join('') 
+                                    : '<span style="color: #999;">-</span>'}
+                            </td>
                             <td><span class="badge ${p.in_stock ? 'badge-success' : 'badge-danger'}">${p.in_stock ? '재고있음' : '품절'}</span></td>
                             <td>
                                 <button class="btn btn-sm btn-primary" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
@@ -334,6 +350,22 @@ function openProductModal(productId = null) {
         document.getElementById('productFeatured').checked = product.featured || false;
         document.getElementById('productInStock').checked = product.in_stock !== false;
         
+        // 탄생석 선택
+        const birthstoneSelect = document.getElementById('productBirthstone');
+        if (product.birthstone && Array.isArray(product.birthstone)) {
+            Array.from(birthstoneSelect.options).forEach(option => {
+                option.selected = product.birthstone.includes(option.value);
+            });
+        }
+        
+        // 특별한 날 선택
+        const specialDaySelect = document.getElementById('productSpecialDay');
+        if (product.special_day && Array.isArray(product.special_day)) {
+            Array.from(specialDaySelect.options).forEach(option => {
+                option.selected = product.special_day.includes(option.value);
+            });
+        }
+        
         // 기존 이미지 미리보기
         if (product.image_url) {
             previewImg.src = product.image_url;
@@ -358,6 +390,14 @@ function closeProductModal() {
 function handleProductSubmit(event) {
     event.preventDefault();
     
+    // 탄생석 선택값 가져오기
+    const birthstoneSelect = document.getElementById('productBirthstone');
+    const selectedBirthstones = Array.from(birthstoneSelect.selectedOptions).map(opt => opt.value);
+    
+    // 특별한 날 선택값 가져오기
+    const specialDaySelect = document.getElementById('productSpecialDay');
+    const selectedSpecialDays = Array.from(specialDaySelect.selectedOptions).map(opt => opt.value);
+    
     const productData = {
         id: currentEditId || Date.now(),
         name: document.getElementById('productName').value,
@@ -367,6 +407,8 @@ function handleProductSubmit(event) {
         materials: document.getElementById('productMaterials').value,
         benefits: document.getElementById('productBenefits').value,
         description: document.getElementById('productDescription').value,
+        birthstone: selectedBirthstones,
+        special_day: selectedSpecialDays,
         featured: document.getElementById('productFeatured').checked,
         in_stock: document.getElementById('productInStock').checked,
         updated_at: new Date().toISOString()
