@@ -190,7 +190,7 @@
                         <input type="file" id="productImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" 
                                style="display: none;" onchange="handleImageUpload(event)">
                         <button type="button" class="btn btn-primary" onclick="document.getElementById('productImageFile').click()" style="width: 100%;">
-                            <i class="fas fa-upload"></i> 이미지 업로드 (JPG, PNG, WebP)
+                            <i class="fab fa-github"></i> 이미지 업로드 (GitHub + CDN)
                         </button>
                         <input type="hidden" id="productImageUrl" required>
                         <div id="uploadStatus" style="margin-top: 10px; color: #666; font-size: 14px;"></div>
@@ -198,7 +198,9 @@
                             <img id="previewImg" src="" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #e0e0e0;">
                         </div>
                         <small style="color: #999; display: block; margin-top: 8px;">
-                            <i class="fas fa-info-circle"></i> 최대 5MB, 권장 크기: 800x800px
+                            <i class="fas fa-info-circle"></i> 최대 100MB, 권장 크기: 800x800px (무제한 용량)<br>
+                            <i class="fab fa-github"></i> GitHub 무료 호스팅 + jsDelivr CDN (빠른 전송)<br>
+                            <i class="fas fa-cog"></i> 설정 필요: <code>js/admin.js</code> 파일의 <code>GITHUB_CONFIG</code>
                         </small>
                     </div>
                     <div class="form-group full-width">
@@ -244,7 +246,7 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="js/admin.js?v=20260301004"></script>
+    <script src="js/admin.js?v=20260301010"></script>
     
     <script>
         // 페이지 로드 후 함수 확인
