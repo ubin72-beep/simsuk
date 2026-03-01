@@ -1,36 +1,32 @@
 // ============================================
-// 심석 관리자 페이지 v3.0 (완전 재구축)
+// 심석 관리자 페이지 v3.0 - 완전한 E-Commerce 시스템
+// 제품 관리, 주문 관리, 통계 포함
 // 작성일: 2026-03-01
 // ============================================
 
-console.log('✅ 심석 관리자 v3.0 로드 시작...');
+console.log('✅ 심석 관리자 v3.0 (완전판) 로드 시작...');
 
-// ============================================
-// 1. 전역 변수
-// ============================================
+// ===== 전역 변수 =====
 const ADMIN_PASSWORD = 'admin';
 let products = [];
 let orders = [];
+let currentEditId = null;
+let currentTab = 'dashboard';
+let autoRefreshInterval = null;
+let isAutoRefreshEnabled = true;
 
-// ============================================
-// 2. 초기화
-// ============================================
+// ===== 초기화 =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔄 DOM 로드 완료, 인증 확인 중...');
+    console.log('🔄 DOM 로드 완료');
     checkAuth();
 });
 
-// ============================================
-// 3. 인증 관련
-// ============================================
+// ===== 인증 =====
 function checkAuth() {
     const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
-    
     if (isLoggedIn === 'true') {
-        console.log('✅ 로그인 상태 확인됨');
         showAdminPage();
     } else {
-        console.log('❌ 미로그인 상태, 로그인 폼 표시');
         showLoginForm();
     }
 }
@@ -43,16 +39,11 @@ function showLoginForm() {
                     <i class="fas fa-gem"></i> 심석 관리자
                 </h1>
                 <form onsubmit="handleLogin(event)" style="display: flex; flex-direction: column; gap: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">비밀번호</label>
-                        <input type="password" id="password" placeholder="비밀번호를 입력하세요" 
-                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;"
-                               required autofocus>
-                    </div>
-                    <button type="submit" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                    <input type="password" id="password" placeholder="비밀번호 (admin)" 
+                           style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" required autofocus>
+                    <button type="submit" style="width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">
                         로그인
                     </button>
-                    <p style="text-align: center; color: #999; font-size: 14px; margin: 0;">기본 비밀번호: admin</p>
                 </form>
             </div>
         </div>
@@ -61,10 +52,7 @@ function showLoginForm() {
 
 function handleLogin(event) {
     event.preventDefault();
-    const password = document.getElementById('password').value;
-    
-    if (password === ADMIN_PASSWORD) {
-        console.log('✅ 로그인 성공');
+    if (document.getElementById('password').value === ADMIN_PASSWORD) {
         sessionStorage.setItem('adminLoggedIn', 'true');
         location.reload();
     } else {
@@ -73,319 +61,417 @@ function handleLogin(event) {
 }
 
 function logout() {
-    console.log('🔄 로그아웃 중...');
     if (confirm('로그아웃 하시겠습니까?')) {
         sessionStorage.removeItem('adminLoggedIn');
         location.reload();
     }
 }
 
-// ============================================
-// 4. 관리자 페이지 표시
-// ============================================
+// ===== 관리자 페이지 표시 =====
 function showAdminPage() {
-    console.log('📊 관리자 페이지 로드 중...');
-    
-    // 데이터 로드
     loadProducts();
     loadOrders();
-    
-    // 통계 업데이트
-    setTimeout(updateStats, 100);
+    setTimeout(() => {
+        updateStats();
+        updateTabBadges();
+    }, 100);
+    setTimeout(startAutoRefresh, 1000);
 }
 
-// ============================================
-// 5. 데이터 로드
-// ============================================
+// ===== 데이터 로드 =====
 function loadProducts() {
-    console.log('📦 제품 데이터 로드 중...');
-    
     const stored = localStorage.getItem('adminProducts');
-    
     if (stored) {
-        try {
-            products = JSON.parse(stored);
-            console.log(`✅ 제품 ${products.length}개 로드됨`);
-        } catch (e) {
-            console.error('❌ 제품 데이터 파싱 오류:', e);
-            products = getDemoProducts();
-        }
+        products = JSON.parse(stored);
     } else {
-        console.log('ℹ️ 저장된 제품 없음, 데모 데이터 사용');
-        products = getDemoProducts();
-        localStorage.setItem('adminProducts', JSON.stringify(products));
+        products = [
+            {id: Date.now() + 1, name: '헤마타이트 목걸이', category: '목걸이', price: 69000, image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace', description: '강력한 자기력', materials: '헤마타이트', benefits: '혈액순환', featured: true, in_stock: true},
+            {id: Date.now() + 2, name: '헤마타이트 팔찌', category: '팔찌', price: 49000, image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet', description: '데일리 착용', materials: '헤마타이트', benefits: '자기력 에너지', featured: true, in_stock: true},
+            {id: Date.now() + 3, name: '헤마타이트 반지', category: '반지', price: 39000, image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring', description: '심플 스타일', materials: '헤마타이트', benefits: '집중력', featured: false, in_stock: true},
+            {id: Date.now() + 4, name: '가넷 목걸이', category: '목걸이', price: 79000, image_url: 'https://placehold.co/400x400/8b0000/ffffff?text=Garnet', description: '1월 탄생석', materials: '가넷', benefits: '정열', featured: true, in_stock: true},
+            {id: Date.now() + 5, name: '자수정 팔찌', category: '팔찌', price: 59000, image_url: 'https://placehold.co/400x400/9966cc/ffffff?text=Amethyst', description: '2월 탄생석', materials: '자수정', benefits: '평온', featured: false, in_stock: true},
+            {id: Date.now() + 6, name: '아쿠아마린 반지', category: '반지', price: 89000, image_url: 'https://placehold.co/400x400/7fffd4/000000?text=Aquamarine', description: '3월 탄생석', materials: '아쿠아마린', benefits: '용기', featured: false, in_stock: true}
+        ];
+        saveProducts();
     }
-    
-    // 전역 변수로 노출
     window.adminProducts = products;
-    
     return products;
 }
 
 function loadOrders() {
-    console.log('📋 주문 데이터 로드 중...');
-    
     const stored = localStorage.getItem('orders');
-    
-    if (stored) {
-        try {
-            orders = JSON.parse(stored);
-            console.log(`✅ 주문 ${orders.length}개 로드됨`);
-        } catch (e) {
-            console.error('❌ 주문 데이터 파싱 오류:', e);
-            orders = [];
-        }
-    } else {
-        console.log('ℹ️ 저장된 주문 없음');
-        orders = [];
-    }
-    
-    // 전역 변수로 노출
+    orders = stored ? JSON.parse(stored) : [];
     window.adminOrders = orders;
-    
     return orders;
 }
 
-function getDemoProducts() {
-    return [
-        {
-            id: 1,
-            name: '헤마타이트 목걸이',
-            category: '목걸이',
-            price: 69000,
-            image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace',
-            description: '강력한 자기력의 헤마타이트 목걸이',
-            materials: '헤마타이트',
-            benefits: '혈액순환 개선, 스트레스 완화',
-            featured: true,
-            in_stock: true,
-            birthstone_months: [1, 10],
-            special_occasions: ['일상', '건강']
-        },
-        {
-            id: 2,
-            name: '헤마타이트 팔찌',
-            category: '팔찌',
-            price: 49000,
-            image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet',
-            description: '데일리 착용 가능한 헤마타이트 팔찌',
-            materials: '헤마타이트',
-            benefits: '자기력 에너지, 혈액순환',
-            featured: true,
-            in_stock: true,
-            birthstone_months: [1, 10],
-            special_occasions: ['일상']
-        },
-        {
-            id: 3,
-            name: '헤마타이트 반지',
-            category: '반지',
-            price: 39000,
-            image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring',
-            description: '심플하고 스타일리시한 헤마타이트 반지',
-            materials: '헤마타이트',
-            benefits: '집중력 향상, 에너지 균형',
-            featured: false,
-            in_stock: true,
-            birthstone_months: [1, 10],
-            special_occasions: ['일상', '선물']
-        },
-        {
-            id: 4,
-            name: '가넷 목걸이',
-            category: '목걸이',
-            price: 79000,
-            image_url: 'https://placehold.co/400x400/8b0000/ffffff?text=Garnet+Necklace',
-            description: '1월 탄생석 가넷 목걸이',
-            materials: '가넷, 실버',
-            benefits: '정열, 생명력 강화',
-            featured: true,
-            in_stock: true,
-            birthstone_months: [1],
-            special_occasions: ['생일', '기념일']
-        },
-        {
-            id: 5,
-            name: '자수정 팔찌',
-            category: '팔찌',
-            price: 59000,
-            image_url: 'https://placehold.co/400x400/9966cc/ffffff?text=Amethyst+Bracelet',
-            description: '2월 탄생석 자수정 팔찌',
-            materials: '자수정',
-            benefits: '평온, 지혜',
-            featured: false,
-            in_stock: true,
-            birthstone_months: [2],
-            special_occasions: ['생일', '힐링']
-        },
-        {
-            id: 6,
-            name: '아쿠아마린 반지',
-            category: '반지',
-            price: 89000,
-            image_url: 'https://placehold.co/400x400/7fffd4/000000?text=Aquamarine+Ring',
-            description: '3월 탄생석 아쿠아마린 반지',
-            materials: '아쿠아마린, 실버',
-            benefits: '용기, 평온',
-            featured: false,
-            in_stock: true,
-            birthstone_months: [3],
-            special_occasions: ['생일', '여행']
-        }
-    ];
+function saveProducts() {
+    localStorage.setItem('adminProducts', JSON.stringify(products));
+    localStorage.setItem('products', JSON.stringify(products)); // 메인 페이지용
+    window.dispatchEvent(new Event('storage')); // 메인 페이지 자동 새로고침
 }
 
-// ============================================
-// 6. 통계 업데이트
-// ============================================
+function saveOrders() {
+    localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+// ===== 통계 =====
 function updateStats() {
-    console.log('📊 통계 업데이트 중...');
-    
-    // 전체 제품
-    const totalProducts = products.length;
-    updateElement('totalProducts', totalProducts);
-    
-    // 카테고리별
-    const necklaceCount = products.filter(p => p.category === '목걸이').length;
-    const braceletCount = products.filter(p => p.category === '팔찌').length;
-    const ringCount = products.filter(p => p.category === '반지').length;
-    const phoneCount = products.filter(p => p.category === '핸드폰 줄').length;
-    
-    updateElement('necklaceCount', necklaceCount);
-    updateElement('braceletCount', braceletCount);
-    updateElement('ringCount', ringCount);
-    updateElement('phoneCount', phoneCount);
-    
-    // 주문 통계
-    const totalOrders = orders.length;
-    const pendingOrders = orders.filter(o => o.status === '접수').length;
-    
-    updateElement('totalOrders', totalOrders);
-    updateElement('pendingOrders', pendingOrders);
-    
-    console.log(`✅ 통계 업데이트 완료: 제품 ${totalProducts}개, 주문 ${totalOrders}개`);
+    updateElement('totalProducts', products.length);
+    updateElement('necklaceCount', products.filter(p => p.category === '목걸이').length);
+    updateElement('braceletCount', products.filter(p => p.category === '팔찌').length);
+    updateElement('ringCount', products.filter(p => p.category === '반지').length);
+    updateElement('phoneCount', products.filter(p => p.category === '핸드폰 줄').length);
+    updateElement('totalOrders', orders.length);
+    updateElement('pendingOrders', orders.filter(o => o.status === '접수' || o.status === '확인중').length);
 }
 
 function updateElement(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = value;
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function updateTabBadges() {
+    updateElement('productsCount', products.length);
+    updateElement('ordersCount', orders.length);
+}
+
+// ===== 탭 전환 =====
+function switchTab(tabName) {
+    currentTab = tabName;
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event?.target?.closest('.tab-btn')?.classList.add('active');
+    document.getElementById(tabName + 'Tab')?.classList.add('active');
+    
+    if (tabName === 'products') renderProductsTable();
+    else if (tabName === 'orders') renderOrdersTable();
+}
+
+// ===== 제품 테이블 =====
+function renderProductsTable() {
+    const container = document.getElementById('productsTableContainer');
+    if (!container) return;
+    
+    if (products.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><h3>등록된 제품이 없습니다</h3></div>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>이미지</th>
+                        <th>제품명</th>
+                        <th>카테고리</th>
+                        <th>가격</th>
+                        <th>재고</th>
+                        <th>액션</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${products.map(p => `
+                        <tr>
+                            <td><img src="${p.image_url}" alt="${p.name}"></td>
+                            <td>${p.name}</td>
+                            <td>${p.category}</td>
+                            <td>${p.price.toLocaleString()}원</td>
+                            <td><span class="badge ${p.in_stock ? 'badge-success' : 'badge-danger'}">${p.in_stock ? '재고있음' : '품절'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// ===== 주문 테이블 =====
+function renderOrdersTable() {
+    const container = document.getElementById('ordersTableContainer');
+    if (!container) return;
+    
+    if (orders.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart"></i><h3>주문이 없습니다</h3></div>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>주문번호</th>
+                        <th>고객명</th>
+                        <th>전화번호</th>
+                        <th>금액</th>
+                        <th>상태</th>
+                        <th>주문일</th>
+                        <th>액션</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orders.map(o => `
+                        <tr>
+                            <td>#${String(o.id).substr(-6)}</td>
+                            <td>${o.name}</td>
+                            <td>${o.phone}</td>
+                            <td>${(o.total || 0).toLocaleString()}원</td>
+                            <td><span class="badge badge-info">${o.status || '접수'}</span></td>
+                            <td>${new Date(o.order_date || o.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i> 상세</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// ===== 제품 관리 =====
+function openProductModal(productId = null) {
+    currentEditId = productId;
+    const modal = document.getElementById('productModal');
+    const title = document.getElementById('productModalTitle');
+    
+    if (productId) {
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+        
+        title.textContent = '제품 수정';
+        document.getElementById('productName').value = product.name;
+        document.getElementById('productCategory').value = product.category;
+        document.getElementById('productPrice').value = product.price;
+        document.getElementById('productImageUrl').value = product.image_url;
+        document.getElementById('productMaterials').value = product.materials || '';
+        document.getElementById('productBenefits').value = product.benefits || '';
+        document.getElementById('productDescription').value = product.description || '';
+        document.getElementById('productFeatured').checked = product.featured || false;
+        document.getElementById('productInStock').checked = product.in_stock !== false;
+    } else {
+        title.textContent = '새 제품 추가';
+        document.getElementById('productForm').reset();
+    }
+    
+    modal.classList.add('active');
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').classList.remove('active');
+    currentEditId = null;
+}
+
+function handleProductSubmit(event) {
+    event.preventDefault();
+    
+    const productData = {
+        id: currentEditId || Date.now(),
+        name: document.getElementById('productName').value,
+        category: document.getElementById('productCategory').value,
+        price: parseInt(document.getElementById('productPrice').value),
+        image_url: document.getElementById('productImageUrl').value,
+        materials: document.getElementById('productMaterials').value,
+        benefits: document.getElementById('productBenefits').value,
+        description: document.getElementById('productDescription').value,
+        featured: document.getElementById('productFeatured').checked,
+        in_stock: document.getElementById('productInStock').checked,
+        updated_at: new Date().toISOString()
+    };
+    
+    if (currentEditId) {
+        const index = products.findIndex(p => p.id === currentEditId);
+        if (index !== -1) products[index] = productData;
+    } else {
+        productData.created_at = new Date().toISOString();
+        products.push(productData);
+    }
+    
+    saveProducts();
+    updateStats();
+    updateTabBadges();
+    renderProductsTable();
+    closeProductModal();
+    showToast(currentEditId ? '제품이 수정되었습니다' : '제품이 추가되었습니다', 'success');
+}
+
+function editProduct(id) {
+    openProductModal(id);
+}
+
+function deleteProduct(id) {
+    if (!confirm('이 제품을 삭제하시겠습니까?')) return;
+    
+    products = products.filter(p => p.id !== id);
+    saveProducts();
+    updateStats();
+    updateTabBadges();
+    renderProductsTable();
+    showToast('제품이 삭제되었습니다', 'success');
+}
+
+// ===== 주문 상세 =====
+function viewOrder(id) {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+    
+    const modal = document.getElementById('orderModal');
+    const content = document.getElementById('orderDetailContent');
+    
+    let productsHtml = '';
+    if (order.products && Array.isArray(order.products)) {
+        productsHtml = order.products.map(p => `
+            <tr>
+                <td>${p.name}</td>
+                <td>${p.quantity}개</td>
+                <td>${(p.price * p.quantity).toLocaleString()}원</td>
+            </tr>
+        `).join('');
+    }
+    
+    content.innerHTML = `
+        <div class="modal-body">
+            <h3>주문 정보</h3>
+            <p><strong>주문번호:</strong> #${String(order.id).substr(-6)}</p>
+            <p><strong>주문일:</strong> ${new Date(order.order_date || order.created_at).toLocaleString()}</p>
+            <p><strong>상태:</strong> <span class="badge badge-info">${order.status || '접수'}</span></p>
+            
+            <h3 style="margin-top: 20px;">고객 정보</h3>
+            <p><strong>이름:</strong> ${order.name}</p>
+            <p><strong>전화번호:</strong> ${order.phone}</p>
+            <p><strong>이메일:</strong> ${order.email || '-'}</p>
+            <p><strong>주소:</strong> ${order.address || '-'}</p>
+            
+            <h3 style="margin-top: 20px;">주문 상품</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e0e0e0;">
+                        <th style="text-align: left; padding: 10px;">상품명</th>
+                        <th style="text-align: left; padding: 10px;">수량</th>
+                        <th style="text-align: right; padding: 10px;">금액</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productsHtml}
+                </tbody>
+                <tfoot>
+                    <tr style="border-top: 2px solid #e0e0e0; font-weight: bold;">
+                        <td colspan="2" style="padding: 10px;">합계</td>
+                        <td style="text-align: right; padding: 10px;">${(order.total || 0).toLocaleString()}원</td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="updateOrderStatus(${order.id})">상태 변경</button>
+                <button class="btn btn-outline" onclick="closeOrderModal()">닫기</button>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+}
+
+function closeOrderModal() {
+    document.getElementById('orderModal').classList.remove('active');
+}
+
+function updateOrderStatus(id) {
+    const statuses = ['접수', '확인중', '배송준비', '배송중', '배송완료', '취소'];
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+    
+    const currentIndex = statuses.indexOf(order.status || '접수');
+    const newStatus = statuses[(currentIndex + 1) % statuses.length];
+    
+    if (confirm(`주문 상태를 "${newStatus}"(으)로 변경하시겠습니까?`)) {
+        order.status = newStatus;
+        order.updated_at = new Date().toISOString();
+        saveOrders();
+        updateStats();
+        renderOrdersTable();
+        closeOrderModal();
+        showToast('주문 상태가 변경되었습니다', 'success');
     }
 }
 
-// ============================================
-// 7. 자동 새로고침
-// ============================================
-let autoRefreshInterval = null;
-let isAutoRefreshEnabled = true;
-
+// ===== 자동 새로고침 =====
 function toggleAutoRefresh() {
-    console.log('🔄 자동 새로고침 토글');
-    
     isAutoRefreshEnabled = !isAutoRefreshEnabled;
     const btn = document.getElementById('autoRefreshToggle');
-    
-    if (!btn) {
-        console.error('❌ autoRefreshToggle 버튼을 찾을 수 없음');
-        return;
-    }
+    if (!btn) return;
     
     if (isAutoRefreshEnabled) {
         btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> 자동새로고침 중';
         btn.className = 'btn btn-primary';
-        console.log('✅ 자동 새로고침 활성화');
-        showToast('자동 새로고침이 활성화되었습니다', 'success');
+        showToast('자동 새로고침 활성화', 'success');
     } else {
         btn.innerHTML = '<i class="fas fa-sync"></i> 자동새로고침 꺼짐';
         btn.className = 'btn btn-outline';
-        console.log('⏸️ 자동 새로고침 비활성화');
-        showToast('자동 새로고침이 비활성화되었습니다', 'info');
+        showToast('자동 새로고침 비활성화', 'info');
     }
 }
 
 function startAutoRefresh() {
-    if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-    }
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
     
     autoRefreshInterval = setInterval(() => {
         if (isAutoRefreshEnabled) {
-            console.log('🔄 자동 새로고침 실행');
             loadProducts();
             loadOrders();
             updateStats();
+            updateTabBadges();
+            if (currentTab === 'products') renderProductsTable();
+            else if (currentTab === 'orders') renderOrdersTable();
         }
-    }, 30000); // 30초
-    
-    console.log('✅ 자동 새로고침 시작 (30초 간격)');
+    }, 30000);
 }
 
-// ============================================
-// 8. 토스트 메시지
-// ============================================
+// ===== 토스트 =====
 function showToast(message, type = 'info') {
-    console.log(`📢 토스트: [${type}] ${message}`);
-    
-    // 기존 토스트 제거
     const existing = document.getElementById('toast');
-    if (existing) {
-        existing.remove();
-    }
+    if (existing) existing.remove();
     
-    // 새 토스트 생성
     const toast = document.createElement('div');
     toast.id = 'toast';
     toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-        padding: 15px 25px;
-        border-radius: 10px;
-        color: white;
-        font-weight: 600;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        animation: slideIn 0.3s ease;
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        padding: 15px 25px; border-radius: 10px; color: white; font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideIn 0.3s ease;
     `;
     
-    // 타입별 색상
-    const colors = {
-        success: '#28a745',
-        error: '#dc3545',
-        warning: '#ffc107',
-        info: '#17a2b8'
-    };
-    
+    const colors = {success: '#28a745', error: '#dc3545', warning: '#ffc107', info: '#17a2b8'};
     toast.style.background = colors[type] || colors.info;
     toast.textContent = message;
     
     document.body.appendChild(toast);
-    
-    // 3초 후 제거
     setTimeout(() => {
-        if (toast.parentElement) {
-            toast.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
-// ============================================
-// 9. 전역 함수 노출
-// ============================================
+// ===== 전역 함수 노출 =====
 window.handleLogin = handleLogin;
 window.logout = logout;
 window.toggleAutoRefresh = toggleAutoRefresh;
-window.updateStats = updateStats;
-window.showToast = showToast;
+window.switchTab = switchTab;
+window.openProductModal = openProductModal;
+window.closeProductModal = closeProductModal;
+window.handleProductSubmit = handleProductSubmit;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+window.viewOrder = viewOrder;
+window.closeOrderModal = closeOrderModal;
+window.updateOrderStatus = updateOrderStatus;
 window.adminProducts = products;
 window.adminOrders = orders;
 
-console.log('✅ 심석 관리자 v3.0 로드 완료');
-
-// ============================================
-// 10. 자동 새로고침 시작
-// ============================================
-if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-    setTimeout(startAutoRefresh, 1000);
-}
+console.log('✅ 심석 관리자 v3.0 (완전판) 로드 완료');
