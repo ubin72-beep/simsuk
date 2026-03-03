@@ -1,27 +1,22 @@
-# 심석 (SIMSUK) - 헤마타이트 액세서리
-# www.simsuk.com
+# robots.txt for www.simsuk.com
+# 생성일: 2026-03-03
 
-# 모든 검색엔진 허용
+# 모든 검색 엔진 크롤러 허용
 User-agent: *
 
-# 검색엔진에서 제외할 페이지
+# 허용할 페이지
+Allow: /
+Allow: /index.html
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# 차단할 페이지 (관리자 페이지)
 Disallow: /admin.html
-Disallow: /test_*.html
-Disallow: /debug_*.html
-Disallow: /check_*.html
-Disallow: /create_*.html
+Disallow: /admin/
 
 # 사이트맵 위치
 Sitemap: https://www.simsuk.com/sitemap.xml
 
-# 네이버 웹마스터 도구
-User-agent: Yeti
-Allow: /
-
-# 구글봇
-User-agent: Googlebot
-Allow: /
-
-# 다음(Daum) 검색
-User-agent: Daumoa
-Allow: /
+# 크롤링 속도 (선택사항)
+# Crawl-delay: 1
