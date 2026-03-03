@@ -641,8 +641,13 @@ function closeProductModal() {
 function addToCart(event, productId, closeModal = false) {
     event.stopPropagation();
     
-    const product = allProducts.find(p => p.id === productId);
-    if (!product) return;
+    // ID를 숫자로 변환 (문자열로 전달될 수 있음)
+    const id = typeof productId === 'string' ? parseInt(productId) : productId;
+    const product = allProducts.find(p => p.id === id);
+    if (!product) {
+        console.error('Product not found in cart:', productId, 'Available products:', allProducts);
+        return;
+    }
     
     // 활성 할인 확인
     const activeDiscount = getActiveDiscountFromStorage();
@@ -652,7 +657,7 @@ function addToCart(event, productId, closeModal = false) {
         : originalPrice;
     
     // Check if product already in cart
-    const existingItem = cart.find(item => item.id === productId);
+    const existingItem = cart.find(item => item.id === id);
     
     if (existingItem) {
         existingItem.quantity += 1;
