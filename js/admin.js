@@ -7,15 +7,11 @@
 console.log('✅ 심석 관리자 v3.1 (보안 강화) 로드 시작...');
 
 // ===== 전역 변수 =====
-// 관리자 계정
+// 관리자 계정 (메인 계정 1개로 통합)
 const ADMIN_ACCOUNTS = [
     {
         username: 'admin',
         password: 'simsuk2026'
-    },
-    {
-        username: 'simsuk',
-        password: 'simsuk123'
     }
 ];
 
