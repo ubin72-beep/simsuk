@@ -544,8 +544,13 @@ function filterByOccasion(occasion) {
 
 // ===== Open Product Modal =====
 function openProductModal(productId) {
-    const product = allProducts.find(p => p.id === productId);
-    if (!product) return;
+    // ID를 숫자로 변환 (문자열로 전달될 수 있음)
+    const id = typeof productId === 'string' ? parseInt(productId) : productId;
+    const product = allProducts.find(p => p.id === id);
+    if (!product) {
+        console.error('Product not found:', productId, 'Available products:', allProducts);
+        return;
+    }
     
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('modalBody');
@@ -799,45 +804,60 @@ function setupEventListeners() {
     
     // Modal close events
     const modal = document.getElementById('productModal');
-    const modalOverlay = modal.querySelector('.modal-overlay');
-    const modalClose = modal.querySelector('.modal-close');
-    
-    modalOverlay.addEventListener('click', closeProductModal);
-    modalClose.addEventListener('click', closeProductModal);
+    if (modal) {
+        const modalOverlay = modal.querySelector('.modal-overlay');
+        const modalClose = modal.querySelector('.modal-close');
+        if (modalOverlay) modalOverlay.addEventListener('click', closeProductModal);
+        if (modalClose) modalClose.addEventListener('click', closeProductModal);
+    }
     
     // Contact form
     const contactForm = document.getElementById('contactForm');
-    contactForm.addEventListener('submit', handleContactForm);
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleContactForm);
+    }
     
     // Newsletter form
     const newsletterForm = document.querySelector('.newsletter-form');
-    newsletterForm.addEventListener('submit', handleNewsletterForm);
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', handleNewsletterForm);
+    }
     
     // Cart button
     const cartBtn = document.getElementById('cartBtn');
-    cartBtn.addEventListener('click', showCart);
+    if (cartBtn) {
+        cartBtn.addEventListener('click', showCart);
+    }
     
     // Search button
     const searchBtn = document.getElementById('searchBtn');
-    searchBtn.addEventListener('click', openSearchModal);
+    if (searchBtn) {
+        searchBtn.addEventListener('click', openSearchModal);
+    }
     
     // Search modal close events
     const searchModal = document.getElementById('searchModal');
-    const searchOverlay = searchModal.querySelector('.modal-overlay');
-    const searchClose = searchModal.querySelector('.modal-close');
-    searchOverlay.addEventListener('click', closeSearchModal);
-    searchClose.addEventListener('click', closeSearchModal);
+    if (searchModal) {
+        const searchOverlay = searchModal.querySelector('.modal-overlay');
+        const searchClose = searchModal.querySelector('.modal-close');
+        if (searchOverlay) searchOverlay.addEventListener('click', closeSearchModal);
+        if (searchClose) searchClose.addEventListener('click', closeSearchModal);
+    }
     
     // Search input
     const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', handleSearch);
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
     
     // Order tracking modal close events
     const trackingModal = document.getElementById('orderTrackingModal');
-    const trackingOverlay = trackingModal.querySelector('.modal-overlay');
-    const trackingClose = trackingModal.querySelector('.modal-close');
-    trackingOverlay.addEventListener('click', closeOrderTracking);
-    trackingClose.addEventListener('click', closeOrderTracking);
+    if (trackingModal) {
+        const trackingOverlay = trackingModal.querySelector('.modal-overlay');
+        const trackingClose = trackingModal.querySelector('.modal-close');
+        if (trackingOverlay) trackingOverlay.addEventListener('click', closeOrderTracking);
+        if (trackingClose) trackingClose.addEventListener('click', closeOrderTracking);
+    }
     
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
