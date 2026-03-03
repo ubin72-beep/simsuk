@@ -1232,6 +1232,13 @@ function updateCartQuantity(productId, change) {
 
 // ===== Checkout =====
 function checkout() {
+    // 장바구니 비어있는지 확인
+    if (cart.length === 0) {
+        showNotification('장바구니가 비어있습니다. 상품을 먼저 담아주세요.');
+        closeProductModal();
+        return;
+    }
+    
     closeProductModal();
     showOrderContactForm();
 }
@@ -1494,7 +1501,19 @@ function showOrderContactForm() {
     `;
     
     // 폼 제출 이벤트
-    document.getElementById('orderContactForm').addEventListener('submit', handleOrderSubmit);
+    const form = document.getElementById('orderContactForm');
+    form.addEventListener('submit', handleOrderSubmit);
+    
+    // 폼 유효성 검사 개선
+    form.addEventListener('invalid', (e) => {
+        e.preventDefault();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) {
+            firstInvalid.focus();
+            const fieldName = firstInvalid.previousElementSibling?.textContent || '필수 항목';
+            showNotification(`${fieldName}을(를) 입력해주세요.`);
+        }
+    }, true);
     
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
