@@ -7,17 +7,15 @@
 console.log('✅ 심석 관리자 v3.1 (보안 강화) 로드 시작...');
 
 // ===== 전역 변수 =====
-// 관리자 계정 (SHA-256 해시)
+// 관리자 계정
 const ADMIN_ACCOUNTS = [
     {
         username: 'admin',
-        // 비밀번호: simsuk2026
-        passwordHash: 'a8f5f167f44f4964e6c998dee827110c163e6c8f600e6f94b8b32935b0b59a0a'
+        password: 'simsuk2026'
     },
     {
         username: 'simsuk',
-        // 비밀번호: simsuk123
-        passwordHash: 'ec5decca5ed3d6b8079e2e7e7bacc8c8c6dc0e5d0c3e8e2d4c3c6e3f5e6e7e8e'
+        password: 'simsuk123'
     }
 ];
 
@@ -82,7 +80,7 @@ function showLoginForm() {
                     </button>
                 </form>
                 <div style="margin-top: 20px; text-align: center; color: #888; font-size: 13px;">
-                    <i class="fas fa-shield-alt"></i> SHA-256 암호화 보안
+                    <i class="fas fa-shield-alt"></i> 아이디/비밀번호 보안 인증
                 </div>
             </div>
         </div>
@@ -102,12 +100,9 @@ async function handleLogin(event) {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
     
-    // 비밀번호 해시 생성
-    const passwordHash = await sha256(password);
-    
-    // 계정 확인
+    // 계정 확인 (평문 비교)
     const account = ADMIN_ACCOUNTS.find(acc => 
-        acc.username === username && acc.passwordHash === passwordHash
+        acc.username === username && acc.password === password
     );
     
     if (account) {
