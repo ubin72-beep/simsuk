@@ -6,6 +6,21 @@ let cart = [];
 let autoRefreshInterval = null;
 let activeDiscount = null;
 
+// ===== Helper Functions =====
+// ID 비교를 위한 통일된 함수
+function normalizeId(id) {
+    if (id === null || id === undefined) return null;
+    // 숫자 또는 숫자 문자열을 숫자로 변환
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    return isNaN(numId) ? String(id) : numId;
+}
+
+function compareIds(id1, id2) {
+    const normalized1 = normalizeId(id1);
+    const normalized2 = normalizeId(id2);
+    return normalized1 === normalized2;
+}
+
 // ===== Initialize App =====
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM Content Loaded - Initializing app...');
@@ -142,23 +157,26 @@ async function loadProducts(silent = false) {
         console.log('🔄 [Main] Loading products...');
         
         // 1. localStorage에서 관리자가 저장한 제품 불러오기
-        const savedProducts = localStorage.getItem('adminProducts');
+        const savedProducts = localStorage.getItem('adminProducts') || localStorage.getItem('products');
         
         let productsData = [];
         
         if (savedProducts) {
             try {
                 productsData = JSON.parse(savedProducts);
-                console.log(`✅ [Main] Loaded ${productsData.length} products from localStorage (관리자 페이지에서 추가된 제품)`);
+                console.log(`✅ [Main] Loaded ${productsData.length} products from localStorage`);
+                console.log('📋 [Main] Products:', productsData.map(p => p.name).join(', '));
             } catch (e) {
-                console.warn('⚠️ [Main] localStorage 파싱 오류:', e);
+                console.error('❌ [Main] localStorage 파싱 오류:', e);
                 productsData = [];
             }
+        } else {
+            console.warn('⚠️ [Main] localStorage에 제품 데이터 없음');
         }
         
         // 2. localStorage에 제품이 없으면 데모 데이터 사용
         if (productsData.length === 0) {
-            console.log('⚠️ [Main] localStorage에 제품 없음 - 데모 데이터 사용');
+            console.log('⚠️ [Main] 데모 데이터 사용');
             
             // 데모 제품 데이터
             const demoProducts = [
@@ -335,7 +353,7 @@ function displayProducts(products) {
         }
         
         return `
-        <div class="product-card" data-id="${product.id}" onclick="openProductModal('${product.id}')">
+        <div class="product-card" data-id="${product.id}" onclick="openProductModal(${product.id})">
             <div class="product-image">
                 <img src="${product.image_url}" alt="${product.name}">
                 ${product.featured ? '<span class="product-badge">추천</span>' : ''}
@@ -355,7 +373,7 @@ function displayProducts(products) {
                             </div>
                         ` : `${formatPrice(originalPrice)}원`}
                     </div>
-                    <button class="add-to-cart-btn" onclick="addToCart(event, '${product.id}')">
+                    <button class="add-to-cart-btn" onclick="addToCart(event, ${product.id})">
                         <i class="fas fa-shopping-bag"></i>
                     </button>
                 </div>
@@ -544,9 +562,9 @@ function filterByOccasion(occasion) {
 
 // ===== Open Product Modal =====
 function openProductModal(productId) {
-    // ID를 숫자로 변환 (문자열로 전달될 수 있음)
-    const id = typeof productId === 'string' ? parseInt(productId) : productId;
-    const product = allProducts.find(p => p.id === id);
+    // ID 정규화
+    const normalizedId = normalizeId(productId);
+    const product = allProducts.find(p => compareIds(p.id, normalizedId));
     if (!product) {
         console.error('Product not found:', productId, 'Available products:', allProducts);
         return;
@@ -615,7 +633,7 @@ function openProductModal(productId) {
                 </div>
                 
                 <div class="modal-actions">
-                    <button class="btn btn-primary" onclick="addToCart(event, '${product.id}', true)">
+                    <button class="btn btn-primary" onclick="addToCart(event, ${product.id}, true)">
                         <i class="fas fa-shopping-bag"></i> 장바구니 담기
                     </button>
                     <button class="btn btn-secondary" onclick="closeProductModal()">
@@ -641,9 +659,9 @@ function closeProductModal() {
 function addToCart(event, productId, closeModal = false) {
     event.stopPropagation();
     
-    // ID를 숫자로 변환 (문자열로 전달될 수 있음)
-    const id = typeof productId === 'string' ? parseInt(productId) : productId;
-    const product = allProducts.find(p => p.id === id);
+    // ID 정규화
+    const normalizedId = normalizeId(productId);
+    const product = allProducts.find(p => compareIds(p.id, normalizedId));
     if (!product) {
         console.error('Product not found in cart:', productId, 'Available products:', allProducts);
         return;
@@ -657,7 +675,7 @@ function addToCart(event, productId, closeModal = false) {
         : originalPrice;
     
     // Check if product already in cart
-    const existingItem = cart.find(item => item.id === id);
+    const existingItem = cart.find(item => compareIds(item.id, normalizedId));
     
     if (existingItem) {
         existingItem.quantity += 1;
@@ -1145,9 +1163,9 @@ function showCart() {
             <div style="text-align: right;">
                 <div style="font-weight: 700; color: ${activeDiscount ? '#e74c3c' : '#2c5f4f'}; margin-bottom: 10px;">${formatPrice(itemTotal)}원</div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <button onclick="updateCartQuantity('${item.id}', -1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">-</button>
+                    <button onclick="updateCartQuantity(${item.id}, -1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">-</button>
                     <span>${item.quantity}</span>
-                    <button onclick="updateCartQuantity('${item.id}', 1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">+</button>
+                    <button onclick="updateCartQuantity(${item.id}, 1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">+</button>
                 </div>
             </div>
         </div>
@@ -1217,13 +1235,19 @@ function showCart() {
 
 // ===== Update Cart Quantity =====
 function updateCartQuantity(productId, change) {
-    const item = cart.find(i => i.id === productId);
-    if (!item) return;
+    // ID 정규화
+    const normalizedId = normalizeId(productId);
+    const item = cart.find(i => compareIds(i.id, normalizedId));
+    
+    if (!item) {
+        console.error('Cart item not found:', productId, 'Cart:', cart);
+        return;
+    }
     
     item.quantity += change;
     
     if (item.quantity <= 0) {
-        cart = cart.filter(i => i.id !== productId);
+        cart = cart.filter(i => !compareIds(i.id, normalizedId));
     }
     
     updateCartBadge();
@@ -1846,7 +1870,7 @@ function handleSearch(e) {
             <strong style="color: #2c5f4f;">${results.length}개</strong>의 제품을 찾았습니다
         </div>
         ${results.map(product => `
-            <div class="search-result-item" onclick="openProductFromSearch('${product.id}')" style="display: flex; gap: 15px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s;">
+            <div class="search-result-item" onclick="openProductFromSearch(${product.id})" style="display: flex; gap: 15px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s;">
                 <img src="${product.image_url}" alt="${product.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                 <div style="flex: 1;">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
