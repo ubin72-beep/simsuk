@@ -195,9 +195,9 @@ function logout() {
 }
 
 // ===== 관리자 페이지 표시 =====
-function showAdminPage() {
+async function showAdminPage() {
     loadProducts();
-    loadOrders();
+    await loadOrders();
     setTimeout(() => {
         updateStats();
         updateTabBadges();
@@ -225,9 +225,29 @@ function loadProducts() {
     return products;
 }
 
-function loadOrders() {
-    const stored = localStorage.getItem('orders');
-    orders = stored ? JSON.parse(stored) : [];
+async function loadOrders() {
+    try {
+        // API에서 주문 데이터 가져오기
+        const response = await fetch('tables/orders?limit=1000&sort=-order_date');
+        if (response.ok) {
+            const data = await response.json();
+            orders = data.data || [];
+            console.log('✅ [Admin] API에서 주문 로드:', orders.length + '개');
+        } else {
+            console.error('❌ [Admin] 주문 로드 실패:', response.status);
+            // API 실패 시 localStorage 사용
+            const stored = localStorage.getItem('orders');
+            orders = stored ? JSON.parse(stored) : [];
+            console.log('⚠️ [Admin] localStorage에서 주문 로드:', orders.length + '개');
+        }
+    } catch (error) {
+        console.error('❌ [Admin] 주문 로드 오류:', error);
+        // 오류 시 localStorage 사용
+        const stored = localStorage.getItem('orders');
+        orders = stored ? JSON.parse(stored) : [];
+        console.log('⚠️ [Admin] localStorage에서 주문 로드:', orders.length + '개');
+    }
+    
     window.adminOrders = orders;
     return orders;
 }
@@ -362,14 +382,14 @@ function renderOrdersTable() {
                 <tbody>
                     ${orders.map(o => `
                         <tr>
-                            <td>#${String(o.id).substr(-6)}</td>
-                            <td>${o.name}</td>
-                            <td>${o.phone}</td>
-                            <td>${(o.total || 0).toLocaleString()}원</td>
+                            <td>${o.order_number || '#' + String(o.id).substr(-6)}</td>
+                            <td>${o.customer_name || o.name || '-'}</td>
+                            <td>${o.customer_phone || o.phone || '-'}</td>
+                            <td>${(o.total_amount || o.total || 0).toLocaleString()}원</td>
                             <td><span class="badge badge-info">${o.status || '접수'}</span></td>
                             <td>${new Date(o.order_date || o.created_at).toLocaleDateString()}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i> 상세</button>
+                                <button class="btn btn-sm btn-primary" onclick="viewOrder('${o.id}')"><i class="fas fa-eye"></i> 상세</button>
                             </td>
                         </tr>
                     `).join('')}
@@ -574,8 +594,14 @@ function deleteProduct(id) {
 
 // ===== 주문 상세 =====
 function viewOrder(id) {
-    const order = orders.find(o => o.id === id);
-    if (!order) return;
+    // ID를 문자열로 변환 (API에서는 UUID 문자열)
+    const orderId = String(id);
+    const order = orders.find(o => String(o.id) === orderId);
+    if (!order) {
+        console.error('주문을 찾을 수 없습니다:', id, 'Available orders:', orders);
+        alert('주문을 찾을 수 없습니다.');
+        return;
+    }
     
     const modal = document.getElementById('orderModal');
     const content = document.getElementById('orderDetailContent');
@@ -1224,10 +1250,10 @@ function toggleAutoRefresh() {
 function startAutoRefresh() {
     if (autoRefreshInterval) clearInterval(autoRefreshInterval);
     
-    autoRefreshInterval = setInterval(() => {
+    autoRefreshInterval = setInterval(async () => {
         if (isAutoRefreshEnabled) {
             loadProducts();
-            loadOrders();
+            await loadOrders();
             updateStats();
             updateTabBadges();
             if (currentTab === 'products') renderProductsTable();
