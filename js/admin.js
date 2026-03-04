@@ -665,7 +665,7 @@ function handleProductSubmit(event) {
     const selectedSpecialDays = Array.from(specialDaySelect.selectedOptions).map(opt => opt.value);
     
     const productData = {
-        id: currentEditId || Date.now(),
+        id: currentEditId ? currentEditId : Date.now(),  // ⭐ 숫자 ID 보장
         name: document.getElementById('productName').value,
         category: document.getElementById('productCategory').value,
         price: parseInt(document.getElementById('productPrice').value),
