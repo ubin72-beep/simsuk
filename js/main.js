@@ -181,7 +181,7 @@ async function loadProducts(silent = false) {
             // 데모 제품 데이터
             const demoProducts = [
                 {
-                    id: '1',
+                    id: 1,
                     name: '헤마타이트 목걸이',
                     category: '목걸이',
                     price: 69000,
@@ -195,7 +195,7 @@ async function loadProducts(silent = false) {
                     special_occasions: ['일상', '건강']
                 },
                 {
-                    id: '2',
+                    id: 2,
                     name: '헤마타이트 팔찌',
                     category: '팔찌',
                     price: 49000,
@@ -209,7 +209,7 @@ async function loadProducts(silent = false) {
                     special_occasions: ['일상']
                 },
                 {
-                    id: '3',
+                    id: 3,
                     name: '헤마타이트 반지',
                     category: '반지',
                     price: 39000,
@@ -223,7 +223,7 @@ async function loadProducts(silent = false) {
                     special_occasions: ['일상', '선물']
                 },
                 {
-                    id: '4',
+                    id: 4,
                     name: '가넷 목걸이 (1월 탄생석)',
                     category: '목걸이',
                     price: 79000,
@@ -237,7 +237,7 @@ async function loadProducts(silent = false) {
                     special_occasions: ['생일', '기념일']
                 },
                 {
-                    id: '5',
+                    id: 5,
                     name: '자수정 팔찌 (2월 탄생석)',
                     category: '팔찌',
                     price: 59000,
@@ -251,7 +251,7 @@ async function loadProducts(silent = false) {
                     special_occasions: ['생일', '힐링']
                 },
                 {
-                    id: '6',
+                    id: 6,
                     name: '아쿠아마린 반지 (3월 탄생석)',
                     category: '반지',
                     price: 89000,
@@ -373,7 +373,7 @@ function displayProducts(products) {
                             </div>
                         ` : `${formatPrice(originalPrice)}원`}
                     </div>
-                    <button class="add-to-cart-btn" onclick="addToCart(event, ${product.id})">
+                    <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(event, ${product.id})">
                         <i class="fas fa-shopping-bag"></i>
                     </button>
                 </div>
@@ -562,6 +562,14 @@ function filterByOccasion(occasion) {
 
 // ===== Open Product Modal =====
 function openProductModal(productId) {
+    console.log('🔍 Opening product modal for ID:', productId, 'Type:', typeof productId);
+    
+    // ID가 유효한지 확인
+    if (productId === null || productId === undefined) {
+        console.error('❌ Invalid product ID:', productId);
+        return;
+    }
+    
     // 제품 상세 페이지로 이동
     window.location.href = `product-detail.html?id=${productId}`;
     return;
@@ -663,15 +671,25 @@ function closeProductModal() {
 
 // ===== Add to Cart =====
 function addToCart(event, productId, closeModal = false) {
-    event.stopPropagation();
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    console.log('🛒 Adding to cart - ID:', productId, 'Type:', typeof productId);
     
     // ID 정규화
     const normalizedId = normalizeId(productId);
     const product = allProducts.find(p => compareIds(p.id, normalizedId));
+    
     if (!product) {
-        console.error('Product not found in cart:', productId, 'Available products:', allProducts);
+        console.error('❌ Product not found:', productId);
+        console.error('Available products:', allProducts.map(p => ({id: p.id, name: p.name})));
+        showNotification('제품을 찾을 수 없습니다.');
         return;
     }
+    
+    console.log('✅ Product found:', product.name);
     
     // 활성 할인 확인
     const activeDiscount = getActiveDiscountFromStorage();
@@ -685,14 +703,17 @@ function addToCart(event, productId, closeModal = false) {
     
     if (existingItem) {
         existingItem.quantity += 1;
+        console.log('✅ Increased quantity for:', product.name, 'New quantity:', existingItem.quantity);
     } else {
         cart.push({
             ...product,
+            id: normalizedId, // 정규화된 ID 저장
             price: discountedPrice, // 할인가로 저장
             originalPrice: originalPrice, // 원가 보관
             discountRate: activeDiscount ? activeDiscount.rate : 0,
             quantity: 1
         });
+        console.log('✅ Added new item to cart:', product.name);
     }
     
     updateCartBadge();
@@ -1169,9 +1190,9 @@ function showCart() {
             <div style="text-align: right;">
                 <div style="font-weight: 700; color: ${activeDiscount ? '#e74c3c' : '#2c5f4f'}; margin-bottom: 10px;">${formatPrice(itemTotal)}원</div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <button onclick="updateCartQuantity(${item.id}, -1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">-</button>
+                    <button onclick="event.stopPropagation(); updateCartQuantity(${item.id}, -1)" style="width: 30px; height: 30px; background: #f0f0f0; border: none; border-radius: 5px; cursor: pointer;">-</button>
                     <span>${item.quantity}</span>
-                    <button onclick="updateCartQuantity(${item.id}, 1)" style="width: 30px; height: 30px; background: #f0f0f0; border-radius: 5px;">+</button>
+                    <button onclick="event.stopPropagation(); updateCartQuantity(${item.id}, 1)" style="width: 30px; height: 30px; background: #f0f0f0; border: none; border-radius: 5px; cursor: pointer;">+</button>
                 </div>
             </div>
         </div>
@@ -1241,19 +1262,27 @@ function showCart() {
 
 // ===== Update Cart Quantity =====
 function updateCartQuantity(productId, change) {
+    console.log('📝 Updating cart quantity - ID:', productId, 'Change:', change);
+    
     // ID 정규화
     const normalizedId = normalizeId(productId);
     const item = cart.find(i => compareIds(i.id, normalizedId));
     
     if (!item) {
-        console.error('Cart item not found:', productId, 'Cart:', cart);
+        console.error('❌ Cart item not found:', productId);
+        console.error('Cart contents:', cart.map(i => ({id: i.id, name: i.name})));
         return;
     }
+    
+    console.log('✅ Found cart item:', item.name, 'Current quantity:', item.quantity);
     
     item.quantity += change;
     
     if (item.quantity <= 0) {
         cart = cart.filter(i => !compareIds(i.id, normalizedId));
+        console.log('🗑️ Removed item from cart:', item.name);
+    } else {
+        console.log('✅ Updated quantity:', item.name, '→', item.quantity);
     }
     
     updateCartBadge();
