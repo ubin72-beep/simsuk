@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기능 테스트 - 심석 (SIMSUK)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c5f4f;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #2c5f4f;
+        }
+        
+        .test-section h2 {
+            color: #2c5f4f;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status.pass {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status.fail {
+            background: #f44336;
+            color: white;
+        }
+        
+        .status.pending {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .test-details {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .test-details pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        button {
+            background: #2c5f4f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #1a3d2f;
+        }
+        
+        button.secondary {
+            background: #667eea;
+        }
+        
+        button.secondary:hover {
+            background: #5568d3;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .product-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .product-card .price {
+            color: #2c5f4f;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .console-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .console-output .error {
+            color: #ff5252;
+        }
+        
+        .console-output .success {
+            color: #4caf50;
+        }
+        
+        .console-output .warning {
+            color: #ffa726;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 심석 (SIMSUK) 기능 테스트</h1>
+        <p class="subtitle">메인 페이지의 모든 핵심 기능을 테스트합니다</p>
+        
+        <!-- Test 1: 제품 로드 -->
+        <div class="test-section">
+            <h2>
+                📦 Test 1: 제품 데이터 로드
+                <span class="status pending" id="test1-status">대기 중</span>
+            </h2>
+            <button onclick="runTest1()">테스트 실행</button>
+            <button class="secondary" onclick="clearStorage()">localStorage 초기화</button>
+            <div class="test-details" id="test1-result" style="display:none;"></div>
+        </div>
+        
+        <!-- Test 2: 제품 카드 렌더링 -->
+        <div class="test-section">
+            <h2>
+                🎨 Test 2: 제품 카드 렌더링
+                <span class="status pending" id="test2-status">대기 중</span>
+            </h2>
+            <button onclick="runTest2()">테스트 실행</button>
+            <div id="test-products-grid" class="product-grid"></div>
+            <div class="test-details" id="test2-result" style="display:none;"></div>
+        </div>
+        
+        <!-- Test 3: 제품 클릭 이벤트 -->
+        <div class="test-section">
+            <h2>
+                🖱️ Test 3: 제품 클릭 → 상세 페이지 이동
+                <span class="status pending" id="test3-status">대기 중</span>
+            </h2>
+            <p>위의 제품 카드를 클릭하면 product-detail.html로 이동해야 합니다.</p>
+            <div class="test-details" id="test3-result" style="display:none;"></div>
+        </div>
+        
+        <!-- Test 4: 장바구니 추가 -->
+        <div class="test-section">
+            <h2>
+                🛒 Test 4: 장바구니 추가
+                <span class="status pending" id="test4-status">대기 중</span>
+            </h2>
+            <button onclick="runTest4()">테스트 실행</button>
+            <button class="secondary" onclick="viewCart()">장바구니 보기</button>
+            <button class="secondary" onclick="clearCart()">장바구니 비우기</button>
+            <div class="test-details" id="test4-result" style="display:none;"></div>
+        </div>
+        
+        <!-- Test 5: 장바구니 수량 조절 -->
+        <div class="test-section">
+            <h2>
+                ➕➖ Test 5: 장바구니 수량 조절
+                <span class="status pending" id="test5-status">대기 중</span>
+            </h2>
+            <button onclick="runTest5()">테스트 실행</button>
+            <div class="test-details" id="test5-result" style="display:none;"></div>
+        </div>
+        
+        <!-- Console Output -->
+        <div class="test-section">
+            <h2>📝 콘솔 출력</h2>
+            <button onclick="clearConsole()">콘솔 지우기</button>
+            <div class="console-output" id="console-output"></div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Console interceptor
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString('ko-KR');
+            const className = type === 'error' ? 'error' : type === 'warn' ? 'warning' : type === 'success' ? 'success' : '';
+            consoleOutput.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole(args.join(' '), 'warning');
+        };
+        
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+            addToConsole('콘솔이 초기화되었습니다', 'success');
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            addToConsole('localStorage가 초기화되었습니다', 'success');
+            location.reload();
+        }
+        
+        function clearCart() {
+            cart = [];
+            updateCartBadge();
+            addToConsole('장바구니가 비워졌습니다', 'success');
+        }
+        
+        // Test 1: 제품 데이터 로드
+        async function runTest1() {
+            const status = document.getElementById('test1-status');
+            const result = document.getElementById('test1-result');
+            
+            status.textContent = '실행 중...';
+            status.className = 'status pending';
+            
+            try {
+                await loadProducts();
+                
+                if (allProducts && allProducts.length > 0) {
+                    status.textContent = '통과 ✓';
+                    status.className = 'status pass';
+                    
+                    result.innerHTML = `<pre>
+✅ 제품 데이터 로드 성공!
+📦 총 ${allProducts.length}개의 제품이 로드되었습니다.
+
+제품 목록:
+${allProducts.map((p, i) => `${i + 1}. ${p.name} (ID: ${p.id}, Type: ${typeof p.id}) - ${p.price.toLocaleString('ko-KR')}원`).join('\n')}
+                    </pre>`;
+                    result.style.display = 'block';
+                } else {
+                    throw new Error('제품 데이터가 비어있습니다');
+                }
+            } catch (error) {
+                status.textContent = '실패 ✗';
+                status.className = 'status fail';
+                result.innerHTML = `<pre class="error">❌ 오류: ${error.message}</pre>`;
+                result.style.display = 'block';
+            }
+        }
+        
+        // Test 2: 제품 카드 렌더링
+        function runTest2() {
+            const status = document.getElementById('test2-status');
+            const result = document.getElementById('test2-result');
+            const grid = document.getElementById('test-products-grid');
+            
+            if (!allProducts || allProducts.length === 0) {
+                status.textContent = '실패 ✗';
+                status.className = 'status fail';
+                result.innerHTML = '<pre class="error">❌ 먼저 Test 1을 실행하여 제품을 로드해주세요.</pre>';
+                result.style.display = 'block';
+                return;
+            }
+            
+            try {
+                grid.innerHTML = allProducts.slice(0, 3).map(product => `
+                    <div class="product-card" onclick="testProductClick(${product.id})">
+                        <img src="${product.image_url}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <div class="price">${product.price.toLocaleString('ko-KR')}원</div>
+                        <button onclick="event.stopPropagation(); testAddToCart(${product.id})" style="width: 100%; margin-top: 10px;">
+                            🛒 장바구니
+                        </button>
+                    </div>
+                `).join('');
+                
+                status.textContent = '통과 ✓';
+                status.className = 'status pass';
+                result.innerHTML = `<pre>✅ ${allProducts.slice(0, 3).length}개의 제품 카드가 렌더링되었습니다.</pre>`;
+                result.style.display = 'block';
+            } catch (error) {
+                status.textContent = '실패 ✗';
+                status.className = 'status fail';
+                result.innerHTML = `<pre class="error">❌ 오류: ${error.message}</pre>`;
+                result.style.display = 'block';
+            }
+        }
+        
+        // Test 3: 제품 클릭
+        function testProductClick(productId) {
+            addToConsole(`🖱️ 제품 클릭됨: ID ${productId} (Type: ${typeof productId})`, 'success');
+            document.getElementById('test3-status').textContent = '통과 ✓';
+            document.getElementById('test3-status').className = 'status pass';
+            
+            const result = document.getElementById('test3-result');
+            result.innerHTML = `<pre>✅ 제품 클릭 이벤트 감지됨!\nID: ${productId}\nType: ${typeof productId}\n\n3초 후 product-detail.html?id=${productId}로 이동합니다...</pre>`;
+            result.style.display = 'block';
+            
+            setTimeout(() => {
+                openProductModal(productId);
+            }, 3000);
+        }
+        
+        // Test 4: 장바구니 추가
+        function testAddToCart(productId) {
+            addToConsole(`🛒 장바구니 추가 시도: ID ${productId}`, 'log');
+            
+            try {
+                const event = new Event('click');
+                addToCart(event, productId);
+                
+                document.getElementById('test4-status').textContent = '통과 ✓';
+                document.getElementById('test4-status').className = 'status pass';
+                
+                const result = document.getElementById('test4-result');
+                result.innerHTML = `<pre>✅ 장바구니 추가 성공!\n현재 장바구니: ${cart.length}개 품목\n${cart.map(item => `- ${item.name} (수량: ${item.quantity})`).join('\n')}</pre>`;
+                result.style.display = 'block';
+            } catch (error) {
+                document.getElementById('test4-status').textContent = '실패 ✗';
+                document.getElementById('test4-status').className = 'status fail';
+                
+                const result = document.getElementById('test4-result');
+                result.innerHTML = `<pre class="error">❌ 오류: ${error.message}\n${error.stack}</pre>`;
+                result.style.display = 'block';
+            }
+        }
+        
+        function runTest4() {
+            if (allProducts.length === 0) {
+                alert('먼저 Test 1을 실행하여 제품을 로드해주세요.');
+                return;
+            }
+            testAddToCart(allProducts[0].id);
+        }
+        
+        // Test 5: 장바구니 수량 조절
+        function runTest5() {
+            const status = document.getElementById('test5-status');
+            const result = document.getElementById('test5-result');
+            
+            if (cart.length === 0) {
+                status.textContent = '실패 ✗';
+                status.className = 'status fail';
+                result.innerHTML = '<pre class="error">❌ 장바구니가 비어있습니다. 먼저 Test 4를 실행해주세요.</pre>';
+                result.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const testItem = cart[0];
+                const originalQty = testItem.quantity;
+                
+                addToConsole(`➕ 수량 증가 테스트: ID ${testItem.id}`, 'log');
+                updateCartQuantity(testItem.id, 1);
+                
+                addToConsole(`➖ 수량 감소 테스트: ID ${testItem.id}`, 'log');
+                updateCartQuantity(testItem.id, -1);
+                
+                status.textContent = '통과 ✓';
+                status.className = 'status pass';
+                result.innerHTML = `<pre>✅ 수량 조절 성공!\n테스트 제품: ${testItem.name}\n원래 수량: ${originalQty}\n현재 수량: ${testItem.quantity}</pre>`;
+                result.style.display = 'block';
+            } catch (error) {
+                status.textContent = '실패 ✗';
+                status.className = 'status fail';
+                result.innerHTML = `<pre class="error">❌ 오류: ${error.message}</pre>`;
+                result.style.display = 'block';
+            }
+        }
+        
+        function viewCart() {
+            if (cart.length === 0) {
+                alert('장바구니가 비어있습니다.');
+                return;
+            }
+            showCart();
+        }
+        
+        // 페이지 로드 시 자동으로 Test 1 실행
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addToConsole('🚀 테스트 페이지 로드 완료', 'success');
+                addToConsole('📋 자동으로 제품 데이터를 로드합니다...', 'log');
+                runTest1();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
