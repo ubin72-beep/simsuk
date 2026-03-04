@@ -562,6 +562,12 @@ function filterByOccasion(occasion) {
 
 // ===== Open Product Modal =====
 function openProductModal(productId) {
+    // 제품 상세 페이지로 이동
+    window.location.href = `product-detail.html?id=${productId}`;
+    return;
+    
+    // 아래는 기존 모달 코드 (상세 페이지 사용 시 불필요)
+    /*
     // ID 정규화
     const normalizedId = normalizeId(productId);
     const product = allProducts.find(p => compareIds(p.id, normalizedId));
