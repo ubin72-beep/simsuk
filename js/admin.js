@@ -316,39 +316,58 @@ function renderProductsTable() {
                         <th>제품명</th>
                         <th>카테고리</th>
                         <th>가격</th>
-                        <th>탄생석</th>
-                        <th>특별한 날</th>
                         <th>재고</th>
                         <th>액션</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${products.map(p => `
+                    ${products.map(p => {
+                        // 이미지 배열 처리 (하위 호환성)
+                        const images = p.images || (p.image_url ? [p.image_url] : []);
+                        const mainImage = images[0] || 'https://placehold.co/100x100/e0e0e0/666?text=No+Image';
+                        
+                        // 재고 정보
+                        let stockInfo = '';
+                        if (p.size_stock) {
+                            const totalStock = Object.values(p.size_stock).reduce((sum, stock) => sum + (stock || 0), 0);
+                            stockInfo = `<span class="badge ${totalStock > 0 ? 'badge-success' : 'badge-danger'}">${totalStock}개</span>`;
+                        } else {
+                            stockInfo = `<span class="badge ${p.in_stock ? 'badge-success' : 'badge-danger'}">${p.in_stock ? '재고있음' : '품절'}</span>`;
+                        }
+                        
+                        return `
                         <tr>
-                            <td><img src="${p.image_url}" alt="${p.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
                             <td>
-                                <strong>${p.name}</strong>
-                                ${p.featured ? '<span class="badge badge-warning" style="margin-left: 5px;">추천</span>' : ''}
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <img src="${mainImage}" alt="${p.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #2c5f4f;">
+                                    ${images.length > 1 ? `<span style="font-size: 0.8rem; color: #666;">+${images.length - 1}</span>` : ''}
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong style="display: block; margin-bottom: 4px;">${p.name}</strong>
+                                    ${p.featured ? '<span class="badge badge-warning">추천</span>' : ''}
+                                </div>
                             </td>
                             <td>${p.category}</td>
-                            <td>${p.price.toLocaleString()}원</td>
+                            <td><strong>${p.price.toLocaleString()}원</strong></td>
+                            <td>${stockInfo}</td>
                             <td>
-                                ${p.birthstone && p.birthstone.length > 0 
-                                    ? p.birthstone.map(b => `<span class="badge badge-info" style="margin: 2px;">${b.split('-')[0]}</span>`).join('') 
-                                    : '<span style="color: #999;">-</span>'}
-                            </td>
-                            <td>
-                                ${p.special_day && p.special_day.length > 0 
-                                    ? p.special_day.map(d => `<span class="badge badge-secondary" style="margin: 2px;">${d}</span>`).join('') 
-                                    : '<span style="color: #999;">-</span>'}
-                            </td>
-                            <td><span class="badge ${p.in_stock ? 'badge-success' : 'badge-danger'}">${p.in_stock ? '재고있음' : '품절'}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                    <button class="btn btn-sm" style="background: #667eea; color: white;" onclick="viewProductDetail(${p.id})" title="상세 페이지 보기">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" onclick="editProduct(${p.id})" title="수정">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})" title="삭제">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </tbody>
             </table>
         </div>
@@ -400,13 +419,13 @@ function renderOrdersTable() {
 }
 
 // ===== 이미지 업로드 (Base64 인코딩 - 완전 무료, 안전) =====
-async function handleImageUpload(event) {
+async function handleImageUpload(event, imageIndex = 1) {
     const file = event.target.files[0];
     if (!file) return;
     
     // 파일 크기 확인 (200KB 제한 - localStorage 용량 고려)
     if (file.size > 200 * 1024) {
-        showToast('이미지 크기는 200KB 이하여야 합니다\n\nTinyPNG로 압축해주세요: https://tinypng.com/', 'error');
+        showToast(`이미지 크기는 200KB 이하여야 합니다\n\nTinyPNG로 압축해주세요: https://tinypng.com/`, 'error');
         event.target.value = '';
         return;
     }
@@ -421,7 +440,7 @@ async function handleImageUpload(event) {
     
     // 업로드 상태 표시
     const statusDiv = document.getElementById('uploadStatus');
-    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 이미지 처리 중...';
+    statusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 이미지 ${imageIndex} 처리 중...`;
     statusDiv.style.color = '#667eea';
     
     try {
@@ -432,28 +451,32 @@ async function handleImageUpload(event) {
             const base64Data = e.target.result;
             
             // Hidden input에 Base64 데이터 저장
-            document.getElementById('productImageUrl').value = base64Data;
+            document.getElementById(`productImageUrl${imageIndex}`).value = base64Data;
             
             // 미리보기 표시
-            const previewImg = document.getElementById('previewImg');
-            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById(`previewImg${imageIndex}`);
+            const imagePreview = document.getElementById(`imagePreview${imageIndex}`);
             previewImg.src = base64Data;
             imagePreview.style.display = 'block';
             
+            // 업로드 버튼 숨기기
+            const uploadButton = event.target.previousElementSibling;
+            if (uploadButton) uploadButton.style.display = 'none';
+            
             // 성공 메시지
-            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 이미지 처리 완료!';
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> 이미지 ${imageIndex} 처리 완료!`;
             statusDiv.style.color = '#28a745';
             
-            showToast('이미지 처리 완료', 'success');
+            showToast(`이미지 ${imageIndex} 처리 완료`, 'success');
             
-            console.log('✅ 이미지 Base64 변환 성공 (' + Math.round(base64Data.length / 1024) + ' KB)');
+            console.log(`✅ 이미지 ${imageIndex} Base64 변환 성공 (${Math.round(base64Data.length / 1024)} KB)`);
         };
         
         reader.onerror = function() {
-            console.error('❌ 이미지 처리 오류');
-            statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> 이미지 처리 실패';
+            console.error(`❌ 이미지 ${imageIndex} 처리 오류`);
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> 이미지 ${imageIndex} 처리 실패`;
             statusDiv.style.color = '#dc3545';
-            showToast('이미지 처리 실패', 'error');
+            showToast(`이미지 ${imageIndex} 처리 실패`, 'error');
             event.target.value = '';
         };
         
@@ -461,12 +484,31 @@ async function handleImageUpload(event) {
         reader.readAsDataURL(file);
         
     } catch (error) {
-        console.error('❌ 이미지 업로드 오류:', error);
-        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> 이미지 처리 실패';
+        console.error(`❌ 이미지 ${imageIndex} 업로드 오류:`, error);
+        statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> 이미지 ${imageIndex} 처리 실패`;
         statusDiv.style.color = '#dc3545';
-        showToast('이미지 처리 실패: ' + error.message, 'error');
+        showToast(`이미지 ${imageIndex} 처리 실패: ${error.message}`, 'error');
         event.target.value = '';
     }
+}
+
+// ===== 이미지 제거 =====
+function removeImage(imageIndex) {
+    // Hidden input 초기화
+    document.getElementById(`productImageUrl${imageIndex}`).value = '';
+    
+    // 미리보기 숨기기
+    document.getElementById(`imagePreview${imageIndex}`).style.display = 'none';
+    
+    // 파일 input 초기화
+    const fileInput = document.getElementById(`productImageFile${imageIndex}`);
+    if (fileInput) fileInput.value = '';
+    
+    // 업로드 버튼 다시 표시
+    const uploadButton = fileInput.previousElementSibling;
+    if (uploadButton) uploadButton.style.display = 'flex';
+    
+    showToast(`이미지 ${imageIndex} 제거됨`, 'info');
 }
 
 // ===== 제품 관리 =====
@@ -474,13 +516,18 @@ function openProductModal(productId = null) {
     currentEditId = productId;
     const modal = document.getElementById('productModal');
     const title = document.getElementById('productModalTitle');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
     const statusDiv = document.getElementById('uploadStatus');
     
     // 상태 초기화
     statusDiv.innerHTML = '';
-    imagePreview.style.display = 'none';
+    
+    // 모든 이미지 미리보기 초기화
+    for (let i = 1; i <= 4; i++) {
+        const preview = document.getElementById(`imagePreview${i}`);
+        const uploadButton = document.getElementById(`productImageFile${i}`).previousElementSibling;
+        if (preview) preview.style.display = 'none';
+        if (uploadButton) uploadButton.style.display = 'flex';
+    }
     
     if (productId) {
         const product = products.find(p => p.id === productId);
@@ -490,12 +537,49 @@ function openProductModal(productId = null) {
         document.getElementById('productName').value = product.name;
         document.getElementById('productCategory').value = product.category;
         document.getElementById('productPrice').value = product.price;
-        document.getElementById('productImageUrl').value = product.image_url;
         document.getElementById('productMaterials').value = product.materials || '';
         document.getElementById('productBenefits').value = product.benefits || '';
         document.getElementById('productDescription').value = product.description || '';
         document.getElementById('productFeatured').checked = product.featured || false;
         document.getElementById('productInStock').checked = product.in_stock !== false;
+        
+        // 이미지 로드 (배열 또는 단일 이미지)
+        if (product.images && Array.isArray(product.images)) {
+            // 새로운 배열 형식
+            product.images.forEach((img, index) => {
+                if (img && index < 4) {
+                    const imgIndex = index + 1;
+                    document.getElementById(`productImageUrl${imgIndex}`).value = img;
+                    const previewImg = document.getElementById(`previewImg${imgIndex}`);
+                    const imagePreview = document.getElementById(`imagePreview${imgIndex}`);
+                    const uploadButton = document.getElementById(`productImageFile${imgIndex}`).previousElementSibling;
+                    
+                    previewImg.src = img;
+                    imagePreview.style.display = 'block';
+                    if (uploadButton) uploadButton.style.display = 'none';
+                }
+            });
+        } else if (product.image_url) {
+            // 기존 단일 이미지 형식 (하위 호환성)
+            document.getElementById('productImageUrl1').value = product.image_url;
+            const previewImg = document.getElementById('previewImg1');
+            const imagePreview = document.getElementById('imagePreview1');
+            const uploadButton = document.getElementById('productImageFile1').previousElementSibling;
+            
+            previewImg.src = product.image_url;
+            imagePreview.style.display = 'block';
+            if (uploadButton) uploadButton.style.display = 'none';
+        }
+        
+        // 사이즈별 재고 로드
+        if (product.size_stock) {
+            ['14cm', '15cm', '16cm', '17cm', '18cm', '19cm'].forEach(size => {
+                const input = document.getElementById(`stock${size}`);
+                if (input && product.size_stock[size] !== undefined) {
+                    input.value = product.size_stock[size];
+                }
+            });
+        }
         
         // 탄생석 선택
         const birthstoneSelect = document.getElementById('productBirthstone');
@@ -513,17 +597,24 @@ function openProductModal(productId = null) {
             });
         }
         
-        // 기존 이미지 미리보기
-        if (product.image_url) {
-            previewImg.src = product.image_url;
-            imagePreview.style.display = 'block';
-            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 기존 이미지';
-            statusDiv.style.color = '#28a745';
-        }
+        statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 기존 제품 데이터 로드됨';
+        statusDiv.style.color = '#28a745';
     } else {
         title.textContent = '새 제품 추가';
         document.getElementById('productForm').reset();
-        document.getElementById('productImageFile').value = '';
+        
+        // 기본 재고값 설정
+        document.getElementById('stock14cm').value = 10;
+        document.getElementById('stock15cm').value = 15;
+        document.getElementById('stock16cm').value = 20;
+        document.getElementById('stock17cm').value = 15;
+        document.getElementById('stock18cm').value = 10;
+        document.getElementById('stock19cm').value = 5;
+        
+        // 파일 input 초기화
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById(`productImageFile${i}`).value = '';
+        }
     }
     
     modal.classList.add('active');
@@ -536,6 +627,34 @@ function closeProductModal() {
 
 function handleProductSubmit(event) {
     event.preventDefault();
+    
+    // 이미지 배열 수집 (최대 4장)
+    const images = [];
+    for (let i = 1; i <= 4; i++) {
+        const imageUrl = document.getElementById(`productImageUrl${i}`).value;
+        if (imageUrl) {
+            images.push(imageUrl);
+        }
+    }
+    
+    // 최소 1장의 이미지 필수
+    if (images.length === 0) {
+        showToast('최소 1장의 이미지를 업로드해주세요', 'error');
+        return;
+    }
+    
+    // 사이즈별 재고 수집
+    const sizeStock = {
+        '14cm': parseInt(document.getElementById('stock14cm').value) || 0,
+        '15cm': parseInt(document.getElementById('stock15cm').value) || 0,
+        '16cm': parseInt(document.getElementById('stock16cm').value) || 0,
+        '17cm': parseInt(document.getElementById('stock17cm').value) || 0,
+        '18cm': parseInt(document.getElementById('stock18cm').value) || 0,
+        '19cm': parseInt(document.getElementById('stock19cm').value) || 0
+    };
+    
+    // 총 재고 계산
+    const totalStock = Object.values(sizeStock).reduce((sum, stock) => sum + stock, 0);
     
     // 탄생석 선택값 가져오기
     const birthstoneSelect = document.getElementById('productBirthstone');
@@ -550,20 +669,27 @@ function handleProductSubmit(event) {
         name: document.getElementById('productName').value,
         category: document.getElementById('productCategory').value,
         price: parseInt(document.getElementById('productPrice').value),
-        image_url: document.getElementById('productImageUrl').value,
+        images: images,  // ⭐ 이미지 배열
+        image_url: images[0],  // 하위 호환성을 위해 첫 번째 이미지도 저장
+        size_stock: sizeStock,  // ⭐ 사이즈별 재고
+        total_stock: totalStock,  // ⭐ 총 재고
         materials: document.getElementById('productMaterials').value,
         benefits: document.getElementById('productBenefits').value,
         description: document.getElementById('productDescription').value,
         birthstone: selectedBirthstones,
         special_day: selectedSpecialDays,
         featured: document.getElementById('productFeatured').checked,
-        in_stock: document.getElementById('productInStock').checked,
+        in_stock: totalStock > 0,  // 재고가 있으면 자동으로 true
         updated_at: new Date().toISOString()
     };
     
     if (currentEditId) {
         const index = products.findIndex(p => p.id === currentEditId);
-        if (index !== -1) products[index] = productData;
+        if (index !== -1) {
+            // 기존 제품 수정 시 created_at 유지
+            productData.created_at = products[index].created_at;
+            products[index] = productData;
+        }
     } else {
         productData.created_at = new Date().toISOString();
         products.push(productData);
@@ -574,11 +700,82 @@ function handleProductSubmit(event) {
     updateTabBadges();
     renderProductsTable();
     closeProductModal();
-    showToast(currentEditId ? '제품이 수정되었습니다' : '제품이 추가되었습니다', 'success');
+    
+    const message = currentEditId ? '제품이 수정되었습니다' : '제품이 추가되었습니다';
+    showToast(message + ` (이미지 ${images.length}장, 총 재고 ${totalStock}개)`, 'success');
+    
+    console.log('✅ 제품 저장:', productData);
 }
 
 function editProduct(id) {
     openProductModal(id);
+}
+
+// ===== 제품 미리보기 =====
+function previewProduct() {
+    // 현재 입력된 데이터로 미리보기
+    const productName = document.getElementById('productName').value;
+    
+    if (!productName) {
+        showToast('제품명을 먼저 입력해주세요', 'warning');
+        return;
+    }
+    
+    // 임시 제품 ID 생성 (미리보기용)
+    const previewId = currentEditId || 'preview_' + Date.now();
+    
+    // 이미지 수집
+    const images = [];
+    for (let i = 1; i <= 4; i++) {
+        const imageUrl = document.getElementById(`productImageUrl${i}`).value;
+        if (imageUrl) images.push(imageUrl);
+    }
+    
+    if (images.length === 0) {
+        showToast('최소 1장의 이미지를 업로드해주세요', 'warning');
+        return;
+    }
+    
+    // 사이즈별 재고
+    const sizeStock = {
+        '14cm': parseInt(document.getElementById('stock14cm').value) || 0,
+        '15cm': parseInt(document.getElementById('stock15cm').value) || 0,
+        '16cm': parseInt(document.getElementById('stock16cm').value) || 0,
+        '17cm': parseInt(document.getElementById('stock17cm').value) || 0,
+        '18cm': parseInt(document.getElementById('stock18cm').value) || 0,
+        '19cm': parseInt(document.getElementById('stock19cm').value) || 0
+    };
+    
+    // 임시 제품 데이터 생성
+    const tempProduct = {
+        id: previewId,
+        name: productName,
+        category: document.getElementById('productCategory').value,
+        price: parseInt(document.getElementById('productPrice').value) || 0,
+        images: images,
+        image_url: images[0],
+        size_stock: sizeStock,
+        materials: document.getElementById('productMaterials').value || '천연 원석',
+        benefits: document.getElementById('productBenefits').value || '건강 개선',
+        description: document.getElementById('productDescription').value || '제품 설명',
+        featured: document.getElementById('productFeatured').checked,
+        in_stock: true
+    };
+    
+    // 임시로 localStorage에 저장 (미리보기용)
+    const existingProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+    const previewProducts = [...existingProducts.filter(p => !String(p.id).startsWith('preview_')), tempProduct];
+    localStorage.setItem('previewProduct', JSON.stringify(tempProduct));
+    
+    // 새 탭에서 상세 페이지 열기
+    window.open(`product-detail.html?id=${previewId}&preview=true`, '_blank');
+    
+    showToast('새 탭에서 미리보기가 열립니다', 'info');
+}
+
+// ===== 제품 상세 페이지 보기 =====
+function viewProductDetail(id) {
+    window.open(`product-detail.html?id=${id}`, '_blank');
 }
 
 function deleteProduct(id) {
@@ -1229,6 +1426,10 @@ window.saveShippingInfo = saveShippingInfo;
 window.updateOrderStatus = updateOrderStatus;
 window.confirmStatusChange = confirmStatusChange;
 window.printOrder = printOrder;
+window.handleImageUpload = handleImageUpload;
+window.removeImage = removeImage;
+window.previewProduct = previewProduct;
+window.viewProductDetail = viewProductDetail;
 
 // ===== 자동 새로고침 =====
 function toggleAutoRefresh() {
