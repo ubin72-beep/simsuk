@@ -201,20 +201,113 @@
                         <input type="number" id="productPrice" required min="0">
                     </div>
                     <div class="form-group full-width">
-                        <label>제품 이미지 *</label>
-                        <input type="file" id="productImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" 
-                               style="display: none;" onchange="handleImageUpload(event)">
-                        <button type="button" class="btn btn-primary" onclick="document.getElementById('productImageFile').click()" style="width: 100%;">
-                            <i class="fas fa-upload"></i> 이미지 선택 (JPG, PNG, WebP)
-                        </button>
-                        <input type="hidden" id="productImageUrl" required>
+                        <label>제품 이미지 (최대 4장) *</label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                            <!-- 이미지 1 -->
+                            <div class="image-upload-box">
+                                <input type="file" id="productImageFile1" accept="image/jpeg,image/jpg,image/png,image/webp" 
+                                       style="display: none;" onchange="handleImageUpload(event, 1)">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('productImageFile1').click()" style="width: 100%; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-image" style="font-size: 2rem; color: #999;"></i>
+                                    <span style="font-size: 0.9rem;">이미지 1 (메인)</span>
+                                </button>
+                                <input type="hidden" id="productImageUrl1" required>
+                                <div id="imagePreview1" style="margin-top: 10px; display: none; position: relative;">
+                                    <img id="previewImg1" src="" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #2c5f4f;">
+                                    <button type="button" onclick="removeImage(1)" style="position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 이미지 2 -->
+                            <div class="image-upload-box">
+                                <input type="file" id="productImageFile2" accept="image/jpeg,image/jpg,image/png,image/webp" 
+                                       style="display: none;" onchange="handleImageUpload(event, 2)">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('productImageFile2').click()" style="width: 100%; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-image" style="font-size: 2rem; color: #999;"></i>
+                                    <span style="font-size: 0.9rem;">이미지 2</span>
+                                </button>
+                                <input type="hidden" id="productImageUrl2">
+                                <div id="imagePreview2" style="margin-top: 10px; display: none; position: relative;">
+                                    <img id="previewImg2" src="" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #2c5f4f;">
+                                    <button type="button" onclick="removeImage(2)" style="position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 이미지 3 -->
+                            <div class="image-upload-box">
+                                <input type="file" id="productImageFile3" accept="image/jpeg,image/jpg,image/png,image/webp" 
+                                       style="display: none;" onchange="handleImageUpload(event, 3)">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('productImageFile3').click()" style="width: 100%; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-image" style="font-size: 2rem; color: #999;"></i>
+                                    <span style="font-size: 0.9rem;">이미지 3</span>
+                                </button>
+                                <input type="hidden" id="productImageUrl3">
+                                <div id="imagePreview3" style="margin-top: 10px; display: none; position: relative;">
+                                    <img id="previewImg3" src="" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #2c5f4f;">
+                                    <button type="button" onclick="removeImage(3)" style="position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 이미지 4 -->
+                            <div class="image-upload-box">
+                                <input type="file" id="productImageFile4" accept="image/jpeg,image/jpg,image/png,image/webp" 
+                                       style="display: none;" onchange="handleImageUpload(event, 4)">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('productImageFile4').click()" style="width: 100%; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-image" style="font-size: 2rem; color: #999;"></i>
+                                    <span style="font-size: 0.9rem;">이미지 4</span>
+                                </button>
+                                <input type="hidden" id="productImageUrl4">
+                                <div id="imagePreview4" style="margin-top: 10px; display: none; position: relative;">
+                                    <img id="previewImg4" src="" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #2c5f4f;">
+                                    <button type="button" onclick="removeImage(4)" style="position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                         <div id="uploadStatus" style="margin-top: 10px; color: #666; font-size: 14px;"></div>
-                        <div id="imagePreview" style="margin-top: 10px; display: none; text-align: center;">
-                            <img id="previewImg" src="" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        <small style="color: #999; display: block; margin-top: 8px;">
+                            <i class="fas fa-info-circle"></i> 각 이미지 최대 200KB, 권장 크기: 800x800px<br>
+                            <i class="fas fa-lightbulb"></i> 압축 도구: <a href="https://tinypng.com/" target="_blank" style="color: #667eea;">TinyPNG</a>
+                        </small>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>사이즈별 재고 *</label>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">14cm (XS)</label>
+                                <input type="number" id="stock14cm" min="0" value="10" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">15cm (S)</label>
+                                <input type="number" id="stock15cm" min="0" value="15" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">16cm (M)</label>
+                                <input type="number" id="stock16cm" min="0" value="20" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">17cm (L)</label>
+                                <input type="number" id="stock17cm" min="0" value="15" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">18cm (XL)</label>
+                                <input type="number" id="stock18cm" min="0" value="10" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">19cm (XXL)</label>
+                                <input type="number" id="stock19cm" min="0" value="5" style="width: 100%;">
+                            </div>
                         </div>
                         <small style="color: #999; display: block; margin-top: 8px;">
-                            <i class="fas fa-info-circle"></i> 최대 200KB, 권장 크기: 800x800px<br>
-                            <i class="fas fa-lightbulb"></i> 압축 도구: <a href="https://tinypng.com/" target="_blank" style="color: #667eea;">TinyPNG</a>
+                            <i class="fas fa-info-circle"></i> 각 사이즈별 재고 수량을 입력하세요
                         </small>
                     </div>
                     <div class="form-group full-width">
@@ -278,6 +371,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="closeProductModal()">취소</button>
+                    <button type="button" class="btn" style="background: #667eea; color: white;" onclick="previewProduct()">
+                        <i class="fas fa-eye"></i> 미리보기
+                    </button>
                     <button type="submit" class="btn btn-primary">저장</button>
                 </div>
             </form>
