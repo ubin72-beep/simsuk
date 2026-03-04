@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제품 상세 - 심석 (SIMSUK)</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/product-detail.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <img src="images/logo.png" alt="심석 로고" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <span style="display:none; font-size: 1.5rem; font-weight: 700; color: #2c5f4f;">心石 SIMSUK</span>
+                </a>
+                
+                <nav class="nav">
+                    <a href="index.html">홈</a>
+                    <a href="index.html#products">제품</a>
+                    <a href="index.html#about">소개</a>
+                    <a href="index.html#contact">문의</a>
+                </nav>
+                
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="window.location.href='index.html#products'">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="icon-btn cart-btn" onclick="showCart()">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge" id="cartBadge">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Detail Section -->
+    <section class="product-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">홈</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="index.html#products">제품</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="breadcrumbProduct">헤마타이트 팔찌</span>
+            </div>
+
+            <div class="product-detail-grid">
+                <!-- Left: Product Images -->
+                <div class="product-images">
+                    <div class="main-image-container">
+                        <img id="mainImage" src="https://placehold.co/600x600/2c5f4f/ffffff?text=Product+Image" alt="제품 이미지">
+                        <button class="image-nav prev" onclick="changeImage(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="image-nav next" onclick="changeImage(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="thumbnail-gallery" id="thumbnailGallery">
+                        <!-- 썸네일은 JavaScript로 동적 생성 -->
+                    </div>
+                </div>
+
+                <!-- Right: Product Info -->
+                <div class="product-info">
+                    <div class="product-header">
+                        <span class="product-category" id="productCategory">팔찌</span>
+                        <h1 class="product-title" id="productTitle">적철석 헤마타이트 패션팔찌</h1>
+                        
+                        <div class="product-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="rating-count">(252)</span>
+                        </div>
+                    </div>
+
+                    <div class="price-section">
+                        <div class="price-row" id="priceDisplay">
+                            <span class="price-current">29,000원</span>
+                        </div>
+                        <div class="delivery-info">
+                            <i class="fas fa-truck"></i>
+                            <span>무료배송 (50,000원 이상 구매 시)</span>
+                        </div>
+                    </div>
+
+                    <!-- Product Options -->
+                    <div class="product-options">
+                        <!-- Size Selection -->
+                        <div class="option-group">
+                            <label class="option-label">
+                                <i class="fas fa-ruler"></i> 손목 사이즈
+                            </label>
+                            <div class="size-selector" id="sizeSelector">
+                                <button class="size-btn" data-size="14">14cm (XS)</button>
+                                <button class="size-btn" data-size="15">15cm (S)</button>
+                                <button class="size-btn active" data-size="16">16cm (M)</button>
+                                <button class="size-btn" data-size="17">17cm (L)</button>
+                                <button class="size-btn" data-size="18">18cm (XL)</button>
+                                <button class="size-btn" data-size="19">19cm (XXL)</button>
+                            </div>
+                            <button class="size-guide-btn" onclick="showSizeGuide()">
+                                <i class="fas fa-info-circle"></i> 사이즈 가이드
+                            </button>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="option-group">
+                            <label class="option-label">
+                                <i class="fas fa-box"></i> 수량
+                            </label>
+                            <div class="quantity-selector">
+                                <button class="qty-btn" onclick="changeQuantity(-1)">-</button>
+                                <input type="number" id="quantity" value="1" min="1" max="10" readonly>
+                                <button class="qty-btn" onclick="changeQuantity(1)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Total Price -->
+                        <div class="total-price-section">
+                            <div class="total-row">
+                                <span class="total-label">총 금액</span>
+                                <span class="total-price" id="totalPrice">29,000원</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-cart" onclick="addToCartFromDetail()">
+                            <i class="fas fa-shopping-cart"></i>
+                            장바구니
+                        </button>
+                        <button class="btn btn-buy" onclick="buyNow()">
+                            <i class="fas fa-credit-card"></i>
+                            바로 구매하기
+                        </button>
+                    </div>
+
+                    <!-- Product Features -->
+                    <div class="product-features">
+                        <div class="feature-item">
+                            <i class="fas fa-gem"></i>
+                            <div>
+                                <strong>천연 원석</strong>
+                                <p>100% 천연 헤마타이트 사용</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <strong>품질 보증</strong>
+                                <p>1년 무상 수리 서비스</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-truck-fast"></i>
+                            <div>
+                                <strong>빠른 배송</strong>
+                                <p>주문 후 1-2일 내 배송</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Tabs -->
+            <div class="product-tabs">
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('detail')">상세정보</button>
+                    <button class="tab-btn" onclick="switchTab('review')">리뷰 (252)</button>
+                    <button class="tab-btn" onclick="switchTab('shipping')">배송/교환</button>
+                    <button class="tab-btn" onclick="switchTab('inquiry')">문의</button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Detail Tab -->
+                    <div class="tab-pane active" id="detailTab">
+                        <div class="detail-content" id="productDetailContent">
+                            <h2>제품 상세 설명</h2>
+                            <p class="product-description" id="productDescription">
+                                6mm 사이즈의 천연 헤마타이트를 정성스럽게 엮어 만든 패션 팔찌입니다.
+                            </p>
+                            
+                            <div class="detail-section">
+                                <h3><i class="fas fa-gem"></i> 재료</h3>
+                                <p id="productMaterials">헤마타이트, 탄성 줄</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3><i class="fas fa-heart-pulse"></i> 건강 효능</h3>
+                                <p id="productBenefits">혈액순환 개선, 스트레스 완화, 집중력 향상</p>
+                            </div>
+
+                            <div class="detail-section">
+                                <h3><i class="fas fa-star"></i> 특별한 날</h3>
+                                <p id="productOccasions">일상, 선물, 건강</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Tab -->
+                    <div class="tab-pane" id="reviewTab">
+                        <div class="review-summary">
+                            <div class="review-score">
+                                <div class="score-number">4.5</div>
+                                <div class="score-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <div class="score-count">252개 리뷰</div>
+                            </div>
+                        </div>
+                        <div class="review-list">
+                            <p style="text-align: center; padding: 60px 20px; color: #999;">
+                                리뷰가 준비 중입니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Tab -->
+                    <div class="tab-pane" id="shippingTab">
+                        <h3>배송 정보</h3>
+                        <ul class="info-list">
+                            <li><strong>배송비:</strong> 3,000원 (50,000원 이상 무료배송)</li>
+                            <li><strong>배송기간:</strong> 주문 후 1-2 영업일</li>
+                            <li><strong>배송지역:</strong> 전국 (제주/도서산간 추가 배송비)</li>
+                        </ul>
+
+                        <h3 style="margin-top: 30px;">교환/반품 안내</h3>
+                        <ul class="info-list">
+                            <li><strong>교환/반품 기간:</strong> 상품 수령 후 7일 이내</li>
+                            <li><strong>교환/반품 비용:</strong> 고객 변심 시 왕복 배송비 부담</li>
+                            <li><strong>교환/반품 불가:</strong> 제품 훼손, 포장 개봉 시</li>
+                        </ul>
+                    </div>
+
+                    <!-- Inquiry Tab -->
+                    <div class="tab-pane" id="inquiryTab">
+                        <div class="inquiry-info">
+                            <h3>상품 문의</h3>
+                            <p>궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.</p>
+                            
+                            <div class="contact-methods">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div>
+                                        <strong>전화 문의</strong>
+                                        <p>0502-1909-7788</p>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div>
+                                        <strong>이메일 문의</strong>
+                                        <p>simsukbiz@gmail.com</p>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fab fa-kakao"></i>
+                                    <div>
+                                        <strong>카카오톡 문의</strong>
+                                        <p>평일 10:00 - 18:00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login/Guest Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-overlay" onclick="closeLoginModal()"></div>
+        <div class="modal-content modal-small">
+            <button class="modal-close" onclick="closeLoginModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2 style="text-align: center; margin-bottom: 30px;">주문 방법 선택</h2>
+            
+            <div class="login-options">
+                <button class="login-option-btn kakao" onclick="loginWithKakao()">
+                    <i class="fab fa-kakao"></i>
+                    <div>
+                        <strong>카카오톡 로그인</strong>
+                        <small>간편하게 로그인하고 주문하기</small>
+                    </div>
+                </button>
+                
+                <div class="divider">또는</div>
+                
+                <button class="login-option-btn guest" onclick="guestCheckout()">
+                    <i class="fas fa-user"></i>
+                    <div>
+                        <strong>비회원 주문</strong>
+                        <small>회원가입 없이 바로 주문</small>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Size Guide Modal -->
+    <div class="modal" id="sizeGuideModal">
+        <div class="modal-overlay" onclick="closeSizeGuide()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSizeGuide()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2><i class="fas fa-ruler"></i> 손목 사이즈 가이드</h2>
+            
+            <div class="size-guide-content">
+                <div class="size-measure-guide">
+                    <h3>측정 방법</h3>
+                    <ol>
+                        <li>줄자 또는 실을 준비합니다</li>
+                        <li>손목뼈 바로 위를 편안하게 감습니다</li>
+                        <li>손가락 하나가 들어갈 정도의 여유를 둡니다</li>
+                        <li>측정한 길이에 1cm를 더한 사이즈를 선택합니다</li>
+                    </ol>
+                </div>
+
+                <table class="size-table">
+                    <thead>
+                        <tr>
+                            <th>사이즈</th>
+                            <th>손목 둘레</th>
+                            <th>권장 대상</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>14cm (XS)</strong></td>
+                            <td>13cm 이하</td>
+                            <td>여성 (작은 손목)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>15cm (S)</strong></td>
+                            <td>13-14cm</td>
+                            <td>여성 표준</td>
+                        </tr>
+                        <tr>
+                            <td><strong>16cm (M)</strong></td>
+                            <td>14-15cm</td>
+                            <td>여성 (큰 손목) / 남성 (작은 손목)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>17cm (L)</strong></td>
+                            <td>15-16cm</td>
+                            <td>남성 표준</td>
+                        </tr>
+                        <tr>
+                            <td><strong>18cm (XL)</strong></td>
+                            <td>16-17cm</td>
+                            <td>남성 (큰 손목)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>19cm (XXL)</strong></td>
+                            <td>17cm 이상</td>
+                            <td>남성 (매우 큰 손목)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="size-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>Tip:</strong> 두 사이즈 사이라면 큰 사이즈를 선택하시는 것을 권장합니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>심석 (SIMSUK)</h4>
+                    <p>운명을 다듬는 주얼리, 그라운딩</p>
+                </div>
+                <div class="footer-section">
+                    <h4>고객센터</h4>
+                    <p>전화: 0502-1909-7788</p>
+                    <p>이메일: simsukbiz@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 심석 (SIMSUK). All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/product-detail.js"></script>
+</body>
+</html>
