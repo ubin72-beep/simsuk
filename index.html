@@ -897,13 +897,14 @@
     </div>
 
     <script src="js/saju-curation.js?v=20260307001"></script>
+    <script src="js/lunar-solar-converter.js"></script>
     <script src="js/main.js?v=20260307001"></script>
     <script>
         // 사주 큐레이션 함수
         function analyzeBirthdate() {
-            const year = document.getElementById('birth-year').value;
-            const month = document.getElementById('birth-month').value;
-            const day = document.getElementById('birth-day').value;
+            const year = parseInt(document.getElementById('birth-year').value);
+            const month = parseInt(document.getElementById('birth-month').value);
+            const day = parseInt(document.getElementById('birth-day').value);
             
             // 양력/음력 선택 값 가져오기
             const calendarType = document.querySelector('input[name="calendar-type"]:checked').value;
@@ -930,9 +931,23 @@
                 return;
             }
             
-            // 날짜 유효성 검사
-            const date = new Date(year, month - 1, day);
-            if (date.getMonth() + 1 !== parseInt(month) || date.getDate() !== parseInt(day)) {
+            // 음력인 경우 양력으로 변환
+            let actualYear = year;
+            let actualMonth = month;
+            let actualDay = day;
+            
+            if (calendarType === 'lunar') {
+                console.log(`🌙 음력 입력: ${year}년 ${month}월 ${day}일`);
+                const converted = window.LunarSolarConverter.lunarToSolar(year, month, day);
+                actualYear = converted.year;
+                actualMonth = converted.month;
+                actualDay = converted.day;
+                console.log(`☀️ 양력 변환: ${actualYear}년 ${actualMonth}월 ${actualDay}일`);
+            }
+            
+            // 날짜 유효성 검사 (변환된 양력 날짜로)
+            const date = new Date(actualYear, actualMonth - 1, actualDay);
+            if (date.getMonth() + 1 !== parseInt(actualMonth) || date.getDate() !== parseInt(actualDay)) {
                 alert('유효하지 않은 날짜입니다.');
                 return;
             }
@@ -950,18 +965,33 @@
                     <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 10px;">
                         입력: ${year}년 ${month}월 ${day}일 (${calendarTypeText})
                     </p>
+                    ${calendarType === 'lunar' ? `
+                        <p style="color: #d4af37; font-size: 13px; margin-top: 5px;">
+                            → 양력 ${actualYear}년 ${actualMonth}월 ${actualDay}일로 변환 중...
+                        </p>
+                    ` : ''}
                 </div>
             `;
             
             // 분석 실행 (약간의 딜레이로 로딩 효과)
             setTimeout(() => {
-                const birthDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                // 실제 계산에 사용할 양력 날짜
+                const birthDate = `${actualYear}-${String(actualMonth).padStart(2, '0')}-${String(actualDay).padStart(2, '0')}`;
                 
                 // 제품 데이터 가져오기 (전역 변수가 있다면)
                 const products = window.allProducts || [];
                 
-                // 큐레이션 결과 생성 (양력/음력 정보 전달)
-                const result = generateCurationResult(birthDate, products, calendarType, calendarTypeText);
+                // 큐레이션 결과 생성 (원래 입력값과 양력/음력 정보 전달)
+                const displayYear = year;
+                const displayMonth = month;
+                const displayDay = day;
+                const result = generateCurationResult(
+                    birthDate, 
+                    products, 
+                    calendarType, 
+                    `${calendarTypeText} ${displayYear}년 ${displayMonth}월 ${displayDay}일` + 
+                    (calendarType === 'lunar' ? ` (양력 ${actualYear}년 ${actualMonth}월 ${actualDay}일)` : '')
+                );
                 
                 // 결과 표시
                 resultContent.innerHTML = result.html;
