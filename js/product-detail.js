@@ -14,12 +14,13 @@ let productImages = [];
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎨 Product Detail Page Loaded');
     
-    // URL에서 제품 ID 가져오기
+    // URL에서 제품 ID와 미리보기 모드 확인
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
+    const isPreview = urlParams.get('preview') === 'true';
     
     if (productId) {
-        loadProduct(productId);
+        loadProduct(productId, isPreview);
     } else {
         // ID 없으면 기본 제품 표시
         loadDefaultProduct();
@@ -34,19 +35,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== Load Product =====
-function loadProduct(productId) {
-    // localStorage에서 제품 정보 가져오기
-    const savedProducts = localStorage.getItem('adminProducts') || localStorage.getItem('products');
+function loadProduct(productId, isPreview = false) {
+    let product = null;
     
-    if (savedProducts) {
-        const products = JSON.parse(savedProducts);
-        const product = products.find(p => String(p.id) === String(productId));
-        
-        if (product) {
-            currentProduct = product;
-            displayProduct(product);
-            return;
+    // 미리보기 모드
+    if (isPreview && String(productId).startsWith('preview_')) {
+        const previewProduct = localStorage.getItem('previewProduct');
+        if (previewProduct) {
+            product = JSON.parse(previewProduct);
+            console.log('📋 Preview mode:', product);
         }
+    }
+    
+    // 일반 모드: localStorage에서 제품 정보 가져오기
+    if (!product) {
+        const savedProducts = localStorage.getItem('adminProducts') || localStorage.getItem('products');
+        
+        if (savedProducts) {
+            const products = JSON.parse(savedProducts);
+            product = products.find(p => String(p.id) === String(productId));
+        }
+    }
+    
+    if (product) {
+        currentProduct = product;
+        displayProduct(product);
+        
+        // 미리보기 모드면 알림 표시
+        if (isPreview) {
+            showNotification('⚠️ 미리보기 모드입니다. 실제로 저장되지 않았습니다.');
+        }
+        return;
     }
     
     // 제품을 찾지 못하면 기본 제품 표시
@@ -76,16 +95,25 @@ function loadDefaultProduct() {
 function displayProduct(product) {
     console.log('📦 Displaying product:', product);
     
-    // 제품 이미지 (여러 장 시뮬레이션)
-    productImages = [
-        product.image_url,
-        product.image_url, // 실제로는 다른 각도 이미지
-        product.image_url,
-        product.image_url
-    ];
+    // 제품 이미지 처리 (배열 또는 단일 이미지)
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        // 새로운 배열 형식
+        productImages = product.images;
+    } else if (product.image_url) {
+        // 기존 단일 이미지 형식 (하위 호환성)
+        productImages = [product.image_url, product.image_url, product.image_url, product.image_url];
+    } else {
+        // 기본 이미지
+        productImages = [
+            'https://placehold.co/600x600/2c5f4f/ffffff?text=Product+Image',
+            'https://placehold.co/600x600/2c5f4f/ffffff?text=Product+Image',
+            'https://placehold.co/600x600/2c5f4f/ffffff?text=Product+Image',
+            'https://placehold.co/600x600/2c5f4f/ffffff?text=Product+Image'
+        ];
+    }
     
     // 메인 이미지
-    document.getElementById('mainImage').src = product.image_url;
+    document.getElementById('mainImage').src = productImages[0];
     
     // 썸네일 갤러리
     const gallery = document.getElementById('thumbnailGallery');
@@ -106,12 +134,58 @@ function displayProduct(product) {
     updatePriceDisplay(product.price);
     
     // 상세 정보
-    document.getElementById('productDescription').textContent = product.description;
-    document.getElementById('productMaterials').textContent = product.materials;
-    document.getElementById('productBenefits').textContent = product.benefits;
+    document.getElementById('productDescription').textContent = product.description || '천연 원석을 사용한 고품질 제품입니다.';
+    document.getElementById('productMaterials').textContent = product.materials || '천연 원석';
+    document.getElementById('productBenefits').textContent = product.benefits || '건강 증진';
     
     if (product.special_occasions && product.special_occasions.length > 0) {
         document.getElementById('productOccasions').textContent = product.special_occasions.join(', ');
+    } else if (product.special_day && product.special_day.length > 0) {
+        document.getElementById('productOccasions').textContent = product.special_day.join(', ');
+    }
+    
+    // 네이버/쿠팡 구매 버튼 표시
+    const naverBtn = document.getElementById('naverBuyBtn');
+    const coupangBtn = document.getElementById('coupangBuyBtn');
+    const noLinkNotice = document.getElementById('noLinkNotice');
+    
+    if (product.naver_link) {
+        naverBtn.href = product.naver_link;
+        naverBtn.style.display = 'flex';
+    } else {
+        naverBtn.style.display = 'none';
+    }
+    
+    if (product.coupang_link) {
+        coupangBtn.href = product.coupang_link;
+        coupangBtn.style.display = 'flex';
+    } else {
+        coupangBtn.style.display = 'none';
+    }
+    
+    // 둘 다 없으면 안내 메시지 표시
+    if (!product.naver_link && !product.coupang_link) {
+        noLinkNotice.style.display = 'block';
+    } else {
+        noLinkNotice.style.display = 'none';
+    }
+    
+    // 사이즈별 재고 표시 (선택 사항)
+    if (product.size_stock) {
+        console.log('📊 사이즈별 재고:', product.size_stock);
+        
+        // 재고가 없는 사이즈 버튼 비활성화
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            const size = btn.dataset.size + 'cm';
+            const stock = product.size_stock[size] || 0;
+            
+            if (stock === 0) {
+                btn.disabled = true;
+                btn.style.opacity = '0.3';
+                btn.style.cursor = 'not-allowed';
+                btn.innerHTML = btn.innerHTML + '<br><small>(품절)</small>';
+            }
+        });
     }
 }
 
