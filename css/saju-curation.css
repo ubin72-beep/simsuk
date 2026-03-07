@@ -33,6 +33,70 @@
     backdrop-filter: blur(10px);
 }
 
+/* 양력/음력 선택 */
+.calendar-type-selector {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.calendar-type-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+}
+
+.calendar-type-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(212, 175, 55, 0.5);
+}
+
+.calendar-type-option input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d4af37;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-type-option input[type="radio"]:checked {
+    background: #d4af37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.calendar-type-option input[type="radio"]:checked::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1a1d1e;
+}
+
+.calendar-type-label {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.calendar-type-option input[type="radio"]:checked + .calendar-type-label {
+    color: #d4af37;
+}
+
 .birthdate-input-group {
     display: flex;
     gap: 15px;
@@ -419,6 +483,17 @@
     
     .result-section h4 {
         font-size: 20px;
+    }
+    
+    /* 양력/음력 선택 모바일 */
+    .calendar-type-selector {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .calendar-type-option {
+        width: 100%;
+        justify-content: center;
     }
     
     .birthdate-input-group {
