@@ -42,7 +42,25 @@ function lunarToSolar(year, month, day) {
 
 // 양력→음력 변환 (역변환)
 function solarToLunar(year, month, day) {
-    // 간단한 역변환 (근사값)
+    // 양력→음력 역 DB 생성 (LUNAR_TO_SOLAR_DB를 역으로 매핑)
+    const solarKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    // DB에서 역검색
+    for (const [lunarKey, solarValue] of Object.entries(LUNAR_TO_SOLAR_DB)) {
+        if (solarValue === solarKey || solarValue === `${year}-${month}-${day}`) {
+            const [lunarYear, lunarMonth, lunarDay] = lunarKey.split('-').map(Number);
+            console.log(`✅ 양력 ${year}년 ${month}월 ${day}일 = 음력 ${lunarYear}년 ${lunarMonth}월 ${lunarDay}일`);
+            return {
+                year: lunarYear,
+                month: lunarMonth,
+                day: lunarDay,
+                isLeapMonth: false
+            };
+        }
+    }
+    
+    // DB에 없으면 근사값 사용
+    console.warn(`⚠️ 양력 ${year}-${month}-${day} 데이터가 없습니다. 근사값을 사용합니다.`);
     const solarDate = new Date(year, month - 1, day);
     const approximateLunar = new Date(solarDate.getTime() - (30 * 24 * 60 * 60 * 1000));
     
@@ -87,6 +105,34 @@ async function lunarToSolarAPI(year, month, day, isLeapMonth = false) {
 // 주요 음력 날짜 DB (1970-1980년)
 // 정확한 한국 음력 데이터 (한국천문연구원 기준)
 const LUNAR_TO_SOLAR_DB = {
+    // 1972년 (음력 → 양력)
+    '1972-1-1': '1972-02-15',
+    '1972-1-15': '1972-02-29',
+    '1972-2-1': '1972-03-16',
+    '1972-2-15': '1972-03-30',
+    '1972-3-1': '1972-04-14',
+    '1972-3-15': '1972-04-28',
+    '1972-4-1': '1972-05-14',
+    '1972-4-8': '1972-05-21', // 석가탄신일
+    '1972-5-1': '1972-06-12',
+    '1972-5-5': '1972-06-16', // 단오
+    '1972-6-1': '1972-07-11',
+    '1972-7-1': '1972-08-10',
+    '1972-8-1': '1972-09-08',
+    '1972-8-15': '1972-09-22', // 추석
+    '1972-9-1': '1972-10-08',
+    '1972-10-1': '1972-11-06',
+    '1972-11-1': '1972-12-06',
+    '1972-11-15': '1972-12-20',
+    '1972-12-1': '1973-01-05',
+    '1972-12-10': '1973-01-14',
+    '1972-12-15': '1973-01-19',
+    '1972-12-19': '1973-01-23', // ✅ 질문하신 날짜
+    '1972-12-20': '1973-01-24',
+    '1972-12-22': '1973-01-26', // 동지
+    '1972-12-25': '1973-01-29',
+    '1972-12-29': '1973-02-02',
+    
     // 1973년 (음력 → 양력)
     '1973-1-1': '1973-02-03',
     '1973-1-2': '1973-02-04',
