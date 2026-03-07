@@ -898,7 +898,7 @@
 
     <script src="js/saju-curation.js?v=20260307001"></script>
     <script src="js/lunar-solar-converter.js"></script>
-    <script src="js/main.js?v=20260307001"></script>
+    <script src="js/main.js?v=20260307004"></script>
     <script>
         // 사주 큐레이션 함수
         function analyzeBirthdate() {
@@ -931,10 +931,11 @@
                 return;
             }
             
-            // 음력인 경우 양력으로 변환
+            // 음력인 경우 양력으로 변환, 양력인 경우 음력도 계산
             let actualYear = year;
             let actualMonth = month;
             let actualDay = day;
+            let lunarInfo = null;
             
             if (calendarType === 'lunar') {
                 console.log(`🌙 음력 입력: ${year}년 ${month}월 ${day}일`);
@@ -943,6 +944,11 @@
                 actualMonth = converted.month;
                 actualDay = converted.day;
                 console.log(`☀️ 양력 변환: ${actualYear}년 ${actualMonth}월 ${actualDay}일`);
+            } else {
+                // 양력 입력인 경우 음력도 계산
+                console.log(`☀️ 양력 입력: ${year}년 ${month}월 ${day}일`);
+                lunarInfo = window.LunarSolarConverter.solarToLunar(year, month, day);
+                console.log(`🌙 음력 역산: ${lunarInfo.year}년 ${lunarInfo.month}월 ${lunarInfo.day}일`);
             }
             
             // 날짜 유효성 검사 (변환된 양력 날짜로)
@@ -969,6 +975,10 @@
                         <p style="color: #d4af37; font-size: 13px; margin-top: 5px;">
                             → 양력 ${actualYear}년 ${actualMonth}월 ${actualDay}일로 변환 중...
                         </p>
+                    ` : lunarInfo ? `
+                        <p style="color: #64b5f6; font-size: 13px; margin-top: 5px;">
+                            (음력 ${lunarInfo.year}년 ${lunarInfo.month}월 ${lunarInfo.day}일)
+                        </p>
                     ` : ''}
                 </div>
             `;
@@ -985,12 +995,23 @@
                 const displayYear = year;
                 const displayMonth = month;
                 const displayDay = day;
+                
+                let displayText = `${calendarTypeText} ${displayYear}년 ${displayMonth}월 ${displayDay}일`;
+                
+                if (calendarType === 'lunar') {
+                    displayText += ` (양력 ${actualYear}년 ${actualMonth}월 ${actualDay}일)`;
+                } else {
+                    // 양력 입력인 경우 음력도 계산 (setTimeout 내부에서 다시 계산)
+                    const lunarResult = window.LunarSolarConverter.solarToLunar(year, month, day);
+                    console.log(`🌙 양력 ${year}년 ${month}월 ${day}일 → 음력 ${lunarResult.year}년 ${lunarResult.month}월 ${lunarResult.day}일`);
+                    displayText += ` (음력 ${lunarResult.year}년 ${lunarResult.month}월 ${lunarResult.day}일)`;
+                }
+                
                 const result = generateCurationResult(
                     birthDate, 
                     products, 
                     calendarType, 
-                    `${calendarTypeText} ${displayYear}년 ${displayMonth}월 ${displayDay}일` + 
-                    (calendarType === 'lunar' ? ` (양력 ${actualYear}년 ${actualMonth}월 ${actualDay}일)` : '')
+                    displayText
                 );
                 
                 // 결과 표시
