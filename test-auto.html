@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>자동 테스트</title>
+    <script src="js/lunar-solar-converter.js"></script>
+</head>
+<body>
+    <h1>자동 테스트 실행 중...</h1>
+    <script>
+        // 테스트 1: 음력 1972-12-19
+        const test1 = window.LunarSolarConverter.lunarToSolar(1972, 12, 19);
+        console.log('TEST 1:', test1);
+        console.log('TEST 1 결과:', test1.year === 1973 && test1.month === 1 && test1.day === 23 ? '✅ 통과' : '❌ 실패');
+        
+        // 테스트 2: 음력 1973-02-05
+        const test2 = window.LunarSolarConverter.lunarToSolar(1973, 2, 5);
+        console.log('TEST 2:', test2);
+        console.log('TEST 2 결과:', test2.year === 1973 && test2.month === 3 && test2.day === 9 ? '✅ 통과' : '❌ 실패');
+        
+        // 테스트 3: 양력 → 음력 역변환
+        const test3 = window.LunarSolarConverter.solarToLunar(1973, 1, 23);
+        console.log('TEST 3 (역변환):', test3);
+        console.log('TEST 3 결과:', test3.year === 1972 && test3.month === 12 && test3.day === 19 ? '✅ 통과' : '❌ 실패');
+    </script>
+</body>
+</html>
