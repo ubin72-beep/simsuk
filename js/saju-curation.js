@@ -213,7 +213,7 @@ function matchProducts(recommendedStones, products) {
  * @param {array} products - 제품 목록 (옵션)
  * @returns {object} { sajuResult, recommendation, matchedProducts, html }
  */
-function generateCurationResult(birthDate, products = []) {
+function generateCurationResult(birthDate, products = [], calendarType = 'solar', calendarTypeText = '양력') {
     const sajuResult = analyzeSaju(birthDate);
     const recommendation = recommendStones(sajuResult);
     const matchedProducts = products.length > 0 ? 
@@ -224,7 +224,7 @@ function generateCurationResult(birthDate, products = []) {
         <div class="saju-curation-result">
             <div class="result-header">
                 <h3>🔮 당신을 위한 맞춤 원석 추천</h3>
-                <p class="birth-info">${sajuResult.year}년 ${sajuResult.month}월 ${sajuResult.day}일생</p>
+                <p class="birth-info">${sajuResult.year}년 ${sajuResult.month}월 ${sajuResult.day}일생 (${calendarTypeText})</p>
             </div>
             
             <div class="result-section birthstone-section">
