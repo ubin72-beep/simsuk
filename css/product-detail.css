@@ -458,10 +458,16 @@ body {
 
 /* Action Buttons */
 .action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    flex-direction: column;
     gap: 15px;
     margin-bottom: 30px;
+}
+
+.buy-platform-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .btn {
@@ -476,28 +482,62 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    text-decoration: none;
+    width: 100%;
 }
 
-.btn-cart {
-    background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-}
-
-.btn-cart:hover {
-    background: var(--primary-color);
+.btn-naver {
+    background: #03C75A;
     color: white;
 }
 
-.btn-buy {
-    background: var(--primary-color);
+.btn-naver:hover {
+    background: #02B350;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(3, 199, 90, 0.4);
+}
+
+.btn-coupang {
+    background: #FF6B00;
     color: white;
 }
 
-.btn-buy:hover {
+.btn-coupang:hover {
+    background: #E55F00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 107, 0, 0.4);
+}
+
+.btn-contact {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+}
+
+.btn-contact:hover {
     background: #1a3d30;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(44, 95, 79, 0.3);
+}
+
+.no-link-notice {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.no-link-notice i {
+    font-size: 48px;
+    color: #bdc3c7;
+    margin-bottom: 15px;
+}
+
+.no-link-notice p {
+    color: #7f8c8d;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
 }
 
 /* Product Features */
