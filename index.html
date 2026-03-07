@@ -70,6 +70,7 @@
     <link rel="stylesheet" href="css/grounding.css">
     <link rel="stylesheet" href="css/saju-curation.css">
     <link rel="stylesheet" href="css/modern-sections.css?v=2.3.3">
+    <link rel="stylesheet" href="css/catalog.css?v=3.6.0">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 </head>
@@ -167,6 +168,24 @@
             <div class="section-header">
                 <h2 class="section-title">우리의 컬렉션</h2>
                 <p class="section-subtitle">건강과 아름다움을 위한 특별한 액세서리</p>
+            </div>
+
+            <!-- 카탈로그 안내 배너 -->
+            <div class="catalog-notice">
+                <h3>🛍️ 안전한 구매를 위해</h3>
+                <p>심석(SIMSUK)의 모든 제품은 <strong>네이버 스마트스토어</strong>와 <strong>쿠팡</strong>에서 안전하게 구매하실 수 있습니다.<br>
+                제품을 클릭하면 상세 정보를 확인하고, 원하시는 플랫폼에서 바로 구매하실 수 있습니다.</p>
+                <div class="platform-logos">
+                    <div class="platform-logo naver">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;">
+                            <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/>
+                        </svg>
+                        네이버 스마트스토어
+                    </div>
+                    <div class="platform-logo coupang">
+                        <i class="fas fa-shopping-bag"></i> 쿠팡
+                    </div>
+                </div>
             </div>
 
             <!-- Filter Buttons -->
@@ -386,6 +405,18 @@
                 당신에게 꼭 맞는 탄생석과 보완석을 추천해드립니다</p>
                 
                 <div class="birthdate-input-wrapper">
+                    <!-- 양력/음력 선택 -->
+                    <div class="calendar-type-selector">
+                        <label class="calendar-type-option">
+                            <input type="radio" name="calendar-type" value="solar" checked>
+                            <span class="calendar-type-label">양력 (Solar)</span>
+                        </label>
+                        <label class="calendar-type-option">
+                            <input type="radio" name="calendar-type" value="lunar">
+                            <span class="calendar-type-label">음력 (Lunar)</span>
+                        </label>
+                    </div>
+                    
                     <div class="birthdate-input-group">
                         <input type="number" id="birth-year" placeholder="연도 (예: 1990)" min="1900" max="2024">
                         <input type="number" id="birth-month" placeholder="월 (1-12)" min="1" max="12">
@@ -865,14 +896,18 @@
         </div>
     </div>
 
-    <script src="js/saju-curation.js?v=20260304001"></script>
-    <script src="js/main.js?v=20260304001"></script>
+    <script src="js/saju-curation.js?v=20260307001"></script>
+    <script src="js/main.js?v=20260307001"></script>
     <script>
         // 사주 큐레이션 함수
         function analyzeBirthdate() {
             const year = document.getElementById('birth-year').value;
             const month = document.getElementById('birth-month').value;
             const day = document.getElementById('birth-day').value;
+            
+            // 양력/음력 선택 값 가져오기
+            const calendarType = document.querySelector('input[name="calendar-type"]:checked').value;
+            const calendarTypeText = calendarType === 'solar' ? '양력' : '음력';
             
             // 입력 검증
             if (!year || !month || !day) {
@@ -912,6 +947,9 @@
                 <div class="saju-loading active">
                     <div class="spinner"></div>
                     <p class="loading-text">사주를 분석하고 있습니다...</p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 10px;">
+                        입력: ${year}년 ${month}월 ${day}일 (${calendarTypeText})
+                    </p>
                 </div>
             `;
             
@@ -922,8 +960,8 @@
                 // 제품 데이터 가져오기 (전역 변수가 있다면)
                 const products = window.allProducts || [];
                 
-                // 큐레이션 결과 생성
-                const result = generateCurationResult(birthDate, products);
+                // 큐레이션 결과 생성 (양력/음력 정보 전달)
+                const result = generateCurationResult(birthDate, products, calendarType, calendarTypeText);
                 
                 // 결과 표시
                 resultContent.innerHTML = result.html;
