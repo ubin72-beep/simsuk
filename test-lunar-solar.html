@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>음력/양력 변환 테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #d4af37;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4af37;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa8b2e 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 4px solid #d4af37;
+            border-radius: 8px;
+        }
+        
+        .result h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+        
+        .result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        .result-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-top: 5px;
+        }
+        
+        .success {
+            color: #4caf50;
+        }
+        
+        .warning {
+            color: #ff9800;
+        }
+        
+        .error {
+            color: #f44336;
+        }
+        
+        .example-tests {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .example-tests h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+        
+        .test-case {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .test-case:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+        
+        .test-case-lunar {
+            color: #64b5f6;
+        }
+        
+        .test-case-solar {
+            color: #ffb74d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌙☀️ 음력/양력 변환 테스트</h1>
+        <p class="subtitle">음력 날짜가 정확하게 양력으로 변환되는지 확인하세요</p>
+        
+        <!-- 수동 테스트 -->
+        <div class="test-section">
+            <h2>📝 수동 테스트</h2>
+            <div class="input-group">
+                <label>음력 연도</label>
+                <input type="number" id="lunar-year" placeholder="예: 1973" value="1973">
+            </div>
+            <div class="input-group">
+                <label>음력 월</label>
+                <input type="number" id="lunar-month" placeholder="1-12" value="2" min="1" max="12">
+            </div>
+            <div class="input-group">
+                <label>음력 일</label>
+                <input type="number" id="lunar-day" placeholder="1-30" value="5" min="1" max="30">
+            </div>
+            <button onclick="testConversion()">🔄 변환하기</button>
+            
+            <div id="manual-result"></div>
+        </div>
+        
+        <!-- 예제 테스트 -->
+        <div class="test-section">
+            <div class="example-tests">
+                <h3>📋 예제 테스트 (클릭하면 자동 입력)</h3>
+                <div class="test-case" onclick="fillForm(1973, 2, 5)">
+                    <span class="test-case-lunar">🌙 음력 1973년 2월 5일</span> 
+                    → 
+                    <span class="test-case-solar">☀️ 양력 1973년 3월 9일 (물고기자리)</span>
+                </div>
+                <div class="test-case" onclick="fillForm(1973, 1, 1)">
+                    <span class="test-case-lunar">🌙 음력 1973년 1월 1일 (설날)</span> 
+                    → 
+                    <span class="test-case-solar">☀️ 양력 1973년 2월 3일</span>
+                </div>
+                <div class="test-case" onclick="fillForm(1973, 8, 15)">
+                    <span class="test-case-lunar">🌙 음력 1973년 8월 15일 (추석)</span> 
+                    → 
+                    <span class="test-case-solar">☀️ 양력 1973년 9월 12일</span>
+                </div>
+                <div class="test-case" onclick="fillForm(1973, 4, 8)">
+                    <span class="test-case-lunar">🌙 음력 1973년 4월 8일 (석가탄신일)</span> 
+                    → 
+                    <span class="test-case-solar">☀️ 양력 1973년 5월 10일</span>
+                </div>
+                <div class="test-case" onclick="fillForm(1973, 5, 5)">
+                    <span class="test-case-lunar">🌙 음력 1973년 5월 5일 (단오)</span> 
+                    → 
+                    <span class="test-case-solar">☀️ 양력 1973년 6월 5일</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 탄생석 비교 -->
+        <div class="test-section">
+            <h2>💎 탄생석 일치 확인</h2>
+            <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">
+                음력과 양력이 같은 탄생석을 추천하는지 확인합니다.
+            </p>
+            <button onclick="testBirthstone()">🔍 탄생석 비교</button>
+            <div id="birthstone-result"></div>
+        </div>
+    </div>
+    
+    <script src="js/lunar-solar-converter.js"></script>
+    <script src="js/saju-curation.js"></script>
+    <script>
+        function fillForm(year, month, day) {
+            document.getElementById('lunar-year').value = year;
+            document.getElementById('lunar-month').value = month;
+            document.getElementById('lunar-day').value = day;
+            testConversion();
+        }
+        
+        function testConversion() {
+            const year = parseInt(document.getElementById('lunar-year').value);
+            const month = parseInt(document.getElementById('lunar-month').value);
+            const day = parseInt(document.getElementById('lunar-day').value);
+            
+            const result = window.LunarSolarConverter.lunarToSolar(year, month, day);
+            
+            const resultDiv = document.getElementById('manual-result');
+            resultDiv.innerHTML = `
+                <div class="result">
+                    <h3>✅ 변환 결과</h3>
+                    <div class="result-item">
+                        <div class="result-label">🌙 음력 입력</div>
+                        <div class="result-value">${year}년 ${month}월 ${day}일</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">☀️ 양력 변환</div>
+                        <div class="result-value success">${result.year}년 ${result.month}월 ${result.day}일</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">🔢 변환 방식</div>
+                        <div class="result-value">${LUNAR_TO_SOLAR_DB[`${year}-${month}-${day}`] ? '정확한 DB 데이터' : '보간법 추정'}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function testBirthstone() {
+            const lunarDate = { year: 1973, month: 2, day: 5 };
+            const solarDate = { year: 1973, month: 3, day: 9 };
+            
+            // 음력 날짜 분석
+            const converted = window.LunarSolarConverter.lunarToSolar(lunarDate.year, lunarDate.month, lunarDate.day);
+            const lunarBirthDate = `${converted.year}-${String(converted.month).padStart(2, '0')}-${String(converted.day).padStart(2, '0')}`;
+            const lunarAnalysis = analyzeSaju(lunarBirthDate);
+            const lunarRecommendation = recommendStones(lunarAnalysis);
+            
+            // 양력 날짜 분석
+            const solarBirthDate = `${solarDate.year}-${String(solarDate.month).padStart(2, '0')}-${String(solarDate.day).padStart(2, '0')}`;
+            const solarAnalysis = analyzeSaju(solarBirthDate);
+            const solarRecommendation = recommendStones(solarAnalysis);
+            
+            const isMatch = lunarRecommendation.birthstone.name === solarRecommendation.birthstone.name;
+            
+            const resultDiv = document.getElementById('birthstone-result');
+            resultDiv.innerHTML = `
+                <div class="result">
+                    <h3>${isMatch ? '✅ 일치!' : '❌ 불일치'}</h3>
+                    <div class="result-item">
+                        <div class="result-label">🌙 음력 1973년 2월 5일 → 양력 ${converted.month}월 ${converted.day}일</div>
+                        <div class="result-value">${lunarRecommendation.birthstone.name} (${lunarRecommendation.birthstone.color})</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">☀️ 양력 1973년 3월 9일</div>
+                        <div class="result-value ${isMatch ? 'success' : 'error'}">${solarRecommendation.birthstone.name} (${solarRecommendation.birthstone.color})</div>
+                    </div>
+                    ${isMatch ? `
+                        <div class="result-item">
+                            <div class="result-label">💡 결과</div>
+                            <div class="result-value success">같은 탄생석이 추천되었습니다! 변환이 정상 작동합니다.</div>
+                        </div>
+                    ` : `
+                        <div class="result-item">
+                            <div class="result-label">⚠️ 주의</div>
+                            <div class="result-value error">다른 탄생석이 추천되었습니다. 변환 로직을 확인해주세요.</div>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+        
+        // 페이지 로드 시 기본 테스트 실행
+        window.addEventListener('load', () => {
+            testConversion();
+        });
+    </script>
+</body>
+</html>
