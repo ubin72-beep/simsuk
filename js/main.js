@@ -18,7 +18,9 @@ const DEMO_PRODUCTS = [
         featured: true,
         in_stock: true,
         birthstone_months: [1, 10],
-        special_occasions: ['일상', '건강']
+        special_occasions: ['일상', '건강'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com/np/search?q=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%AA%A9%EA%B1%B8%EC%9D%B4'
     },
     {
         id: 2,
@@ -32,7 +34,9 @@ const DEMO_PRODUCTS = [
         featured: true,
         in_stock: true,
         birthstone_months: [1, 10],
-        special_occasions: ['일상']
+        special_occasions: ['일상'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com/np/search?q=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8'
     },
     {
         id: 3,
@@ -46,7 +50,9 @@ const DEMO_PRODUCTS = [
         featured: false,
         in_stock: true,
         birthstone_months: [1, 10],
-        special_occasions: ['일상', '선물']
+        special_occasions: ['일상', '선물'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com/np/search?q=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%B0%98%EC%A7%80'
     },
     {
         id: 4,
@@ -60,7 +66,9 @@ const DEMO_PRODUCTS = [
         featured: true,
         in_stock: true,
         birthstone_months: [1],
-        special_occasions: ['생일', '기념일']
+        special_occasions: ['생일', '기념일'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com/np/search?q=%EA%B0%80%EB%84%B7+%EB%AA%A9%EA%B1%B8%EC%9D%B4'
     },
     {
         id: 5,
@@ -74,7 +82,9 @@ const DEMO_PRODUCTS = [
         featured: false,
         in_stock: true,
         birthstone_months: [2],
-        special_occasions: ['생일', '힐링']
+        special_occasions: ['생일', '힐링'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com/np/search?q=%EC%9E%90%EC%88%98%EC%A0%95+%ED%8C%94%EC%B0%8C'
     },
     {
         id: 6,
@@ -88,7 +98,9 @@ const DEMO_PRODUCTS = [
         featured: false,
         in_stock: true,
         birthstone_months: [3],
-        special_occasions: ['생일', '여행']
+        special_occasions: ['생일', '여행'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com/np/search?q=%EC%95%84%EC%BF%A0%EC%95%84%EB%A7%88%EB%A6%B0+%EB%B0%98%EC%A7%80'
     }
 ];
 
@@ -153,10 +165,11 @@ function displayProducts(products) {
     }
     
     grid.innerHTML = products.map(product => `
-        <div class="product-card" onclick="openProduct(${product.id})">
+        <div class="product-card catalog-style" onclick="openProduct(${product.id})">
             <div class="product-image">
-                <img src="${product.image_url}" alt="${product.name}">
+                <img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=${encodeURIComponent(product.name)}'">
                 ${product.featured ? '<span class="product-badge">추천</span>' : ''}
+                ${!product.in_stock ? '<span class="product-badge sold-out">품절</span>' : ''}
             </div>
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
@@ -165,11 +178,31 @@ function displayProducts(products) {
                 <div class="product-materials">
                     <i class="fas fa-gem"></i> ${product.materials}
                 </div>
-                <div class="product-benefits">${product.benefits}</div>
-                <div class="product-footer">
-                    <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); addToCart(${product.id})">
-                        <i class="fas fa-shopping-bag"></i> 장바구니
-                    </button>
+                <div class="product-benefits">
+                    <i class="fas fa-heart"></i> ${product.benefits}
+                </div>
+            </div>
+            <div class="product-footer">
+                <div class="buy-buttons">
+                    ${product.naver_link ? `
+                        <a href="${product.naver_link}" target="_blank" class="buy-btn naver-btn" onclick="event.stopPropagation()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/>
+                            </svg>
+                            네이버
+                        </a>
+                    ` : ''}
+                    ${product.coupang_link ? `
+                        <a href="${product.coupang_link}" target="_blank" class="buy-btn coupang-btn" onclick="event.stopPropagation()">
+                            <i class="fas fa-shopping-bag"></i>
+                            쿠팡
+                        </a>
+                    ` : ''}
+                    ${!product.naver_link && !product.coupang_link ? `
+                        <button class="buy-btn disabled-btn" onclick="event.stopPropagation()" disabled>
+                            <i class="fas fa-clock"></i> 준비 중
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         </div>
