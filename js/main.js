@@ -147,9 +147,9 @@ function loadProducts() {
             // 제품 페이지: 모든 제품을 페이지네이션과 함께 표시
             displayProducts(allProducts);
         } else {
-            // 메인 페이지: featured 제품 우선, 최대 8개만 표시
+            // 메인 페이지: featured 제품 우선, 최대 10개만 표시
             const featuredProducts = allProducts.filter(p => p.featured);
-            const displayLimit = 8;
+            const displayLimit = 10;
             
             if (featuredProducts.length >= displayLimit) {
                 displayProducts(featuredProducts, displayLimit);
@@ -162,7 +162,7 @@ function loadProducts() {
         allProducts = DEMO_PRODUCTS;
         
         const isProductsPage = window.location.pathname.includes('products.html');
-        displayProducts(allProducts, isProductsPage ? null : 8);
+        displayProducts(allProducts, isProductsPage ? null : 10);
     }
 }
 
