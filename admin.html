@@ -369,6 +369,38 @@
                         </label>
                     </div>
                 </div>
+                
+                <!-- 구매 링크 섹션 -->
+                <div class="form-section" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                    <h3 style="margin-bottom: 15px; color: #2c5f4f; font-size: 1.1rem;">
+                        <i class="fas fa-shopping-cart"></i> 구매 링크
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#03C75A" style="vertical-align: middle; margin-right: 5px;">
+                                    <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/>
+                                </svg>
+                                네이버 스마트스토어 링크
+                            </label>
+                            <input type="url" id="productNaverLink" placeholder="https://smartstore.naver.com/simsuk/products/...">
+                            <small style="color: #999; display: block; margin-top: 4px;">
+                                <i class="fas fa-info-circle"></i> 네이버 스마트스토어 제품 URL을 입력하세요
+                            </small>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>
+                                <i class="fas fa-shopping-bag" style="color: #FF6B00; margin-right: 5px;"></i>
+                                쿠팡 링크
+                            </label>
+                            <input type="url" id="productCoupangLink" placeholder="https://www.coupang.com/...">
+                            <small style="color: #999; display: block; margin-top: 4px;">
+                                <i class="fas fa-info-circle"></i> 쿠팡 제품 URL을 입력하세요
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="closeProductModal()">취소</button>
                     <button type="button" class="btn" style="background: #667eea; color: white;" onclick="previewProduct()">
