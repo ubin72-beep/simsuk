@@ -4,6 +4,11 @@ let currentFilter = 'all';
 let currentBirthstoneFilter = null;
 let cart = [];
 
+// 페이지네이션 변수
+let currentPage = 1;
+let productsPerPage = 8;
+let totalPages = 1;
+
 // ===== 제품 데이터 =====
 const DEMO_PRODUCTS = [
     {
@@ -135,17 +140,35 @@ function loadProducts() {
             console.log(`✅ 데모 데이터 ${allProducts.length}개 제품 로드`);
         }
         
-        displayProducts(allProducts);
+        // 현재 페이지 확인 (메인 페이지 vs 제품 페이지)
+        const isProductsPage = window.location.pathname.includes('products.html');
+        
+        if (isProductsPage) {
+            // 제품 페이지: 모든 제품을 페이지네이션과 함께 표시
+            displayProducts(allProducts);
+        } else {
+            // 메인 페이지: featured 제품 우선, 최대 8개만 표시
+            const featuredProducts = allProducts.filter(p => p.featured);
+            const displayLimit = 8;
+            
+            if (featuredProducts.length >= displayLimit) {
+                displayProducts(featuredProducts, displayLimit);
+            } else {
+                displayProducts(allProducts, displayLimit);
+            }
+        }
     } catch (error) {
         console.error('❌ 제품 로드 오류:', error);
         allProducts = DEMO_PRODUCTS;
-        displayProducts(allProducts);
+        
+        const isProductsPage = window.location.pathname.includes('products.html');
+        displayProducts(allProducts, isProductsPage ? null : 8);
     }
 }
 
-// ===== 제품 표시 =====
-function displayProducts(products) {
-    console.log(`🎨 제품 표시: ${products.length}개`);
+// ===== 제품 표시 (페이지네이션 적용) =====
+function displayProducts(products, limit = null) {
+    console.log(`🎨 제품 표시: ${products.length}개${limit ? ` (제한: ${limit}개)` : ''}`);
     
     const grid = document.getElementById('productsGrid');
     
@@ -164,7 +187,21 @@ function displayProducts(products) {
         return;
     }
     
-    grid.innerHTML = products.map(product => `
+    // 페이지네이션 계산
+    let displayedProducts;
+    if (limit) {
+        // 메인 페이지: 제한된 수량만 표시
+        displayedProducts = products.slice(0, limit);
+        totalPages = 1;
+    } else {
+        // 전체 제품 페이지: 페이지네이션 적용
+        totalPages = Math.ceil(products.length / productsPerPage);
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        displayedProducts = products.slice(startIndex, endIndex);
+    }
+    
+    grid.innerHTML = displayedProducts.map(product => `
         <div class="product-card catalog-style" onclick="openProduct(${product.id})">
             <div class="product-image">
                 <img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=${encodeURIComponent(product.name)}'">
@@ -208,7 +245,95 @@ function displayProducts(products) {
         </div>
     `).join('');
     
+    // 페이지네이션 렌더링 (limit이 없을 때만, 즉 전체 제품 페이지에서만)
+    if (!limit && products.length > productsPerPage) {
+        renderPagination(products.length);
+    } else {
+        // 메인 페이지에서는 페이지네이션 숨김
+        const paginationContainer = document.getElementById('pagination');
+        if (paginationContainer) {
+            paginationContainer.style.display = 'none';
+        }
+    }
+    
     console.log('✅ 제품 표시 완료');
+}
+
+// ===== 페이지네이션 렌더링 =====
+function renderPagination(totalProducts) {
+    let paginationContainer = document.getElementById('pagination');
+    
+    // 페이지네이션 컨테이너가 없으면 생성
+    if (!paginationContainer) {
+        const grid = document.getElementById('productsGrid');
+        paginationContainer = document.createElement('div');
+        paginationContainer.id = 'pagination';
+        paginationContainer.className = 'pagination';
+        grid.parentNode.appendChild(paginationContainer);
+    }
+    
+    paginationContainer.style.display = 'flex';
+    
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
+    
+    let paginationHTML = '';
+    
+    // 이전 버튼
+    paginationHTML += `
+        <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
+                onclick="goToPage(${currentPage - 1})" 
+                ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    `;
+    
+    // 페이지 번호 버튼
+    for (let i = 1; i <= totalPages; i++) {
+        // 첫 페이지, 마지막 페이지, 현재 페이지 근처만 표시
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            paginationHTML += `
+                <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                        onclick="goToPage(${i})">
+                    ${i}
+                </button>
+            `;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            paginationHTML += `<span class="pagination-dots">...</span>`;
+        }
+    }
+    
+    // 다음 버튼
+    paginationHTML += `
+        <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+                onclick="goToPage(${currentPage + 1})" 
+                ${currentPage === totalPages ? 'disabled' : ''}>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+    
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+// ===== 페이지 이동 =====
+function goToPage(pageNumber) {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    
+    currentPage = pageNumber;
+    
+    // 현재 필터에 따라 제품 표시
+    if (currentBirthstoneFilter) {
+        filterByBirthstone(currentBirthstoneFilter);
+    } else if (currentFilter !== 'all') {
+        filterProducts(currentFilter);
+    } else {
+        displayProducts(allProducts);
+    }
+    
+    // 페이지 상단으로 스크롤
+    const productsSection = document.getElementById('products');
+    if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // ===== 필터링 =====
