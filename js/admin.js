@@ -597,6 +597,10 @@ function openProductModal(productId = null) {
             });
         }
         
+        // 네이버/쿠팡 링크 로드
+        document.getElementById('productNaverLink').value = product.naver_link || '';
+        document.getElementById('productCoupangLink').value = product.coupang_link || '';
+        
         statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> 기존 제품 데이터 로드됨';
         statusDiv.style.color = '#28a745';
     } else {
@@ -678,6 +682,8 @@ function handleProductSubmit(event) {
         description: document.getElementById('productDescription').value,
         birthstone: selectedBirthstones,
         special_day: selectedSpecialDays,
+        naver_link: document.getElementById('productNaverLink').value || '',  // ⭐ 네이버 링크
+        coupang_link: document.getElementById('productCoupangLink').value || '',  // ⭐ 쿠팡 링크
         featured: document.getElementById('productFeatured').checked,
         in_stock: totalStock > 0,  // 재고가 있으면 자동으로 true
         updated_at: new Date().toISOString()
