@@ -1552,6 +1552,14 @@ button {
         gap: 12px;
     }
     
+    .logo h1 {
+        font-size: 1.3rem;
+    }
+    
+    .logo .hanja {
+        font-size: 0.9rem;
+    }
+    
     .section-title {
         font-size: 2rem;
     }
@@ -1593,8 +1601,23 @@ button {
         margin-bottom: 18px;
     }
     
+    .logo {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
     .logo h1 {
         font-size: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .logo .hanja {
+        font-size: 0.85rem;
+        margin-left: 0;
+        display: block;
     }
     
     .products-grid {
