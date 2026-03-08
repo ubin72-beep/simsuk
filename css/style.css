@@ -92,6 +92,12 @@ button {
     color: var(--accent-color);
 }
 
+.logo-text {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .logo h1 {
     font-size: 1.5rem;
     margin: 0;
@@ -101,7 +107,6 @@ button {
     font-size: 1rem;
     font-weight: 400;
     color: var(--secondary-color);
-    margin-left: 5px;
     opacity: 0.8;
 }
 
@@ -219,6 +224,7 @@ button {
 
 .hero-title {
     font-size: 2.2rem;
+    margin-top: 0;
     margin-bottom: 10px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     line-height: 1.2;
@@ -1510,7 +1516,8 @@ button {
     }
     
     .hero-title {
-        font-size: 1.9rem;
+        font-size: 1.8rem;
+        margin-top: 15px;
     }
     
     .hero-subtitle {
@@ -1537,10 +1544,10 @@ button {
 
 @media (max-width: 768px) {
     .hero {
-        min-height: 350px;
-        height: 48vh;
-        max-height: 450px;
-        padding: 60px 0 40px;
+        min-height: 380px;
+        height: 52vh;
+        max-height: 480px;
+        padding: 85px 0 40px;
     }
     
     .hero-content {
@@ -1558,6 +1565,10 @@ button {
     
     .logo .hanja {
         font-size: 0.9rem;
+    }
+    
+    .logo-text {
+        gap: 3px;
     }
     
     .section-title {
@@ -1582,14 +1593,15 @@ button {
 
 @media (max-width: 480px) {
     .hero {
-        min-height: 320px;
-        height: 45vh;
-        max-height: 420px;
-        padding: 60px 0 35px;
+        min-height: 400px;
+        height: 55vh;
+        max-height: 500px;
+        padding: 100px 0 40px;
     }
     
     .hero-title {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+        margin-top: 20px;
     }
     
     .hero-subtitle {
@@ -1601,23 +1613,34 @@ button {
         margin-bottom: 18px;
     }
     
+    /* 로고 전체를 세로로 배치 */
     .logo {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 3px !important;
+    }
+    
+    .logo i {
+        font-size: 1.5rem !important;
+    }
+    
+    /* logo-text도 세로로 배치 */
+    .logo-text {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0 !important;
     }
     
     .logo h1 {
-        font-size: 1.2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        font-size: 1.1rem !important;
+        margin: 0 !important;
     }
     
+    /* 한자를 별도 줄로 표시 */
     .logo .hanja {
-        font-size: 0.85rem;
-        margin-left: 0;
-        display: block;
+        font-size: 0.8rem !important;
+        margin-top: -3px !important;
     }
     
     .products-grid {
