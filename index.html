@@ -169,8 +169,8 @@
     <section class="products-section" id="products">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">우리의 컬렉션</h2>
-                <p class="section-subtitle">건강과 아름다움을 위한 특별한 액세서리</p>
+                <h2 class="section-title">추천 제품</h2>
+                <p class="section-subtitle">인기 있는 헤마타이트 & 원석 액세서리</p>
             </div>
 
             <!-- 카탈로그 안내 배너 -->
@@ -191,8 +191,8 @@
                 </div>
             </div>
 
-            <!-- Filter Buttons -->
-            <div class="filter-buttons">
+            <!-- Filter Buttons - 숨김 처리 -->
+            <div class="filter-buttons" style="display: none;">
                 <button class="filter-btn active" data-filter="all">전체</button>
                 <button class="filter-btn" data-filter="목걸이">목걸이</button>
                 <button class="filter-btn" data-filter="팔찌">팔찌</button>
@@ -200,8 +200,8 @@
                 <button class="filter-btn" data-filter="핸드폰 줄">핸드폰 줄</button>
             </div>
             
-            <!-- Birthstone Filter -->
-            <div class="birthstone-filter">
+            <!-- Birthstone Filter - 숨김 처리 -->
+            <div class="birthstone-filter" style="display: none;">
                 <div class="birthstone-header">
                     <h3><i class="fas fa-gem"></i> 탄생석으로 찾기</h3>
                     <p>당신의 탄생월에 맞는 특별한 원석을 찾아보세요</p>
@@ -270,6 +270,18 @@
                     <i class="fas fa-spinner fa-spin"></i>
                     <p>제품을 불러오는 중...</p>
                 </div>
+            </div>
+            
+            <!-- 페이지네이션 (메인 페이지에서는 숨김) -->
+            <div id="pagination" class="pagination" style="display: none;">
+                <!-- Pagination buttons will be added by JavaScript -->
+            </div>
+            
+            <!-- 전체 제품 보기 버튼 -->
+            <div class="view-all-products" style="text-align: center; margin-top: 40px;">
+                <a href="products.html" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem;">
+                    <i class="fas fa-th"></i> 전체 제품 보기
+                </a>
             </div>
         </div>
     </section>
