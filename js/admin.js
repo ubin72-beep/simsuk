@@ -615,6 +615,10 @@ function openProductModal(productId = null) {
         document.getElementById('stock18cm').value = 10;
         document.getElementById('stock19cm').value = 5;
         
+        // 링크 필드 초기화
+        document.getElementById('productNaverLink').value = '';
+        document.getElementById('productCoupangLink').value = '';
+        
         // 파일 input 초기화
         for (let i = 1; i <= 4; i++) {
             document.getElementById(`productImageFile${i}`).value = '';
