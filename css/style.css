@@ -729,7 +729,6 @@ button {
     padding-top: 100%;
     overflow: hidden;
     background: var(--light-color);
-    pointer-events: none;
 }
 
 .product-image img {
