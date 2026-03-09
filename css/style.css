@@ -729,6 +729,7 @@ button {
     padding-top: 100%;
     overflow: hidden;
     background: var(--light-color);
+    pointer-events: none;
 }
 
 .product-image img {
@@ -741,6 +742,7 @@ button {
     object-fit: contain;
     object-position: center;
     transition: var(--transition);
+    pointer-events: none;
 }
 
 .product-card:hover .product-image img {
@@ -757,10 +759,15 @@ button {
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 500;
+    pointer-events: none;
 }
 
 .product-info {
     padding: 15px;
+}
+
+.product-info * {
+    pointer-events: none;
 }
 
 .product-category {
@@ -804,6 +811,7 @@ button {
     margin-top: 10px;
     box-shadow: 0 2px 8px rgba(3, 199, 90, 0.3);
     transition: all 0.3s ease;
+    pointer-events: none;
 }
 
 .product-card:hover .naver-store-badge {
@@ -813,6 +821,7 @@ button {
 
 .naver-store-badge i {
     font-size: 0.8rem;
+    pointer-events: none;
 }
 
 .product-footer {
