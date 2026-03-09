@@ -202,7 +202,7 @@ function displayProducts(products, limit = null) {
     }
     
     grid.innerHTML = displayedProducts.map(product => `
-        <div class="product-card catalog-style" onclick="openProduct(${product.id})">
+        <div class="product-card catalog-style" onclick="openProduct(${product.id})" style="cursor: pointer;">
             <div class="product-image">
                 <img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=${encodeURIComponent(product.name)}'">
                 ${product.featured ? '<span class="product-badge">추천</span>' : ''}
@@ -218,29 +218,7 @@ function displayProducts(products, limit = null) {
                 <div class="product-benefits">
                     <i class="fas fa-heart"></i> ${product.benefits}
                 </div>
-            </div>
-            <div class="product-footer">
-                <div class="buy-buttons">
-                    ${product.naver_link ? `
-                        <a href="${product.naver_link}" target="_blank" class="buy-btn naver-btn" onclick="event.stopPropagation()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                                <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/>
-                            </svg>
-                            네이버
-                        </a>
-                    ` : ''}
-                    ${product.coupang_link ? `
-                        <a href="${product.coupang_link}" target="_blank" class="buy-btn coupang-btn" onclick="event.stopPropagation()">
-                            <i class="fas fa-shopping-bag"></i>
-                            쿠팡
-                        </a>
-                    ` : ''}
-                    ${!product.naver_link && !product.coupang_link ? `
-                        <button class="buy-btn disabled-btn" onclick="event.stopPropagation()" disabled>
-                            <i class="fas fa-clock"></i> 준비 중
-                        </button>
-                    ` : ''}
-                </div>
+                ${product.naver_link ? '<div class="naver-store-badge"><i class="fas fa-external-link-alt"></i> 네이버 스토어에서 구매</div>' : ''}
             </div>
         </div>
     `).join('');
@@ -390,8 +368,27 @@ function filterByBirthstone(month) {
 
 // ===== 제품 상세 =====
 function openProduct(productId) {
-    console.log('🔍 제품 상세:', productId);
-    window.location.href = `product-detail.html?id=${productId}`;
+    console.log('🔍 제품 클릭:', productId);
+    
+    // 제품 찾기
+    const product = allProducts.find(p => p.id == productId);
+    
+    if (!product) {
+        console.error('❌ 제품을 찾을 수 없습니다:', productId);
+        return;
+    }
+    
+    // 네이버 링크가 있으면 네이버로, 없으면 상세 페이지로
+    if (product.naver_link) {
+        console.log('✅ 네이버 스마트스토어로 이동:', product.naver_link);
+        window.open(product.naver_link, '_blank');
+    } else if (product.coupang_link) {
+        console.log('✅ 쿠팡으로 이동:', product.coupang_link);
+        window.open(product.coupang_link, '_blank');
+    } else {
+        console.log('⚠️ 구매 링크 없음, 상세 페이지로 이동');
+        window.location.href = `product-detail.html?id=${productId}`;
+    }
 }
 
 // ===== 장바구니 =====
