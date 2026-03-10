@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>localStorage 제품 데이터 확인</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c5f4f;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .success-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .data-section {
+            margin-bottom: 30px;
+        }
+        
+        .data-section h2 {
+            color: #2c5f4f;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .data-content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .product-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .product-card h3 {
+            color: #2c5f4f;
+            margin-bottom: 10px;
+        }
+        
+        .product-card p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .product-card .price {
+            color: #d4af37;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #2c5f4f;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a4034;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #2c5f4f 0%, #1a4034 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📦 localStorage 제품 데이터 확인</h1>
+        
+        <div class="info-box">
+            <strong>ℹ️ 안내:</strong> 이 페이지는 브라우저의 localStorage에 저장된 제품 데이터를 확인하고 관리할 수 있습니다.
+        </div>
+        
+        <!-- 통계 -->
+        <div class="stats" id="stats"></div>
+        
+        <!-- 버튼들 -->
+        <div class="buttons">
+            <button class="btn-primary" onclick="loadData()">
+                <i class="fas fa-sync-alt"></i> 데이터 새로고침
+            </button>
+            <button class="btn-success" onclick="downloadBackup()">
+                <i class="fas fa-download"></i> JSON 백업 다운로드
+            </button>
+            <button class="btn-secondary" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i> JSON 복사
+            </button>
+            <button class="btn-danger" onclick="clearData()">
+                <i class="fas fa-trash"></i> 데이터 삭제 (주의!)
+            </button>
+        </div>
+        
+        <!-- 제품 카드 뷰 -->
+        <div class="data-section">
+            <h2><i class="fas fa-shopping-bag"></i> 등록된 제품 목록</h2>
+            <div id="productCards"></div>
+        </div>
+        
+        <!-- JSON 원본 데이터 -->
+        <div class="data-section">
+            <h2><i class="fas fa-code"></i> JSON 원본 데이터</h2>
+            <div class="data-content" id="jsonData"></div>
+        </div>
+        
+        <!-- localStorage 키 목록 -->
+        <div class="data-section">
+            <h2><i class="fas fa-database"></i> localStorage 모든 키</h2>
+            <div class="data-content" id="allKeys"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 페이지 로드 시 데이터 로드
+        window.addEventListener('DOMContentLoaded', loadData);
+        
+        function loadData() {
+            console.log('📦 localStorage 데이터 로드 시작...');
+            
+            // adminProducts 키 확인
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            
+            let productsData = null;
+            let source = '';
+            
+            if (adminProducts) {
+                productsData = JSON.parse(adminProducts);
+                source = 'adminProducts';
+            } else if (products) {
+                productsData = JSON.parse(products);
+                source = 'products';
+            }
+            
+            // 통계 표시
+            displayStats(productsData, source);
+            
+            // 제품 카드 표시
+            displayProductCards(productsData);
+            
+            // JSON 데이터 표시
+            displayJSON(productsData, source);
+            
+            // 모든 localStorage 키 표시
+            displayAllKeys();
+            
+            console.log('✅ 데이터 로드 완료');
+        }
+        
+        function displayStats(productsData, source) {
+            const statsContainer = document.getElementById('stats');
+            
+            if (!productsData || productsData.length === 0) {
+                statsContainer.innerHTML = `
+                    <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                        <h3>0</h3>
+                        <p>등록된 제품</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const totalProducts = productsData.length;
+            const categories = [...new Set(productsData.map(p => p.category))];
+            const featuredCount = productsData.filter(p => p.featured).length;
+            const inStockCount = productsData.filter(p => p.in_stock).length;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <h3>${totalProducts}</h3>
+                    <p>전체 제품</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${categories.length}</h3>
+                    <p>카테고리</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${featuredCount}</h3>
+                    <p>추천 제품</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${inStockCount}</h3>
+                    <p>재고 있음</p>
+                </div>
+            `;
+        }
+        
+        function displayProductCards(productsData) {
+            const container = document.getElementById('productCards');
+            
+            if (!productsData || productsData.length === 0) {
+                container.innerHTML = `
+                    <div class="warning-box">
+                        <strong>⚠️ 경고:</strong> localStorage에 제품 데이터가 없습니다.<br>
+                        관리자 페이지(<a href="admin.html">admin.html</a>)에서 제품을 등록해주세요.
+                    </div>
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>등록된 제품이 없습니다</h3>
+                        <p>관리자 페이지에서 제품을 추가해주세요.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="success-box">
+                    <strong>✅ 성공:</strong> 총 ${productsData.length}개의 제품을 찾았습니다.
+                </div>
+            `;
+            
+            productsData.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <h3>
+                        ${product.name}
+                        ${product.featured ? '<span style="color: #d4af37;">⭐</span>' : ''}
+                        ${!product.in_stock ? '<span style="color: #dc3545;">(품절)</span>' : ''}
+                    </h3>
+                    <p><strong>ID:</strong> ${product.id}</p>
+                    <p><strong>카테고리:</strong> ${product.category}</p>
+                    <p class="price">${formatPrice(product.price)}원</p>
+                    <p><strong>재료:</strong> ${product.materials || '정보 없음'}</p>
+                    <p><strong>효능:</strong> ${product.benefits || '정보 없음'}</p>
+                    ${product.description ? `<p><strong>설명:</strong> ${product.description}</p>` : ''}
+                    ${product.naver_link ? `<p><strong>네이버:</strong> <a href="${product.naver_link}" target="_blank">링크</a></p>` : ''}
+                    ${product.coupang_link ? `<p><strong>쿠팡:</strong> <a href="${product.coupang_link}" target="_blank">링크</a></p>` : ''}
+                    ${product.image_url ? `<p><strong>이미지:</strong> <img src="${product.image_url}" alt="${product.name}" style="max-width: 200px; border-radius: 5px; margin-top: 10px;"></p>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displayJSON(productsData, source) {
+            const container = document.getElementById('jsonData');
+            
+            if (!productsData) {
+                container.innerHTML = '<span style="color: #dc3545;">⚠️ localStorage에 제품 데이터가 없습니다.</span>';
+                return;
+            }
+            
+            const jsonString = JSON.stringify(productsData, null, 2);
+            container.innerHTML = `
+                <div style="color: #28a745; margin-bottom: 10px;">
+                    ✅ 데이터 소스: localStorage['${source}']<br>
+                    제품 수: ${productsData.length}개<br>
+                    데이터 크기: ${(jsonString.length / 1024).toFixed(2)} KB
+                </div>
+                <pre>${escapeHtml(jsonString)}</pre>
+            `;
+        }
+        
+        function displayAllKeys() {
+            const container = document.getElementById('allKeys');
+            const keys = Object.keys(localStorage);
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<span style="color: #999;">localStorage가 비어있습니다.</span>';
+                return;
+            }
+            
+            let html = `<strong>총 ${keys.length}개의 키:</strong><br><br>`;
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                const size = value ? (value.length / 1024).toFixed(2) : '0';
+                html += `<div style="margin-bottom: 10px;">
+                    <strong>${key}</strong> (${size} KB)<br>
+                    <span style="color: #666; font-size: 12px;">${value ? value.substring(0, 100) + '...' : '(빈 값)'}</span>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function formatPrice(price) {
+            return price.toLocaleString('ko-KR');
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function downloadBackup() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            
+            if (!adminProducts) {
+                alert('⚠️ 백업할 데이터가 없습니다.');
+                return;
+            }
+            
+            const productsData = JSON.parse(adminProducts);
+            const jsonString = JSON.stringify(productsData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `simsuk_products_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert(`✅ 백업 파일 다운로드 완료!\n파일명: ${a.download}\n제품 수: ${productsData.length}개`);
+        }
+        
+        function copyToClipboard() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            
+            if (!adminProducts) {
+                alert('⚠️ 복사할 데이터가 없습니다.');
+                return;
+            }
+            
+            const productsData = JSON.parse(adminProducts);
+            const jsonString = JSON.stringify(productsData, null, 2);
+            
+            navigator.clipboard.writeText(jsonString).then(() => {
+                alert(`✅ JSON 데이터가 클립보드에 복사되었습니다!\n제품 수: ${productsData.length}개`);
+            }).catch(err => {
+                alert('❌ 복사 실패: ' + err.message);
+            });
+        }
+        
+        function clearData() {
+            if (!confirm('⚠️ 경고: 모든 제품 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+                return;
+            }
+            
+            if (!confirm('정말로 삭제하시겠습니까? 백업을 먼저 다운로드하는 것을 권장합니다.')) {
+                return;
+            }
+            
+            localStorage.removeItem('adminProducts');
+            localStorage.removeItem('products');
+            
+            alert('✅ 제품 데이터가 삭제되었습니다.');
+            loadData();
+        }
+    </script>
+</body>
+</html>
