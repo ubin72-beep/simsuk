@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이미지 URL만 수정 - 심석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2b5c4a 0%, #1a4034 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2b5c4a;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .product-item {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #2b5c4a;
+        }
+
+        .product-id {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .url-section {
+            margin: 15px 0;
+        }
+
+        .url-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .old-url {
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            color: #721c24;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2b5c4a;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2b5c4a;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2b5c4a;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .preview {
+            width: 100%;
+            max-width: 200px;
+            height: 200px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .product-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="card">
+            <h1>🖼️ 이미지 URL만 수정</h1>
+            <p class="subtitle">제품 데이터는 그대로 유지하고 이미지 URL만 교체합니다</p>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">전체 제품</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="problemCount" style="color: #dc3545;">0</div>
+                    <div class="stat-label">수정 필요</div>
+                </div>
+            </div>
+
+            <div class="alert">
+                <strong>💡 이렇게 작동합니다:</strong><br>
+                1. placeholder 이미지가 있는 제품만 찾습니다<br>
+                2. 실제 이미지 URL을 입력합니다<br>
+                3. [모두 저장]을 누르면 이미지만 교체됩니다<br>
+                4. 제품명, 가격 등 다른 정보는 그대로 유지됩니다!
+            </div>
+
+            <button class="btn btn-primary btn-block" onclick="scanProducts()">
+                🔍 placeholder 이미지 찾기
+            </button>
+        </div>
+
+        <!-- Products -->
+        <div id="productsContainer"></div>
+
+        <!-- Save All -->
+        <div class="card" id="saveCard" style="display: none;">
+            <button class="btn btn-success btn-block" onclick="saveAll()">
+                💾 모든 변경사항 저장 (제품 데이터 유지)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+        let changes = {};
+
+        function scanProducts() {
+            console.log('🔍 제품 스캔 시작...');
+
+            try {
+                const adminProducts = localStorage.getItem('adminProducts');
+                const productsData = localStorage.getItem('products');
+                
+                const data = adminProducts || productsData;
+                
+                if (!data) {
+                    alert('❌ 제품 데이터가 없습니다!');
+                    return;
+                }
+
+                products = JSON.parse(data);
+                document.getElementById('totalCount').textContent = products.length;
+
+                // placeholder 이미지 찾기
+                const problemProducts = products.filter(p => {
+                    const url = p.image || p.image_url || '';
+                    return url.includes('placeholder') || 
+                           url.includes('placehold') || 
+                           url === '';
+                });
+
+                document.getElementById('problemCount').textContent = problemProducts.length;
+
+                if (problemProducts.length === 0) {
+                    alert('✅ 모든 제품의 이미지가 정상입니다!\n\nplaceholder 이미지가 없습니다.');
+                    return;
+                }
+
+                displayProducts(problemProducts);
+                document.getElementById('saveCard').style.display = 'block';
+
+                console.log(`✅ ${problemProducts.length}개 제품 발견`);
+
+            } catch (error) {
+                alert('❌ 오류: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function displayProducts(problemProducts) {
+            const container = document.getElementById('productsContainer');
+            
+            container.innerHTML = '';
+
+            problemProducts.forEach((product, index) => {
+                const oldUrl = product.image || product.image_url || '(없음)';
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="product-item">
+                        <div class="product-header">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-id">ID: ${product.id}</div>
+                        </div>
+
+                        <div style="font-size: 13px; color: #999; margin-bottom: 15px;">
+                            카테고리: ${product.category} | 가격: ${formatPrice(product.price)}원
+                        </div>
+
+                        <div class="url-section">
+                            <div class="url-label">❌ 현재 URL (placeholder):</div>
+                            <div class="old-url">${oldUrl}</div>
+
+                            <div class="url-label">✅ 새 URL (실제 이미지):</div>
+                            <input type="text" 
+                                   id="new-url-${product.id}" 
+                                   placeholder="https://이미지_URL.jpg 또는 https://www.genspark.ai/api/files/s/..."
+                                   value="${getDefaultImage(product.name)}"
+                                   onchange="updateChange(${product.id})">
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="testImage(${product.id})">
+                                🔍 이미지 미리보기
+                            </button>
+                        </div>
+
+                        <div id="preview-${product.id}" style="display: none; margin-top: 15px;">
+                            <div class="url-label">미리보기:</div>
+                            <div class="preview">
+                                <img id="img-${product.id}" 
+                                     onerror="imageError(${product.id})">
+                            </div>
+                            <div id="test-result-${product.id}" style="text-align: center; margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function getDefaultImage(productName) {
+            // 방금 생성한 이미지 URL을 기본값으로 제공
+            if (productName.includes('헤마타이트') && productName.includes('목걸이')) {
+                return 'https://www.genspark.ai/api/files/s/qvL1wiDR';
+            } else if (productName.includes('헤마타이트') && productName.includes('팔찌')) {
+                return 'https://www.genspark.ai/api/files/s/0kMhdppl';
+            } else if (productName.includes('진주') && productName.includes('팔찌')) {
+                return 'https://www.genspark.ai/api/files/s/QrsLCAab';
+            }
+            return 'https://www.genspark.ai/api/files/s/QsBe7FZL';
+        }
+
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function updateChange(productId) {
+            const input = document.getElementById(`new-url-${productId}`);
+            changes[productId] = input.value;
+            console.log('변경 기록:', productId, input.value);
+        }
+
+        function testImage(productId) {
+            const input = document.getElementById(`new-url-${productId}`);
+            const url = input.value.trim();
+
+            if (!url) {
+                alert('⚠️ URL을 입력해주세요!');
+                return;
+            }
+
+            const preview = document.getElementById(`preview-${productId}`);
+            const img = document.getElementById(`img-${productId}`);
+            const result = document.getElementById(`test-result-${productId}`);
+
+            preview.style.display = 'block';
+            result.innerHTML = '<div style="padding: 10px; color: #666;">로딩 중...</div>';
+            
+            img.src = url;
+            
+            img.onload = function() {
+                result.innerHTML = '<div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; font-weight: 700;">✅ 이미지 로딩 성공!</div>';
+                updateChange(productId);
+            };
+
+            img.onerror = function() {
+                result.innerHTML = '<div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; font-weight: 700;">❌ 이미지 로딩 실패!<br><span style="font-size: 12px; font-weight: normal;">URL을 확인해주세요</span></div>';
+            };
+        }
+
+        function imageError(productId) {
+            const result = document.getElementById(`test-result-${productId}`);
+            result.innerHTML = '<div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; font-weight: 700;">❌ 이미지 로딩 실패!</div>';
+        }
+
+        function saveAll() {
+            // 입력된 URL 확인
+            const inputs = document.querySelectorAll('input[type="text"]');
+            let emptyCount = 0;
+            
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    emptyCount++;
+                }
+            });
+
+            if (emptyCount > 0) {
+                if (!confirm(`⚠️ ${emptyCount}개 제품의 URL이 비어있습니다.\n\n계속하시겠습니까?`)) {
+                    return;
+                }
+            }
+
+            if (!confirm(`${inputs.length}개 제품의 이미지 URL을 업데이트하시겠습니까?\n\n※ 제품 데이터(이름, 가격 등)는 그대로 유지됩니다!`)) {
+                return;
+            }
+
+            try {
+                let updatedCount = 0;
+
+                // 제품 업데이트 (이미지 URL만)
+                products.forEach(product => {
+                    const inputEl = document.getElementById(`new-url-${product.id}`);
+                    
+                    if (inputEl) {
+                        const newUrl = inputEl.value.trim();
+                        
+                        if (newUrl) {
+                            // 이미지 URL만 교체
+                            product.image = newUrl;
+                            product.image_url = newUrl;
+                            if (product.images) {
+                                product.images[0] = newUrl;
+                            } else {
+                                product.images = [newUrl];
+                            }
+                            updatedCount++;
+                            console.log('업데이트:', product.name, newUrl);
+                        }
+                    }
+                });
+
+                // 저장
+                const jsonData = JSON.stringify(products);
+                localStorage.setItem('adminProducts', jsonData);
+                localStorage.setItem('products', jsonData);
+
+                alert(`✅ ${updatedCount}개 제품 이미지가 업데이트되었습니다!\n\n제품 데이터는 그대로 유지되었습니다.\n\n메인 페이지를 새로고침하면 새 이미지가 보입니다.`);
+
+                // 메인 페이지로 이동
+                if (confirm('메인 페이지로 이동하시겠습니까?')) {
+                    window.location.href = 'index.html';
+                }
+
+            } catch (error) {
+                alert('❌ 저장 오류: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // 페이지 로드 시 자동 스캔
+        window.addEventListener('load', () => {
+            console.log('🚀 이미지 URL 수정 도구 시작');
+            scanProducts();
+        });
+    </script>
+</body>
+</html>
