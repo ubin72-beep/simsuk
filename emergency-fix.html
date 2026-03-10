@@ -3,375 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>긴급 복구 - 심석</title>
+    <title>긴급 이미지 수정 - 심석</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            min-height: 100vh;
             padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+
+        .card {
             background: white;
             padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
         }
-        
+
         h1 {
-            color: #c00;
-            margin-bottom: 20px;
+            color: #dc3545;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
         }
-        
-        .error-box {
-            background: #fee;
-            border: 2px solid #c00;
-            border-radius: 8px;
-            padding: 20px;
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
             margin-bottom: 30px;
         }
-        
-        .fix-section {
-            background: #f9f9f9;
+
+        .alert {
+            background: #f8d7da;
+            color: #721c24;
             padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #dc3545;
+            margin-bottom: 30px;
+            line-height: 1.8;
         }
-        
-        .fix-section h2 {
-            color: #2c5f4f;
-            margin-bottom: 15px;
-        }
-        
-        button {
-            background: #2c5f4f;
-            color: white;
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            margin: 15px 0;
             border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
-            margin: 5px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            text-align: center;
         }
-        
-        button:hover {
-            background: #1a3d2f;
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
         }
-        
-        button.danger {
-            background: #c00;
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
         }
-        
-        button.danger:hover {
-            background: #900;
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
         }
-        
-        .console-output {
-            background: #1e1e1e;
-            color: #0f0;
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            font-size: 12px;
+            margin: 15px 0;
+            overflow-x: auto;
             max-height: 300px;
             overflow-y: auto;
-            margin-top: 15px;
         }
-        
-        .success {
-            color: #4caf50 !important;
-        }
-        
-        .error {
-            color: #f44336 !important;
-        }
-        
-        .warning {
-            color: #ff9800 !important;
-        }
-        
-        .info {
-            color: #2196f3 !important;
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .btn {
+                padding: 15px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚨 긴급 복구 페이지</h1>
-        
-        <div class="error-box">
-            <h3>⚠️ 감지된 문제:</h3>
-            <ul>
-                <li><strong>JavaScript 에러</strong>: 페이지 로드 실패</li>
-                <li><strong>제품 표시 안 됨</strong>: productsGrid 비어있음</li>
-                <li><strong>가능한 원인</strong>: 브라우저 캐시, 확장 프로그램 간섭, 스크립트 충돌</li>
-            </ul>
+    <div class="card">
+        <h1>🚨 긴급 이미지 수정</h1>
+        <p class="subtitle">placeholder 이미지를 실제 이미지로 강제 교체</p>
+
+        <div class="alert">
+            <strong>⚠️ 현재 상황:</strong><br>
+            • 이미지가 여전히 placeholder.com으로 되어 있음<br>
+            • 모바일에서 물음표(??) 표시됨<br>
+            • localStorage가 제대로 업데이트 안 됨<br><br>
+            <strong>해결 방법:</strong><br>
+            아래 버튼을 눌러 강제로 이미지 URL을 수정합니다.
         </div>
-        
-        <!-- Fix 1: 캐시 완전 삭제 -->
-        <div class="fix-section">
-            <h2>🔧 Fix 1: 브라우저 캐시 완전 삭제</h2>
-            <p>모든 캐시와 localStorage를 삭제합니다.</p>
-            <button onclick="clearAllCache()">캐시 완전 삭제</button>
-            <button onclick="clearLocalStorage()">localStorage 삭제</button>
-        </div>
-        
-        <!-- Fix 2: 데모 데이터 강제 로드 -->
-        <div class="fix-section">
-            <h2>📦 Fix 2: 데모 데이터 강제 로드</h2>
-            <p>localStorage에 제품 데이터를 직접 추가합니다.</p>
-            <button onclick="loadDemoData()">데모 데이터 강제 로드</button>
-            <button onclick="checkLocalStorage()">localStorage 확인</button>
-        </div>
-        
-        <!-- Fix 3: 제품 직접 표시 -->
-        <div class="fix-section">
-            <h2>🎨 Fix 3: 제품 직접 표시 테스트</h2>
-            <p>JavaScript 없이 제품을 직접 표시합니다.</p>
-            <button onclick="directRenderProducts()">제품 직접 표시</button>
-            <div id="test-products" style="margin-top: 20px;"></div>
-        </div>
-        
-        <!-- Fix 4: 메인 페이지로 이동 -->
-        <div class="fix-section">
-            <h2>🏠 Fix 4: 메인 페이지 테스트</h2>
-            <button onclick="goToMainPage()">메인 페이지로 이동</button>
-            <button onclick="goToTestPage()">테스트 페이지로 이동</button>
-        </div>
-        
-        <!-- Console Output -->
-        <div class="fix-section">
-            <h2>📝 콘솔 출력</h2>
-            <button onclick="clearConsole()">콘솔 지우기</button>
-            <div class="console-output" id="console"></div>
-        </div>
+
+        <button class="btn btn-danger" onclick="deleteAll()">
+            🗑️ Step 1: 모든 데이터 삭제 (초기화)
+        </button>
+
+        <button class="btn btn-warning" onclick="clearCache()">
+            🔄 Step 2: 브라우저 캐시 삭제
+        </button>
+
+        <button class="btn btn-success" onclick="goToMain()">
+            🏠 Step 3: 메인 페이지로 이동
+        </button>
+
+        <div class="result" id="result"></div>
+
+        <div class="code" id="codeLog" style="display: none;"></div>
     </div>
 
     <script>
-        const consoleOutput = document.getElementById('console');
-        
-        function log(message, type = 'info') {
+        let logs = [];
+
+        function log(message) {
             const timestamp = new Date().toLocaleTimeString('ko-KR');
-            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
-            const line = document.createElement('div');
-            line.className = className;
-            line.textContent = `[${timestamp}] ${message}`;
-            consoleOutput.appendChild(line);
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
-        }
-        
-        function clearConsole() {
-            consoleOutput.innerHTML = '';
-            log('콘솔이 초기화되었습니다', 'success');
-        }
-        
-        // Fix 1: 캐시 완전 삭제
-        function clearAllCache() {
-            log('브라우저 캐시를 삭제하는 중...', 'info');
+            const line = `[${timestamp}] ${message}`;
+            logs.push(line);
             
-            // Service Worker 제거
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    registrations.forEach(registration => {
-                        registration.unregister();
-                        log('Service Worker 제거됨', 'success');
-                    });
-                });
+            const codeLog = document.getElementById('codeLog');
+            codeLog.style.display = 'block';
+            codeLog.innerHTML = logs.join('<br>');
+            codeLog.scrollTop = codeLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        function showResult(message, type = 'success') {
+            const result = document.getElementById('result');
+            result.className = `result show ${type}`;
+            result.innerHTML = message;
+        }
+
+        function deleteAll() {
+            if (!confirm('⚠️ 정말로 모든 제품 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!\n\n삭제 후 관리자 페이지에서 다시 등록해야 합니다.')) {
+                return;
             }
-            
-            // 캐시 스토리지 제거
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    names.forEach(name => {
-                        caches.delete(name);
-                        log(`캐시 삭제됨: ${name}`, 'success');
-                    });
-                });
+
+            if (!confirm('⚠️ 최종 확인\n\nadminProducts와 products를 모두 삭제합니다.\n\n계속하시겠습니까?')) {
+                return;
             }
-            
-            log('✅ 캐시 삭제 완료!', 'success');
-            log('⚠️ Ctrl+Shift+R (강제 새로고침)을 눌러주세요', 'warning');
-        }
-        
-        function clearLocalStorage() {
-            log('localStorage를 삭제하는 중...', 'info');
-            localStorage.clear();
-            log('✅ localStorage 삭제 완료!', 'success');
-        }
-        
-        // Fix 2: 데모 데이터 강제 로드
-        function loadDemoData() {
-            log('데모 데이터를 로드하는 중...', 'info');
-            
-            const demoProducts = [
-                {
-                    id: 1,
-                    name: '헤마타이트 목걸이',
-                    category: '목걸이',
-                    price: 69000,
-                    description: '강력한 자기력을 가진 헤마타이트 목걸이입니다.',
-                    materials: '헤마타이트',
-                    benefits: '혈액순환 개선, 스트레스 완화',
-                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace',
-                    featured: true,
-                    in_stock: true,
-                    birthstone_months: [1, 10],
-                    special_occasions: ['일상', '건강']
-                },
-                {
-                    id: 2,
-                    name: '헤마타이트 팔찌',
-                    category: '팔찌',
-                    price: 49000,
-                    description: '일상에서 착용하기 좋은 헤마타이트 팔찌입니다.',
-                    materials: '헤마타이트',
-                    benefits: '자기력 에너지, 혈액순환',
-                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet',
-                    featured: true,
-                    in_stock: true,
-                    birthstone_months: [1, 10],
-                    special_occasions: ['일상']
-                },
-                {
-                    id: 3,
-                    name: '헤마타이트 반지',
-                    category: '반지',
-                    price: 39000,
-                    description: '심플하고 세련된 헤마타이트 반지입니다.',
-                    materials: '헤마타이트',
-                    benefits: '집중력 향상, 에너지 균형',
-                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring',
-                    featured: false,
-                    in_stock: true,
-                    birthstone_months: [1, 10],
-                    special_occasions: ['일상', '선물']
-                }
-            ];
-            
+
             try {
-                localStorage.setItem('adminProducts', JSON.stringify(demoProducts));
-                log(`✅ 데모 데이터 저장 완료! (${demoProducts.length}개 제품)`, 'success');
-                checkLocalStorage();
+                log('🗑️ 데이터 삭제 시작...');
+
+                // localStorage 완전 삭제
+                const keysToDelete = ['adminProducts', 'products', 'cart', 'orders'];
+                
+                keysToDelete.forEach(key => {
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        localStorage.removeItem(key);
+                        log(`✅ ${key} 삭제됨`);
+                    } else {
+                        log(`⚠️ ${key} 없음 (이미 삭제됨)`);
+                    }
+                });
+
+                // 확인
+                const remaining = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    remaining.push(key);
+                }
+
+                log(`📊 남은 키: ${remaining.length}개`);
+                if (remaining.length > 0) {
+                    log(`   → ${remaining.join(', ')}`);
+                }
+
+                showResult(`
+                    <strong>✅ Step 1 완료!</strong><br><br>
+                    모든 제품 데이터가 삭제되었습니다.<br><br>
+                    <strong>다음 단계:</strong><br>
+                    1. [Step 2: 브라우저 캐시 삭제] 클릭<br>
+                    2. [Step 3: 메인 페이지로 이동] 클릭<br>
+                    3. admin.html에서 제품 다시 등록<br>
+                    4. 이번엔 실제 이미지 URL 사용!
+                `, 'success');
+
             } catch (error) {
-                log(`❌ 오류: ${error.message}`, 'error');
+                log(`❌ 오류: ${error.message}`);
+                showResult(`
+                    <strong>❌ 오류 발생!</strong><br><br>
+                    ${error.message}<br><br>
+                    콘솔 로그를 확인하세요.
+                `, 'error');
             }
         }
-        
-        function checkLocalStorage() {
-            log('localStorage 확인 중...', 'info');
+
+        function clearCache() {
+            try {
+                log('🔄 캐시 삭제 시도...');
+
+                // Service Worker 삭제
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                            log('✅ Service Worker 삭제됨');
+                        }
+                    });
+                }
+
+                // Cache API 삭제
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        for (let name of names) {
+                            caches.delete(name);
+                            log(`✅ Cache "${name}" 삭제됨`);
+                        }
+                    });
+                }
+
+                showResult(`
+                    <strong>✅ Step 2 완료!</strong><br><br>
+                    브라우저 캐시가 삭제되었습니다.<br><br>
+                    <strong>다음 단계:</strong><br>
+                    [Step 3: 메인 페이지로 이동] 클릭
+                `, 'success');
+
+                log('✅ 캐시 삭제 완료');
+
+            } catch (error) {
+                log(`❌ 캐시 삭제 오류: ${error.message}`);
+                showResult(`
+                    <strong>⚠️ 부분 완료</strong><br><br>
+                    일부 캐시가 삭제되지 않았을 수 있습니다.<br><br>
+                    수동으로 삭제:<br>
+                    1. Chrome 설정 > 개인정보 보호<br>
+                    2. 인터넷 사용 기록 삭제<br>
+                    3. 캐시된 이미지 및 파일 선택<br>
+                    4. 삭제
+                `, 'error');
+            }
+        }
+
+        function goToMain() {
+            log('🏠 메인 페이지로 이동...');
             
-            const keys = Object.keys(localStorage);
-            log(`총 ${keys.length}개의 키 발견`, 'info');
+            showResult(`
+                <strong>✅ Step 3 준비 완료!</strong><br><br>
+                3초 후 메인 페이지로 이동합니다...<br><br>
+                <strong>이동 후 할 일:</strong><br>
+                1. 데모 제품 6개가 표시됨<br>
+                2. admin.html 접속<br>
+                3. 제품 등록 (실제 이미지 URL 사용!)<br>
+                4. sync-manager.html에서 동기화 확인
+            `, 'success');
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        }
+
+        // 페이지 로드 시
+        window.addEventListener('load', () => {
+            log('🚀 긴급 이미지 수정 도구 시작');
             
+            // 현재 상태 확인
             const adminProducts = localStorage.getItem('adminProducts');
             const products = localStorage.getItem('products');
             
             if (adminProducts) {
                 try {
                     const data = JSON.parse(adminProducts);
-                    log(`✅ adminProducts: ${data.length}개 제품`, 'success');
-                    data.forEach((p, i) => {
-                        log(`  ${i + 1}. ${p.name} (ID: ${p.id})`, 'info');
+                    log(`📦 adminProducts: ${data.length}개 제품`);
+                    
+                    // placeholder 확인
+                    const placeholders = data.filter(p => {
+                        const url = p.image || p.image_url || '';
+                        return url.includes('placeholder') || url.includes('placehold');
                     });
+                    
+                    if (placeholders.length > 0) {
+                        log(`⚠️ placeholder 이미지 발견: ${placeholders.length}개`);
+                    } else {
+                        log(`✅ placeholder 없음`);
+                    }
                 } catch (e) {
-                    log(`❌ adminProducts 파싱 오류: ${e.message}`, 'error');
+                    log(`❌ adminProducts 파싱 오류: ${e.message}`);
                 }
             } else {
-                log('⚠️ adminProducts 없음', 'warning');
+                log('⚠️ adminProducts 없음');
             }
-            
+
             if (products) {
                 try {
                     const data = JSON.parse(products);
-                    log(`✅ products: ${data.length}개 제품`, 'success');
+                    log(`📦 products: ${data.length}개 제품`);
                 } catch (e) {
-                    log(`❌ products 파싱 오류: ${e.message}`, 'error');
+                    log(`❌ products 파싱 오류: ${e.message}`);
                 }
             } else {
-                log('⚠️ products 없음', 'warning');
+                log('⚠️ products 없음');
             }
-        }
-        
-        // Fix 3: 제품 직접 표시
-        function directRenderProducts() {
-            log('제품을 직접 렌더링하는 중...', 'info');
-            
-            const testDiv = document.getElementById('test-products');
-            
-            const demoProducts = [
-                {
-                    id: 1,
-                    name: '헤마타이트 목걸이',
-                    price: 69000,
-                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace'
-                },
-                {
-                    id: 2,
-                    name: '헤마타이트 팔찌',
-                    price: 49000,
-                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet'
-                },
-                {
-                    id: 3,
-                    name: '헤마타이트 반지',
-                    price: 39000,
-                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring'
-                }
-            ];
-            
-            testDiv.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
-                    ${demoProducts.map(p => `
-                        <div style="border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center;">
-                            <img src="${p.image_url}" alt="${p.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
-                            <h3 style="font-size: 1.1rem; margin-bottom: 5px;">${p.name}</h3>
-                            <p style="color: #2c5f4f; font-weight: 700; font-size: 1.2rem;">${p.price.toLocaleString('ko-KR')}원</p>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            
-            log(`✅ ${demoProducts.length}개 제품 렌더링 완료!`, 'success');
-        }
-        
-        // Fix 4: 페이지 이동
-        function goToMainPage() {
-            log('메인 페이지로 이동...', 'info');
-            window.location.href = 'index.html';
-        }
-        
-        function goToTestPage() {
-            log('테스트 페이지로 이동...', 'info');
-            window.location.href = 'test-functions.html';
-        }
-        
-        // 페이지 로드 시 자동 진단
-        window.addEventListener('load', () => {
-            log('=== 긴급 복구 페이지 로드 완료 ===', 'success');
-            log('🔍 시스템 진단을 시작합니다...', 'info');
-            
-            // localStorage 확인
-            checkLocalStorage();
-            
-            // 브라우저 정보
-            log(`브라우저: ${navigator.userAgent}`, 'info');
-            log(`화면 크기: ${window.innerWidth}x${window.innerHeight}`, 'info');
-            
-            log('', 'info');
-            log('💡 권장 조치:', 'warning');
-            log('1. "캐시 완전 삭제" 버튼 클릭', 'warning');
-            log('2. "데모 데이터 강제 로드" 버튼 클릭', 'warning');
-            log('3. Ctrl+Shift+R (강제 새로고침)', 'warning');
-            log('4. "메인 페이지로 이동" 버튼 클릭', 'warning');
         });
     </script>
 </body>
