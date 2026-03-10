@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제품 데이터 복구 - 심석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2b5c4a 0%, #1a4034 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2b5c4a;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2b5c4a;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-value {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-value.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-value.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-value.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .button-group {
+            display: grid;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background: #2b5c4a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            background: #1a4034;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(43, 92, 74, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin: 10px 0;
+        }
+
+        .backup-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #856404;
+        }
+
+        .emoji {
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 제품 데이터 복구 도구</h1>
+        <p class="subtitle">관리자 페이지에서 등록한 제품이 안 보일 때 사용하세요</p>
+
+        <div class="status-box">
+            <div class="status-item">
+                <span class="status-label">📦 adminProducts</span>
+                <span id="adminStatus" class="status-value">확인 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">📋 products</span>
+                <span id="productsStatus" class="status-value">확인 중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">📊 총 제품 수</span>
+                <span id="totalCount" class="status-value">-</span>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>💡 이렇게 사용하세요:</strong><br>
+            1️⃣ <strong>복사하기</strong>를 눌러 현재 데이터 백업<br>
+            2️⃣ <strong>동기화</strong>를 눌러 adminProducts → products 복사<br>
+            3️⃣ 메인 페이지에서 제품이 보이는지 확인
+        </div>
+
+        <div class="button-group">
+            <button onclick="checkStatus()">
+                <span class="emoji">🔍</span>
+                상태 확인
+            </button>
+            
+            <button onclick="syncData()">
+                <span class="emoji">🔄</span>
+                adminProducts → products 동기화
+            </button>
+            
+            <button onclick="copyBackup()" class="secondary">
+                <span class="emoji">📋</span>
+                데이터 복사하기
+            </button>
+            
+            <button onclick="showBackup()" class="secondary">
+                <span class="emoji">👁️</span>
+                데이터 보기
+            </button>
+        </div>
+
+        <div class="backup-section" id="backupSection" style="display: none;">
+            <h3 style="margin-bottom: 15px; color: #2b5c4a;">📝 제품 데이터 (JSON)</h3>
+            <div class="alert alert-warning">
+                ⚠️ 이 데이터를 안전한 곳에 백업해두세요!
+            </div>
+            <textarea id="backupData" readonly></textarea>
+            
+            <div class="button-group">
+                <button onclick="downloadBackup()" class="secondary">
+                    <span class="emoji">💾</span>
+                    JSON 파일로 다운로드
+                </button>
+                
+                <button onclick="hideBackup()" class="secondary">
+                    <span class="emoji">✖️</span>
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 상태 확인
+        function checkStatus() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            
+            const adminCount = adminProducts ? JSON.parse(adminProducts).length : 0;
+            const productsCount = products ? JSON.parse(products).length : 0;
+            
+            // adminProducts 상태
+            const adminStatusEl = document.getElementById('adminStatus');
+            if (adminCount > 0) {
+                adminStatusEl.className = 'status-value success';
+                adminStatusEl.textContent = `${adminCount}개 제품`;
+            } else {
+                adminStatusEl.className = 'status-value error';
+                adminStatusEl.textContent = '없음';
+            }
+            
+            // products 상태
+            const productsStatusEl = document.getElementById('productsStatus');
+            if (productsCount > 0) {
+                productsStatusEl.className = 'status-value success';
+                productsStatusEl.textContent = `${productsCount}개 제품`;
+            } else {
+                productsStatusEl.className = 'status-value error';
+                productsStatusEl.textContent = '없음';
+            }
+            
+            // 총 제품 수
+            const totalCountEl = document.getElementById('totalCount');
+            const maxCount = Math.max(adminCount, productsCount);
+            if (maxCount > 0) {
+                totalCountEl.className = 'status-value success';
+                totalCountEl.textContent = `${maxCount}개`;
+            } else {
+                totalCountEl.className = 'status-value error';
+                totalCountEl.textContent = '0개';
+            }
+            
+            console.log('상태 확인:', { adminCount, productsCount });
+        }
+        
+        // 데이터 동기화
+        function syncData() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            
+            if (!adminProducts) {
+                alert('❌ adminProducts에 데이터가 없습니다!\n\n관리자 페이지(admin.html)에서 제품을 먼저 등록해주세요.');
+                return;
+            }
+            
+            try {
+                // adminProducts를 products로 복사
+                localStorage.setItem('products', adminProducts);
+                
+                const count = JSON.parse(adminProducts).length;
+                alert(`✅ 동기화 완료!\n\n${count}개 제품이 products로 복사되었습니다.\n\n메인 페이지를 새로고침하면 제품이 보입니다.`);
+                
+                checkStatus();
+                
+                // 메인 페이지로 이동 제안
+                if (confirm('메인 페이지로 이동하시겠습니까?')) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                alert('❌ 동기화 오류: ' + error.message);
+            }
+        }
+        
+        // 백업 데이터 보기
+        function showBackup() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            
+            let data = null;
+            
+            if (adminProducts) {
+                data = adminProducts;
+            } else if (products) {
+                data = products;
+            } else {
+                alert('❌ 백업할 데이터가 없습니다!');
+                return;
+            }
+            
+            try {
+                const formatted = JSON.stringify(JSON.parse(data), null, 2);
+                document.getElementById('backupData').value = formatted;
+                document.getElementById('backupSection').style.display = 'block';
+            } catch (error) {
+                alert('❌ 데이터 파싱 오류: ' + error.message);
+            }
+        }
+        
+        // 백업 숨기기
+        function hideBackup() {
+            document.getElementById('backupSection').style.display = 'none';
+        }
+        
+        // 클립보드에 복사
+        function copyBackup() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            
+            const data = adminProducts || products;
+            
+            if (!data) {
+                alert('❌ 복사할 데이터가 없습니다!');
+                return;
+            }
+            
+            try {
+                navigator.clipboard.writeText(data).then(() => {
+                    const count = JSON.parse(data).length;
+                    alert(`✅ 클립보드에 복사되었습니다!\n\n${count}개 제품 데이터가 복사되었습니다.`);
+                });
+            } catch (error) {
+                // 대체 방법
+                const textarea = document.createElement('textarea');
+                textarea.value = data;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                const count = JSON.parse(data).length;
+                alert(`✅ 클립보드에 복사되었습니다!\n\n${count}개 제품 데이터가 복사되었습니다.`);
+            }
+        }
+        
+        // JSON 파일 다운로드
+        function downloadBackup() {
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            
+            const data = adminProducts || products;
+            
+            if (!data) {
+                alert('❌ 다운로드할 데이터가 없습니다!');
+                return;
+            }
+            
+            try {
+                const formatted = JSON.stringify(JSON.parse(data), null, 2);
+                const blob = new Blob([formatted], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                const date = new Date().toISOString().split('T')[0];
+                a.href = url;
+                a.download = `simsuk_products_backup_${date}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                alert('✅ 백업 파일이 다운로드되었습니다!');
+            } catch (error) {
+                alert('❌ 다운로드 오류: ' + error.message);
+            }
+        }
+        
+        // 초기 로드
+        window.addEventListener('load', checkStatus);
+    </script>
+</body>
+</html>
