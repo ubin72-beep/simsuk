@@ -678,6 +678,7 @@ function handleProductSubmit(event) {
         category: document.getElementById('productCategory').value,
         price: parseInt(document.getElementById('productPrice').value),
         images: images,  // ⭐ 이미지 배열
+        image: images[0],  // ⭐ 메인 페이지 호환
         image_url: images[0],  // 하위 호환성을 위해 첫 번째 이미지도 저장
         size_stock: sizeStock,  // ⭐ 사이즈별 재고
         total_stock: totalStock,  // ⭐ 총 재고
@@ -688,6 +689,8 @@ function handleProductSubmit(event) {
         special_day: selectedSpecialDays,
         naver_link: document.getElementById('productNaverLink').value || '',  // ⭐ 네이버 링크
         coupang_link: document.getElementById('productCoupangLink').value || '',  // ⭐ 쿠팡 링크
+        naverLink: document.getElementById('productNaverLink').value || '',  // ⭐ 하위 호환
+        coupangLink: document.getElementById('productCoupangLink').value || '',  // ⭐ 하위 호환
         featured: document.getElementById('productFeatured').checked,
         in_stock: totalStock > 0,  // 재고가 있으면 자동으로 true
         updated_at: new Date().toISOString()
