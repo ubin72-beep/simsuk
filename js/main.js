@@ -134,10 +134,9 @@ function loadProducts() {
             allProducts = JSON.parse(savedProducts);
             console.log(`✅ localStorage에서 ${allProducts.length}개 제품 로드`);
         } else {
-            // 데모 데이터 사용
+            // 데모 데이터 사용 (localStorage에 저장하지 않음!)
             allProducts = DEMO_PRODUCTS;
-            localStorage.setItem('adminProducts', JSON.stringify(DEMO_PRODUCTS));
-            console.log(`✅ 데모 데이터 ${allProducts.length}개 제품 로드`);
+            console.log(`⚠️ localStorage 비어있음 - 데모 데이터 ${allProducts.length}개 사용 (저장 안 함)`);
         }
         
         // 현재 페이지 확인 (메인 페이지 vs 제품 페이지)
