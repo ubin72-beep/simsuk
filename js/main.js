@@ -203,7 +203,10 @@ function displayProducts(products, limit = null) {
     grid.innerHTML = displayedProducts.map(product => `
         <div class="product-card catalog-style" onclick="openProduct(${product.id})" style="cursor: pointer;">
             <div class="product-image">
-                <img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=${encodeURIComponent(product.name)}'">
+                <img src="${product.image || product.image_url || 'https://placehold.co/400x400/2c5f4f/ffffff?text=' + encodeURIComponent(product.name)}" 
+                     alt="${product.name}" 
+                     loading="lazy"
+                     onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=${encodeURIComponent(product.name)}'">
                 ${product.featured ? '<span class="product-badge">추천</span>' : ''}
                 ${!product.in_stock ? '<span class="product-badge sold-out">품절</span>' : ''}
             </div>
