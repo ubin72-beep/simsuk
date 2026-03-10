@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모바일 제품 표시 테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #2c5f4f;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .info-box h2 {
+            font-size: 1.1rem;
+            color: #2c5f4f;
+            margin-bottom: 10px;
+        }
+        
+        .info-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .info-value {
+            color: #28a745;
+            font-weight: 700;
+        }
+        
+        .info-value.error {
+            color: #dc3545;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            background: #f8f9fa;
+        }
+        
+        .product-image img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .product-info {
+            padding: 10px;
+        }
+        
+        .product-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .product-price {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #2c5f4f;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #d4af37;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .log {
+            background: #212529;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 3px;
+            word-break: break-all;
+        }
+        
+        .log-entry.success {
+            color: #00ff00;
+        }
+        
+        .log-entry.error {
+            color: #ff0000;
+        }
+        
+        .log-entry.warning {
+            color: #ffff00;
+        }
+        
+        .log-entry.info {
+            color: #00bfff;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2c5f4f 0%, #1a4034 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📱 모바일 제품 표시 테스트</h1>
+        
+        <!-- 디바이스 정보 -->
+        <div class="info-box">
+            <h2>📱 디바이스 정보</h2>
+            <div id="deviceInfo"></div>
+        </div>
+        
+        <!-- localStorage 상태 -->
+        <div class="info-box">
+            <h2>💾 localStorage 상태</h2>
+            <div id="storageInfo"></div>
+        </div>
+        
+        <!-- 버튼 -->
+        <button onclick="loadAndDisplayProducts()">
+            <i class="fas fa-sync-alt"></i> 제품 로드 & 표시
+        </button>
+        
+        <!-- 로그 -->
+        <div class="log" id="log">
+            <div class="log-entry info">🔍 준비 완료... 버튼을 클릭하세요.</div>
+        </div>
+        
+        <!-- 제품 그리드 -->
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+    
+    <script>
+        // 로그 함수
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // 디바이스 정보 표시
+        function displayDeviceInfo() {
+            const info = document.getElementById('deviceInfo');
+            
+            const userAgent = navigator.userAgent;
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const pixelRatio = window.devicePixelRatio || 1;
+            
+            let deviceType = 'Desktop';
+            if (/iPhone|iPad|iPod/.test(userAgent)) {
+                deviceType = 'iOS';
+            } else if (/Android/.test(userAgent)) {
+                deviceType = 'Android';
+            }
+            
+            info.innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">디바이스:</span>
+                    <span class="info-value">${deviceType}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">화면 크기:</span>
+                    <span class="info-value">${screenWidth}×${screenHeight}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">뷰포트 크기:</span>
+                    <span class="info-value">${viewportWidth}×${viewportHeight}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">픽셀 비율:</span>
+                    <span class="info-value">${pixelRatio}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">User Agent:</span>
+                    <span class="info-value" style="font-size: 0.75rem; word-break: break-all;">${userAgent}</span>
+                </div>
+            `;
+            
+            addLog(`📱 디바이스: ${deviceType}, 화면: ${viewportWidth}×${viewportHeight}`, 'info');
+        }
+        
+        // localStorage 상태 표시
+        function displayStorageInfo() {
+            const info = document.getElementById('storageInfo');
+            
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            
+            let adminCount = 0;
+            let productsCount = 0;
+            
+            if (adminProducts) {
+                try {
+                    const data = JSON.parse(adminProducts);
+                    adminCount = data.length;
+                } catch (e) {
+                    adminCount = 'ERROR';
+                }
+            }
+            
+            if (products) {
+                try {
+                    const data = JSON.parse(products);
+                    productsCount = data.length;
+                } catch (e) {
+                    productsCount = 'ERROR';
+                }
+            }
+            
+            info.innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">adminProducts:</span>
+                    <span class="info-value ${adminCount === 0 ? 'error' : ''}">${adminCount === 0 ? '없음' : adminCount + '개'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">products:</span>
+                    <span class="info-value ${productsCount === 0 ? 'error' : ''}">${productsCount === 0 ? '없음' : productsCount + '개'}</span>
+                </div>
+            `;
+            
+            if (adminCount > 0 || productsCount > 0) {
+                addLog(`✅ localStorage: adminProducts=${adminCount}개, products=${productsCount}개`, 'success');
+            } else {
+                addLog(`⚠️ localStorage 비어있음`, 'warning');
+            }
+        }
+        
+        // 제품 로드 및 표시
+        function loadAndDisplayProducts() {
+            addLog('🔄 제품 로드 시작...', 'info');
+            
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            
+            // localStorage에서 제품 로드
+            const savedProducts = localStorage.getItem('adminProducts') || localStorage.getItem('products');
+            
+            if (!savedProducts) {
+                addLog('❌ localStorage에 제품 데이터 없음', 'error');
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-box-open"></i>
+                        <h3>제품이 없습니다</h3>
+                        <p>관리자 페이지에서 제품을 등록하거나<br>emergency-recovery.html로 복구하세요.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const allProducts = JSON.parse(savedProducts);
+                addLog(`✅ ${allProducts.length}개 제품 로드 성공`, 'success');
+                
+                // featured 제품 필터링
+                const featuredProducts = allProducts.filter(p => p.featured);
+                addLog(`📌 추천 제품: ${featuredProducts.length}개`, 'info');
+                
+                // 표시할 제품 선택 (최대 10개)
+                let displayProducts = featuredProducts.length >= 10 
+                    ? featuredProducts.slice(0, 10)
+                    : allProducts.slice(0, 10);
+                
+                addLog(`🎨 화면에 표시: ${displayProducts.length}개`, 'success');
+                
+                // 제품 카드 렌더링
+                displayProducts.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.onclick = () => {
+                        addLog(`🖱️ 제품 클릭: ${product.name}`, 'info');
+                        if (product.naver_link) {
+                            window.open(product.naver_link, '_blank');
+                            addLog(`🔗 네이버 링크 열기: ${product.naver_link}`, 'success');
+                        } else {
+                            addLog(`⚠️ 네이버 링크 없음`, 'warning');
+                        }
+                    };
+                    
+                    card.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.image_url || product.images?.[0] || 'https://placehold.co/400x400/2c5f4f/ffffff?text=' + encodeURIComponent(product.name)}" 
+                                 alt="${product.name}"
+                                 onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=No+Image'">
+                            ${product.featured ? '<div class="badge">추천</div>' : ''}
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-price">${product.price?.toLocaleString() || '0'}원</div>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(card);
+                });
+                
+                addLog(`✅ ${displayProducts.length}개 제품 카드 렌더링 완료`, 'success');
+                
+            } catch (error) {
+                addLog(`❌ 제품 로드 오류: ${error.message}`, 'error');
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>오류 발생</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 페이지 로드 시 자동 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            displayDeviceInfo();
+            displayStorageInfo();
+            addLog('✅ 테스트 페이지 준비 완료', 'success');
+        });
+        
+        // 화면 크기 변경 시
+        window.addEventListener('resize', () => {
+            displayDeviceInfo();
+        });
+    </script>
+</body>
+</html>
