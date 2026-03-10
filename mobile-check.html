@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>모바일 제품 체크 - 심석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2b5c4a 0%, #1a4034 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            color: #2b5c4a;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .device-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .device-info strong {
+            color: #2b5c4a;
+        }
+
+        .status-grid {
+            display: grid;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #2b5c4a;
+        }
+
+        .status-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-value {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .status-value.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-value.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2b5c4a 0%, #1a4034 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .product-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .product-image {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            background: #f5f5f5;
+        }
+
+        .product-image img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .product-info {
+            padding: 10px;
+        }
+
+        .product-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2b5c4a;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(43, 92, 74, 0.3);
+            border-top-color: #2b5c4a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .console {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .console-line {
+            margin: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="card header">
+            <h1>📱 모바일 제품 체크</h1>
+            <p class="subtitle">안드로이드 폰 전용 진단 도구</p>
+        </div>
+
+        <!-- Device Info -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #2b5c4a;">📊 기기 정보</h3>
+            <div class="device-info" id="deviceInfo">
+                <div><strong>화면:</strong> <span id="screenSize">확인 중...</span></div>
+                <div><strong>브라우저:</strong> <span id="browserInfo">확인 중...</span></div>
+                <div><strong>localStorage:</strong> <span id="localStorageSupport">확인 중...</span></div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #2b5c4a;">🔍 제품 데이터 상태</h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">adminProducts</span>
+                    <span class="status-value" id="adminStatus">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">products</span>
+                    <span class="status-value" id="productsStatus">-</span>
+                </div>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <!-- Buttons -->
+            <button class="btn btn-primary" onclick="checkAll()">🔍 다시 확인</button>
+            <button class="btn btn-success" onclick="forceSync()">🔄 강제 동기화</button>
+            <button class="btn btn-warning" onclick="loadFromServer()">☁️ 서버에서 불러오기</button>
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'">🏠 메인 페이지</button>
+        </div>
+
+        <!-- Products -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #2b5c4a;">📦 제품 목록 <span id="productCount" style="color: #999; font-size: 14px;">(0개)</span></h3>
+            <div id="productsGrid" class="products-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div style="margin-top: 10px;">로딩 중...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Log -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #2b5c4a;">📝 진단 로그</h3>
+            <div class="console" id="consoleLog"></div>
+        </div>
+    </div>
+
+    <script>
+        let consoleLines = [];
+
+        // 콘솔 로그
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('ko-KR');
+            const line = `[${timestamp}] ${message}`;
+            
+            consoleLines.push(line);
+            if (consoleLines.length > 50) {
+                consoleLines.shift();
+            }
+            
+            const consoleLog = document.getElementById('consoleLog');
+            consoleLog.innerHTML = consoleLines.map(l => `<div class="console-line">${l}</div>`).join('');
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        // 기기 정보 수집
+        function getDeviceInfo() {
+            log('📱 기기 정보 수집 중...');
+            
+            // 화면 크기
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const screenSize = `${width}px × ${height}px`;
+            document.getElementById('screenSize').textContent = screenSize;
+            log(`화면 크기: ${screenSize}`);
+            
+            // 브라우저 정보
+            const ua = navigator.userAgent;
+            let browserName = 'Unknown';
+            
+            if (ua.includes('Chrome')) browserName = 'Chrome';
+            else if (ua.includes('Firefox')) browserName = 'Firefox';
+            else if (ua.includes('Safari')) browserName = 'Safari';
+            else if (ua.includes('Edge')) browserName = 'Edge';
+            else if (ua.includes('Samsung')) browserName = 'Samsung Internet';
+            
+            const isAndroid = ua.includes('Android');
+            const browserInfo = `${browserName} ${isAndroid ? '(Android)' : ''}`;
+            document.getElementById('browserInfo').textContent = browserInfo;
+            log(`브라우저: ${browserInfo}`);
+            
+            // localStorage 지원
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                document.getElementById('localStorageSupport').textContent = '✅ 지원됨';
+                log('localStorage: 지원됨');
+            } catch (e) {
+                document.getElementById('localStorageSupport').textContent = '❌ 오류';
+                log(`localStorage 오류: ${e.message}`, 'error');
+            }
+        }
+
+        // 제품 데이터 확인
+        function checkProducts() {
+            log('🔍 제품 데이터 확인 중...');
+            
+            try {
+                const adminProducts = localStorage.getItem('adminProducts');
+                const products = localStorage.getItem('products');
+                
+                let adminCount = 0;
+                let productsCount = 0;
+                let adminData = null;
+                let productsData = null;
+                
+                // adminProducts 확인
+                if (adminProducts) {
+                    try {
+                        adminData = JSON.parse(adminProducts);
+                        adminCount = adminData.length;
+                        document.getElementById('adminStatus').className = 'status-value success';
+                        document.getElementById('adminStatus').textContent = `${adminCount}개`;
+                        log(`✅ adminProducts: ${adminCount}개`);
+                    } catch (e) {
+                        document.getElementById('adminStatus').className = 'status-value error';
+                        document.getElementById('adminStatus').textContent = '오류';
+                        log(`❌ adminProducts 파싱 오류: ${e.message}`, 'error');
+                    }
+                } else {
+                    document.getElementById('adminStatus').className = 'status-value error';
+                    document.getElementById('adminStatus').textContent = '없음';
+                    log('❌ adminProducts: 없음');
+                }
+                
+                // products 확인
+                if (products) {
+                    try {
+                        productsData = JSON.parse(products);
+                        productsCount = productsData.length;
+                        document.getElementById('productsStatus').className = 'status-value success';
+                        document.getElementById('productsStatus').textContent = `${productsCount}개`;
+                        log(`✅ products: ${productsCount}개`);
+                    } catch (e) {
+                        document.getElementById('productsStatus').className = 'status-value error';
+                        document.getElementById('productsStatus').textContent = '오류';
+                        log(`❌ products 파싱 오류: ${e.message}`, 'error');
+                    }
+                } else {
+                    document.getElementById('productsStatus').className = 'status-value error';
+                    document.getElementById('productsStatus').textContent = '없음';
+                    log('❌ products: 없음');
+                }
+                
+                // 알림 표시
+                showAlert(adminCount, productsCount);
+                
+                // 제품 표시
+                const dataToShow = productsData || adminData || [];
+                displayProducts(dataToShow);
+                
+                return { adminCount, productsCount, adminData, productsData };
+                
+            } catch (error) {
+                log(`❌ 전체 확인 오류: ${error.message}`, 'error');
+                return { adminCount: 0, productsCount: 0, adminData: null, productsData: null };
+            }
+        }
+
+        // 알림 표시
+        function showAlert(adminCount, productsCount) {
+            const alertBox = document.getElementById('alertBox');
+            
+            if (adminCount === productsCount && adminCount > 0) {
+                alertBox.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ 정상 작동!</strong>
+                        ${adminCount}개 제품이 정상적으로 동기화되어 있습니다.
+                    </div>
+                `;
+            } else if (adminCount > 0 && productsCount === 0) {
+                alertBox.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>❌ 동기화 필요!</strong>
+                        adminProducts에는 ${adminCount}개가 있지만 products가 비어있습니다.<br>
+                        <strong>[강제 동기화]</strong> 버튼을 눌러주세요.
+                    </div>
+                `;
+            } else if (adminCount !== productsCount) {
+                alertBox.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>⚠️ 개수 불일치!</strong>
+                        adminProducts: ${adminCount}개 ≠ products: ${productsCount}개<br>
+                        <strong>[강제 동기화]</strong> 버튼을 눌러주세요.
+                    </div>
+                `;
+            } else {
+                alertBox.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>ℹ️ 데이터 없음</strong>
+                        관리자 페이지에서 제품을 등록하거나<br>
+                        <strong>[서버에서 불러오기]</strong>를 시도해보세요.
+                    </div>
+                `;
+            }
+        }
+
+        // 제품 표시
+        function displayProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            const countEl = document.getElementById('productCount');
+            
+            countEl.textContent = `(${products.length}개)`;
+            
+            if (!products || products.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty" style="grid-column: 1/-1;">
+                        📦<br>
+                        제품이 없습니다
+                    </div>
+                `;
+                log('제품 표시: 0개');
+                return;
+            }
+            
+            let html = '';
+            products.forEach(product => {
+                html += `
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="${product.image || product.image_url || 'https://via.placeholder.com/200?text=No+Image'}" 
+                                 alt="${product.name}"
+                                 onerror="this.src='https://via.placeholder.com/200?text=Error'">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-price">${formatPrice(product.price)}원</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+            log(`✅ 제품 표시: ${products.length}개`);
+        }
+
+        // 가격 포맷
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // 전체 체크
+        function checkAll() {
+            log('🔄 전체 체크 시작...');
+            getDeviceInfo();
+            checkProducts();
+        }
+
+        // 강제 동기화
+        function forceSync() {
+            log('🔄 강제 동기화 시작...');
+            
+            try {
+                const adminProducts = localStorage.getItem('adminProducts');
+                
+                if (!adminProducts) {
+                    alert('❌ adminProducts가 없습니다!\n\n관리자 페이지에서 먼저 제품을 등록해주세요.');
+                    log('❌ 동기화 실패: adminProducts 없음', 'error');
+                    return;
+                }
+                
+                // products로 복사
+                localStorage.setItem('products', adminProducts);
+                
+                const count = JSON.parse(adminProducts).length;
+                alert(`✅ 동기화 완료!\n\n${count}개 제품이 products로 복사되었습니다.\n\n메인 페이지를 새로고침하면 제품이 보입니다.`);
+                log(`✅ 동기화 성공: ${count}개 제품`);
+                
+                // 재확인
+                checkProducts();
+                
+            } catch (error) {
+                alert('❌ 동기화 오류:\n' + error.message);
+                log(`❌ 동기화 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // 서버에서 불러오기 (데모)
+        function loadFromServer() {
+            log('☁️ 서버에서 불러오기 시도...');
+            
+            if (!confirm('주의: 이 기능은 현재 데모 데이터를 로드합니다.\n\n실제 서버 연동은 v4.0에서 지원됩니다.\n\n계속하시겠습니까?')) {
+                log('취소됨');
+                return;
+            }
+            
+            // 데모 데이터
+            const demoProducts = [
+                {
+                    id: Date.now() + 1,
+                    name: '헤마타이트 목걸이',
+                    category: '목걸이',
+                    price: 69000,
+                    image: 'https://via.placeholder.com/400?text=Hematite+Necklace',
+                    description: '강력한 자기력',
+                    materials: '헤마타이트',
+                    benefits: '혈액순환',
+                    featured: true,
+                    in_stock: true,
+                    naverLink: '',
+                    coupangLink: ''
+                },
+                {
+                    id: Date.now() + 2,
+                    name: '헤마타이트 팔찌',
+                    category: '팔찌',
+                    price: 49000,
+                    image: 'https://via.placeholder.com/400?text=Hematite+Bracelet',
+                    description: '데일리 착용',
+                    materials: '헤마타이트',
+                    benefits: '자기력 에너지',
+                    featured: true,
+                    in_stock: true,
+                    naverLink: '',
+                    coupangLink: ''
+                }
+            ];
+            
+            try {
+                const jsonData = JSON.stringify(demoProducts);
+                localStorage.setItem('adminProducts', jsonData);
+                localStorage.setItem('products', jsonData);
+                
+                alert('✅ 데모 데이터 로드 완료!\n\n2개의 샘플 제품이 추가되었습니다.');
+                log(`✅ 데모 데이터 로드: ${demoProducts.length}개`);
+                
+                checkProducts();
+                
+            } catch (error) {
+                alert('❌ 데이터 로드 오류:\n' + error.message);
+                log(`❌ 데이터 로드 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // 초기화
+        window.addEventListener('load', () => {
+            log('🚀 모바일 제품 체크 시작');
+            checkAll();
+        });
+    </script>
+</body>
+</html>
