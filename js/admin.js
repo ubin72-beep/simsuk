@@ -521,12 +521,12 @@ function openProductModal(productId = null) {
     // 상태 초기화
     statusDiv.innerHTML = '';
     
-    // 모든 이미지 미리보기 초기화
-    for (let i = 1; i <= 4; i++) {
-        const preview = document.getElementById(`imagePreview${i}`);
-        const uploadButton = document.getElementById(`productImageFile${i}`).previousElementSibling;
-        if (preview) preview.style.display = 'none';
-        if (uploadButton) uploadButton.style.display = 'flex';
+    // 모든 이미지 미리보기 초기화 (이미지 1만 존재)
+    const preview1 = document.getElementById('imagePreview1');
+    const fileInput1 = document.getElementById('productImageFile1');
+    if (preview1) preview1.style.display = 'none';
+    if (fileInput1 && fileInput1.previousElementSibling) {
+        fileInput1.previousElementSibling.style.display = 'flex';
     }
     
     if (productId) {
@@ -543,31 +543,17 @@ function openProductModal(productId = null) {
         document.getElementById('productFeatured').checked = product.featured || false;
         document.getElementById('productInStock').checked = product.in_stock !== false;
         
-        // 이미지 로드 (배열 또는 단일 이미지)
-        if (product.images && Array.isArray(product.images)) {
-            // 새로운 배열 형식
-            product.images.forEach((img, index) => {
-                if (img && index < 4) {
-                    const imgIndex = index + 1;
-                    document.getElementById(`productImageUrl${imgIndex}`).value = img;
-                    const previewImg = document.getElementById(`previewImg${imgIndex}`);
-                    const imagePreview = document.getElementById(`imagePreview${imgIndex}`);
-                    const uploadButton = document.getElementById(`productImageFile${imgIndex}`).previousElementSibling;
-                    
-                    previewImg.src = img;
-                    imagePreview.style.display = 'block';
-                    if (uploadButton) uploadButton.style.display = 'none';
-                }
-            });
-        } else if (product.image_url) {
-            // 기존 단일 이미지 형식 (하위 호환성)
-            document.getElementById('productImageUrl1').value = product.image_url;
+        // 이미지 로드 (메인 이미지 1개만)
+        if (product.image || product.image_url) {
+            const imageUrl = product.image || product.image_url;
+            document.getElementById('productImageUrl1').value = imageUrl;
             const previewImg = document.getElementById('previewImg1');
             const imagePreview = document.getElementById('imagePreview1');
-            const uploadButton = document.getElementById('productImageFile1').previousElementSibling;
+            const fileInput = document.getElementById('productImageFile1');
+            const uploadButton = fileInput ? fileInput.previousElementSibling : null;
             
-            previewImg.src = product.image_url;
-            imagePreview.style.display = 'block';
+            if (previewImg) previewImg.src = imageUrl;
+            if (imagePreview) imagePreview.style.display = 'block';
             if (uploadButton) uploadButton.style.display = 'none';
         }
         
@@ -619,10 +605,9 @@ function openProductModal(productId = null) {
         document.getElementById('productNaverLink').value = '';
         document.getElementById('productCoupangLink').value = '';
         
-        // 파일 input 초기화
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById(`productImageFile${i}`).value = '';
-        }
+        // 파일 input 초기화 (이미지 1개만)
+        const fileInput1 = document.getElementById('productImageFile1');
+        if (fileInput1) fileInput1.value = '';
     }
     
     modal.classList.add('active');
@@ -636,13 +621,11 @@ function closeProductModal() {
 function handleProductSubmit(event) {
     event.preventDefault();
     
-    // 이미지 배열 수집 (최대 4장)
+    // 이미지 수집 (메인 이미지 1개만)
     const images = [];
-    for (let i = 1; i <= 4; i++) {
-        const imageUrl = document.getElementById(`productImageUrl${i}`).value;
-        if (imageUrl) {
-            images.push(imageUrl);
-        }
+    const imageUrl1 = document.getElementById('productImageUrl1').value;
+    if (imageUrl1) {
+        images.push(imageUrl1);
     }
     
     // 이미지가 없으면 기본 플레이스홀더 사용
@@ -738,16 +721,19 @@ function previewProduct() {
     // 임시 제품 ID 생성 (미리보기용)
     const previewId = currentEditId || 'preview_' + Date.now();
     
-    // 이미지 수집
+    // 이미지 수집 (메인 이미지 1개만)
     const images = [];
-    for (let i = 1; i <= 4; i++) {
-        const imageUrl = document.getElementById(`productImageUrl${i}`).value;
-        if (imageUrl) images.push(imageUrl);
+    const imageUrl1 = document.getElementById('productImageUrl1').value;
+    if (imageUrl1) {
+        images.push(imageUrl1);
     }
     
+    // 이미지가 없으면 자동 생성
     if (images.length === 0) {
-        showToast('최소 1장의 이미지를 업로드해주세요', 'warning');
-        return;
+        const productName = document.getElementById('productName').value;
+        const placeholder = `https://placehold.co/400x400/667eea/ffffff?text=${encodeURIComponent(productName)}`;
+        images.push(placeholder);
+        console.log('⚠️ 미리보기용 플레이스홀더 사용:', placeholder);
     }
     
     // 사이즈별 재고
