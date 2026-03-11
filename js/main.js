@@ -6,7 +6,7 @@ let cart = [];
 
 // 페이지네이션 변수
 let currentPage = 1;
-let productsPerPage = 8;
+let productsPerPage = 10;  // ⭐ 10개씩 표시
 let totalPages = 1;
 
 // ===== 제품 데이터 =====
