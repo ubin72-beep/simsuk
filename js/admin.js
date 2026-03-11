@@ -209,17 +209,17 @@ async function showAdminPage() {
 function loadProducts() {
     const stored = localStorage.getItem('adminProducts');
     if (stored) {
-        products = JSON.parse(stored);
+        try {
+            products = JSON.parse(stored);
+            console.log('✅ 제품 로드 성공:', products.length, '개');
+        } catch (error) {
+            console.error('❌ 제품 파싱 오류:', error);
+            products = [];
+        }
     } else {
-        products = [
-            {id: Date.now() + 1, name: '헤마타이트 목걸이', category: '목걸이', price: 69000, image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace', description: '강력한 자기력', materials: '헤마타이트', benefits: '혈액순환', featured: true, in_stock: true},
-            {id: Date.now() + 2, name: '헤마타이트 팔찌', category: '팔찌', price: 49000, image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet', description: '데일리 착용', materials: '헤마타이트', benefits: '자기력 에너지', featured: true, in_stock: true},
-            {id: Date.now() + 3, name: '헤마타이트 반지', category: '반지', price: 39000, image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring', description: '심플 스타일', materials: '헤마타이트', benefits: '집중력', featured: false, in_stock: true},
-            {id: Date.now() + 4, name: '가넷 목걸이', category: '목걸이', price: 79000, image_url: 'https://placehold.co/400x400/8b0000/ffffff?text=Garnet', description: '1월 탄생석', materials: '가넷', benefits: '정열', featured: true, in_stock: true},
-            {id: Date.now() + 5, name: '자수정 팔찌', category: '팔찌', price: 59000, image_url: 'https://placehold.co/400x400/9966cc/ffffff?text=Amethyst', description: '2월 탄생석', materials: '자수정', benefits: '평온', featured: false, in_stock: true},
-            {id: Date.now() + 6, name: '아쿠아마린 반지', category: '반지', price: 89000, image_url: 'https://placehold.co/400x400/7fffd4/000000?text=Aquamarine', description: '3월 탄생석', materials: '아쿠아마린', benefits: '용기', featured: false, in_stock: true}
-        ];
-        saveProducts();
+        // ⚠️ localStorage가 비어있으면 빈 배열로 시작 (더미 데이터 생성 안 함!)
+        products = [];
+        console.log('⚠️ localStorage 비어있음 - 빈 배열로 시작');
     }
     window.adminProducts = products;
     return products;
@@ -253,9 +253,27 @@ async function loadOrders() {
 }
 
 function saveProducts() {
-    localStorage.setItem('adminProducts', JSON.stringify(products));
-    localStorage.setItem('products', JSON.stringify(products)); // 메인 페이지용
-    window.dispatchEvent(new Event('storage')); // 메인 페이지 자동 새로고침
+    try {
+        // 백업 생성 (최근 3개 보관)
+        const backupKey = `adminProducts_backup_${Date.now()}`;
+        localStorage.setItem(backupKey, JSON.stringify(products));
+        
+        // 오래된 백업 삭제 (최근 3개만 유지)
+        const allKeys = Object.keys(localStorage);
+        const backupKeys = allKeys.filter(key => key.startsWith('adminProducts_backup_')).sort().reverse();
+        backupKeys.slice(3).forEach(key => localStorage.removeItem(key));
+        
+        // 메인 데이터 저장
+        localStorage.setItem('adminProducts', JSON.stringify(products));
+        localStorage.setItem('products', JSON.stringify(products)); // 메인 페이지용
+        
+        window.dispatchEvent(new Event('storage')); // 메인 페이지 자동 새로고침
+        
+        console.log('✅ 제품 저장 완료:', products.length, '개 (백업:', backupKey, ')');
+    } catch (error) {
+        console.error('❌ 제품 저장 오류:', error);
+        alert('제품 저장 중 오류가 발생했습니다: ' + error.message);
+    }
 }
 
 function saveOrders() {
