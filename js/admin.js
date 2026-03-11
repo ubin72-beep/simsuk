@@ -423,9 +423,9 @@ async function handleImageUpload(event, imageIndex = 1) {
     const file = event.target.files[0];
     if (!file) return;
     
-    // 파일 크기 확인 (200KB 제한 - localStorage 용량 고려)
-    if (file.size > 200 * 1024) {
-        showToast(`이미지 크기는 200KB 이하여야 합니다\n\nTinyPNG로 압축해주세요: https://tinypng.com/`, 'error');
+    // 파일 크기 확인 (500KB로 증가 - 메인 이미지 1개만 저장하므로)
+    if (file.size > 500 * 1024) {
+        showToast(`이미지 크기는 500KB 이하여야 합니다\n\nTinyPNG로 압축해주세요: https://tinypng.com/`, 'error');
         event.target.value = '';
         return;
     }
@@ -440,7 +440,7 @@ async function handleImageUpload(event, imageIndex = 1) {
     
     // 업로드 상태 표시
     const statusDiv = document.getElementById('uploadStatus');
-    statusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 이미지 ${imageIndex} 처리 중...`;
+    statusDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 메인 이미지 처리 중...`;
     statusDiv.style.color = '#667eea';
     
     try {
@@ -450,12 +450,12 @@ async function handleImageUpload(event, imageIndex = 1) {
         reader.onload = function(e) {
             const base64Data = e.target.result;
             
-            // Hidden input에 Base64 데이터 저장
-            document.getElementById(`productImageUrl${imageIndex}`).value = base64Data;
+            // Hidden input에 Base64 데이터 저장 (메인 이미지만)
+            document.getElementById(`productImageUrl1`).value = base64Data;
             
             // 미리보기 표시
-            const previewImg = document.getElementById(`previewImg${imageIndex}`);
-            const imagePreview = document.getElementById(`imagePreview${imageIndex}`);
+            const previewImg = document.getElementById(`previewImg1`);
+            const imagePreview = document.getElementById(`imagePreview1`);
             previewImg.src = base64Data;
             imagePreview.style.display = 'block';
             
@@ -464,19 +464,19 @@ async function handleImageUpload(event, imageIndex = 1) {
             if (uploadButton) uploadButton.style.display = 'none';
             
             // 성공 메시지
-            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> 이미지 ${imageIndex} 처리 완료!`;
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> 메인 이미지 처리 완료! (클릭 시 네이버/쿠팡에서 전체 이미지 보기)`;
             statusDiv.style.color = '#28a745';
             
-            showToast(`이미지 ${imageIndex} 처리 완료`, 'success');
+            showToast(`메인 이미지 처리 완료`, 'success');
             
-            console.log(`✅ 이미지 ${imageIndex} Base64 변환 성공 (${Math.round(base64Data.length / 1024)} KB)`);
+            console.log(`✅ 메인 이미지 Base64 변환 성공 (${Math.round(base64Data.length / 1024)} KB)`);
         };
         
         reader.onerror = function() {
-            console.error(`❌ 이미지 ${imageIndex} 처리 오류`);
-            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> 이미지 ${imageIndex} 처리 실패`;
+            console.error(`❌ 이미지 처리 오류`);
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> 이미지 처리 실패`;
             statusDiv.style.color = '#dc3545';
-            showToast(`이미지 ${imageIndex} 처리 실패`, 'error');
+            showToast(`이미지 처리 실패`, 'error');
             event.target.value = '';
         };
         
@@ -484,10 +484,10 @@ async function handleImageUpload(event, imageIndex = 1) {
         reader.readAsDataURL(file);
         
     } catch (error) {
-        console.error(`❌ 이미지 ${imageIndex} 업로드 오류:`, error);
-        statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> 이미지 ${imageIndex} 처리 실패`;
+        console.error(`❌ 이미지 업로드 오류:`, error);
+        statusDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> 이미지 처리 실패`;
         statusDiv.style.color = '#dc3545';
-        showToast(`이미지 ${imageIndex} 처리 실패: ${error.message}`, 'error');
+        showToast(`이미지 처리 실패: ${error.message}`, 'error');
         event.target.value = '';
     }
 }
@@ -677,9 +677,8 @@ function handleProductSubmit(event) {
         name: document.getElementById('productName').value,
         category: document.getElementById('productCategory').value,
         price: parseInt(document.getElementById('productPrice').value),
-        images: images,  // ⭐ 이미지 배열
-        image: images[0],  // ⭐ 메인 페이지 호환
-        image_url: images[0],  // 하위 호환성을 위해 첫 번째 이미지도 저장
+        image: images[0],  // ⭐ 메인 이미지 1개만 저장 (용량 절약)
+        image_url: images[0],  // 하위 호환성
         size_stock: sizeStock,  // ⭐ 사이즈별 재고
         total_stock: totalStock,  // ⭐ 총 재고
         materials: document.getElementById('productMaterials').value,
@@ -715,7 +714,7 @@ function handleProductSubmit(event) {
     closeProductModal();
     
     const message = currentEditId ? '제품이 수정되었습니다' : '제품이 추가되었습니다';
-    showToast(message + ` (이미지 ${images.length}장, 총 재고 ${totalStock}개)`, 'success');
+    showToast(message + ` (메인 이미지 1장, 총 재고 ${totalStock}개)\n클릭 시 네이버/쿠팡에서 전체 이미지 보기`, 'success');
     
     console.log('✅ 제품 저장:', productData);
 }
