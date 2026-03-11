@@ -645,10 +645,12 @@ function handleProductSubmit(event) {
         }
     }
     
-    // 최소 1장의 이미지 필수
+    // 이미지가 없으면 기본 플레이스홀더 사용
     if (images.length === 0) {
-        showToast('최소 1장의 이미지를 업로드해주세요', 'error');
-        return;
+        const productName = document.getElementById('productName').value;
+        const placeholder = `https://placehold.co/400x400/667eea/ffffff?text=${encodeURIComponent(productName)}`;
+        images.push(placeholder);
+        console.log('⚠️ 이미지 없음 - 플레이스홀더 사용:', placeholder);
     }
     
     // 사이즈별 재고 수집
