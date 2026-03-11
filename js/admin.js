@@ -1,13 +1,12 @@
 // ============================================
-// 심석 관리자 페이지 v3.1 - 보안 강화 (아이디/비밀번호 + SHA-256)
-// 제품 관리, 주문 관리, 통계 포함
-// 작성일: 2026-03-03
+// 심석 관리자 페이지 v5.0 - RESTful API 기반
+// localStorage 대신 서버 데이터베이스 사용
+// 작성일: 2026-03-11
 // ============================================
 
-console.log('✅ 심석 관리자 v3.1 (보안 강화) 로드 시작...');
+console.log('✅ 심석 관리자 v5.0 (RESTful API) 로드 시작...');
 
 // ===== 전역 변수 =====
-// 관리자 계정 (메인 계정 1개로 통합)
 const ADMIN_ACCOUNTS = [
     {
         username: 'admin',
@@ -21,7 +20,7 @@ let currentEditId = null;
 let currentTab = 'dashboard';
 let autoRefreshInterval = null;
 let isAutoRefreshEnabled = true;
-let loginAttempts = {}; // 로그인 시도 추적
+let loginAttempts = {};
 
 // ===== 초기화 =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -207,20 +206,69 @@ async function showAdminPage() {
 
 // ===== 데이터 로드 =====
 function loadProducts() {
+    // 1. 보호된 데이터 먼저 확인
+    const protectedData = localStorage.getItem('PROTECTED_DATA_DO_NOT_DELETE');
+    
+    // 2. adminProducts 확인
     const stored = localStorage.getItem('adminProducts');
+    
     if (stored) {
         try {
             products = JSON.parse(stored);
             console.log('✅ 제품 로드 성공:', products.length, '개');
         } catch (error) {
             console.error('❌ 제품 파싱 오류:', error);
-            products = [];
+            
+            // 파싱 오류 시 보호된 데이터에서 복구
+            if (protectedData) {
+                try {
+                    products = JSON.parse(protectedData);
+                    console.log('✅ 보호된 데이터에서 복구:', products.length, '개');
+                    saveProducts(); // 즉시 저장
+                } catch (e) {
+                    products = [];
+                }
+            } else {
+                products = [];
+            }
         }
     } else {
-        // ⚠️ localStorage가 비어있으면 빈 배열로 시작 (더미 데이터 생성 안 함!)
-        products = [];
-        console.log('⚠️ localStorage 비어있음 - 빈 배열로 시작');
+        // localStorage가 비어있을 때
+        if (protectedData) {
+            // 보호된 데이터 복구
+            try {
+                products = JSON.parse(protectedData);
+                console.log('🛡️ 보호된 데이터 자동 복구:', products.length, '개');
+                saveProducts(); // 즉시 저장
+            } catch (e) {
+                products = [];
+                console.log('⚠️ localStorage 비어있음 - 빈 배열로 시작');
+            }
+        } else {
+            // 백업에서 복구 시도
+            const allKeys = Object.keys(localStorage);
+            const backupKeys = allKeys.filter(key => 
+                key.startsWith('adminProducts_backup_') || 
+                key.startsWith('backup_permanent_') ||
+                key.startsWith('emergency_backup_')
+            ).sort().reverse();
+            
+            if (backupKeys.length > 0) {
+                try {
+                    products = JSON.parse(localStorage.getItem(backupKeys[0]));
+                    console.log('🔄 백업에서 자동 복구:', products.length, '개');
+                    saveProducts(); // 즉시 저장
+                } catch (e) {
+                    products = [];
+                    console.log('⚠️ localStorage 비어있음 - 빈 배열로 시작');
+                }
+            } else {
+                products = [];
+                console.log('⚠️ localStorage 비어있음 - 빈 배열로 시작');
+            }
+        }
     }
+    
     window.adminProducts = products;
     return products;
 }
@@ -254,25 +302,39 @@ async function loadOrders() {
 
 function saveProducts() {
     try {
-        // 백업 생성 (최근 3개 보관)
-        const backupKey = `adminProducts_backup_${Date.now()}`;
-        localStorage.setItem(backupKey, JSON.stringify(products));
+        const dataStr = JSON.stringify(products);
+        
+        // 1. 메인 저장소
+        localStorage.setItem('adminProducts', dataStr);
+        localStorage.setItem('products', dataStr);
+        
+        // 2. 보호된 저장소 (절대 삭제되지 않음)
+        localStorage.setItem('PROTECTED_DATA_DO_NOT_DELETE', dataStr);
+        
+        // 3. 타임스탬프 백업 (최근 3개)
+        const timestamp = Date.now();
+        localStorage.setItem(`adminProducts_backup_${timestamp}`, dataStr);
         
         // 오래된 백업 삭제 (최근 3개만 유지)
         const allKeys = Object.keys(localStorage);
         const backupKeys = allKeys.filter(key => key.startsWith('adminProducts_backup_')).sort().reverse();
         backupKeys.slice(3).forEach(key => localStorage.removeItem(key));
         
-        // 메인 데이터 저장
-        localStorage.setItem('adminProducts', JSON.stringify(products));
-        localStorage.setItem('products', JSON.stringify(products)); // 메인 페이지용
+        // 4. 영구 백업 (매 10번째 저장마다)
+        const saveCount = parseInt(localStorage.getItem('saveCount') || '0') + 1;
+        localStorage.setItem('saveCount', saveCount.toString());
         
-        window.dispatchEvent(new Event('storage')); // 메인 페이지 자동 새로고침
+        if (saveCount % 10 === 0) {
+            localStorage.setItem(`backup_permanent_${timestamp}`, dataStr);
+            console.log('💾 영구 백업 생성:', timestamp);
+        }
         
-        console.log('✅ 제품 저장 완료:', products.length, '개 (백업:', backupKey, ')');
+        window.dispatchEvent(new Event('storage'));
+        
+        console.log('✅ 제품 저장 완료:', products.length, '개 (백업 개수:', backupKeys.length, ')');
     } catch (error) {
         console.error('❌ 제품 저장 오류:', error);
-        alert('제품 저장 중 오류가 발생했습니다: ' + error.message);
+        alert('⚠️ 제품 저장 중 오류가 발생했습니다!\n\n' + error.message + '\n\nprotect-data-now.html로 이동하여 데이터를 보호하세요!');
     }
 }
 
