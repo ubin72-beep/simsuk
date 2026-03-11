@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v4.0 업그레이드 - 심석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .version-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .features h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features li {
+            padding: 10px 0;
+            color: #495057;
+            font-size: 15px;
+            line-height: 1.6;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .features li:last-child {
+            border-bottom: none;
+        }
+        
+        .features li strong {
+            color: #667eea;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .alert h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .alert p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4);
+        }
+        
+        .status {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .status.success {
+            background: #d1e7dd;
+            border: 2px solid #198754;
+            color: #0f5132;
+            display: block;
+        }
+        
+        .status h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .status p {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .next-steps {
+            background: #e7f3ff;
+            border: 2px solid #2196f3;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .next-steps h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .next-steps ol {
+            padding-left: 25px;
+            color: #495057;
+        }
+        
+        .next-steps li {
+            padding: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .next-steps a {
+            color: #2196f3;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .next-steps a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="version-badge">
+                <i class="fas fa-rocket"></i> VERSION 4.0
+            </div>
+            
+            <h1>🎉 심석 v4.0 업그레이드</h1>
+            <p class="subtitle">이미지 최적화 & localStorage 용량 문제 완벽 해결!</p>
+            
+            <div class="features">
+                <h3><i class="fas fa-star"></i> 새로운 기능</h3>
+                <ul>
+                    <li><strong>메인 이미지 1장만</strong> - localStorage 용량 문제 해결</li>
+                    <li><strong>최대 500KB 업로드</strong> - 기존 200KB에서 증가</li>
+                    <li><strong>네이버/쿠팡 직접 연결</strong> - 클릭 시 구매 페이지로 이동</li>
+                    <li><strong>10개씩 페이지네이션</strong> - 깔끔한 제품 탐색</li>
+                    <li><strong>빠른 로딩 속도</strong> - 최적화된 성능</li>
+                </ul>
+            </div>
+            
+            <div class="alert">
+                <h4><i class="fas fa-exclamation-triangle"></i> 업그레이드 안내</h4>
+                <p>
+                    v4.0에서는 <strong>메인 이미지 1장만</strong> 저장합니다.<br>
+                    기존의 플레이스홀더 이미지와 여러 장의 이미지는 삭제하고,<br>
+                    <strong>새롭게 시작</strong>하는 것을 권장합니다.
+                </p>
+            </div>
+            
+            <div>
+                <button class="btn btn-primary" onclick="upgrade()">
+                    <i class="fas fa-rocket"></i> v4.0 업그레이드 시작
+                </button>
+                <button class="btn btn-secondary" onclick="goToAdmin()">
+                    <i class="fas fa-arrow-right"></i> 바로 관리자 페이지로
+                </button>
+            </div>
+            
+            <div id="statusMessage" class="status"></div>
+        </div>
+    </div>
+    
+    <script>
+        function upgrade() {
+            if (!confirm('v4.0 업그레이드를 시작하시겠습니까?\n\n기존 제품 데이터가 모두 삭제됩니다.\n(되돌릴 수 없습니다)')) {
+                return;
+            }
+            
+            try {
+                // localStorage 완전 초기화
+                localStorage.removeItem('adminProducts');
+                localStorage.removeItem('products');
+                localStorage.removeItem('cart');
+                localStorage.removeItem('orders');
+                
+                // 기타 테스트 데이터 삭제
+                localStorage.removeItem('testProduct');
+                
+                console.log('✅ v4.0 업그레이드 완료!');
+                
+                // 성공 메시지 표시
+                const statusDiv = document.getElementById('statusMessage');
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `
+                    <h3><i class="fas fa-check-circle"></i> 업그레이드 완료!</h3>
+                    <p>
+                        localStorage가 완전히 초기화되었습니다.<br>
+                        이제 관리자 페이지에서 제품을 새로 등록하세요.
+                    </p>
+                    <div class="next-steps">
+                        <h4><i class="fas fa-list-ol"></i> 다음 단계</h4>
+                        <ol>
+                            <li><a href="admin.html" target="_blank">관리자 페이지</a> 접속 (admin / simsuk2026)</li>
+                            <li><strong>제품 추가</strong> 버튼 클릭</li>
+                            <li>제품 정보 입력:
+                                <ul style="margin-top: 5px; padding-left: 20px;">
+                                    <li>제품명, 카테고리, 가격</li>
+                                    <li><strong>메인 이미지 1장</strong> 업로드 (500KB 이하)</li>
+                                    <li><strong>네이버 스마트스토어 링크</strong> 입력 (필수)</li>
+                                    <li>쿠팡 링크 (선택)</li>
+                                </ul>
+                            </li>
+                            <li><strong>저장</strong> → <a href="index.html" target="_blank">메인 페이지</a>에서 확인!</li>
+                        </ol>
+                    </div>
+                `;
+                
+                // 버튼 숨기기
+                document.querySelector('.btn-primary').style.display = 'none';
+                document.querySelector('.btn-secondary').textContent = '관리자 페이지로 이동';
+                
+            } catch (error) {
+                console.error('❌ 업그레이드 오류:', error);
+                alert('업그레이드 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+        
+        function goToAdmin() {
+            window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+</html>
