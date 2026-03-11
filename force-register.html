@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제품 강제 등록 - 심석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 20px 50px;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #51cf66;
+            color: white;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(81, 207, 102, 0.4);
+        }
+        
+        .result {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        pre {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🚀 제품 강제 등록</h1>
+            <p style="color: #7f8c8d; margin-bottom: 30px;">localStorage에 제품을 강제로 등록합니다</p>
+            
+            <button class="btn" onclick="forceRegister()">
+                제품 3개 등록하기
+            </button>
+            
+            <div id="result"></div>
+        </div>
+    </div>
+    
+    <script>
+        function forceRegister() {
+            // 실제 제품 데이터 (이미지는 placehold.co 대신 색상 배경)
+            const products = [
+                {
+                    id: Date.now() + 1,
+                    name: '헤마타이트 목걸이',
+                    category: '목걸이',
+                    price: 69000,
+                    image: 'https://placehold.co/400x400/2c5f4f/ffffff?text=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%AA%A9%EA%B1%B8%EC%9D%B4',
+                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%AA%A9%EA%B1%B8%EC%9D%B4',
+                    description: '강력한 자기력을 가진 헤마타이트 목걸이',
+                    materials: '천연 헤마타이트',
+                    benefits: '혈액순환 개선, 스트레스 완화',
+                    naver_link: 'https://smartstore.naver.com/simsuk',
+                    coupang_link: '',
+                    featured: true,
+                    in_stock: true,
+                    total_stock: 10,
+                    created_at: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 2,
+                    name: '헤마타이트 팔찌',
+                    category: '팔찌',
+                    price: 49000,
+                    image: 'https://placehold.co/400x400/2c5f4f/ffffff?text=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%ED%8C%94%EC%B0%8C',
+                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%ED%8C%94%EC%B0%8C',
+                    description: '일상에서 착용하기 좋은 헤마타이트 팔찌',
+                    materials: '천연 헤마타이트',
+                    benefits: '자기력 에너지',
+                    naver_link: 'https://smartstore.naver.com/simsuk',
+                    coupang_link: '',
+                    featured: true,
+                    in_stock: true,
+                    total_stock: 10,
+                    created_at: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 3,
+                    name: '헤마타이트 반지',
+                    category: '반지',
+                    price: 39000,
+                    image: 'https://placehold.co/400x400/2c5f4f/ffffff?text=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%B0%98%EC%A7%80',
+                    image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%B0%98%EC%A7%80',
+                    description: '심플하고 세련된 헤마타이트 반지',
+                    materials: '천연 헤마타이트',
+                    benefits: '집중력',
+                    naver_link: 'https://smartstore.naver.com/simsuk',
+                    coupang_link: '',
+                    featured: false,
+                    in_stock: true,
+                    total_stock: 5,
+                    created_at: new Date().toISOString()
+                }
+            ];
+            
+            // 5중 저장
+            const dataStr = JSON.stringify(products);
+            
+            localStorage.setItem('adminProducts', dataStr);
+            localStorage.setItem('products', dataStr);
+            localStorage.setItem('PROTECTED_DATA_DO_NOT_DELETE', dataStr);
+            localStorage.setItem(`adminProducts_backup_${Date.now()}`, dataStr);
+            localStorage.setItem(`backup_permanent_${Date.now()}`, dataStr);
+            
+            // 결과 표시
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="result">
+                    <h3 style="color: #51cf66; margin-bottom: 15px;">✅ 등록 완료!</h3>
+                    <p><strong>등록된 제품:</strong> ${products.length}개</p>
+                    <p><strong>저장 위치:</strong> 5곳</p>
+                    <pre>${JSON.stringify(products, null, 2)}</pre>
+                    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; color: #856404;">
+                        <strong>⚠️ 다음 단계:</strong><br>
+                        1. <a href="index.html" target="_blank">메인 페이지</a> 새로고침<br>
+                        2. 휴대폰에서도 확인<br>
+                        3. 이미지가 보이는지 확인
+                    </div>
+                </div>
+            `;
+            
+            alert('✅ 제품 3개가 등록되었습니다!\n\n메인 페이지를 새로고침하세요.');
+        }
+    </script>
+</body>
+</html>
