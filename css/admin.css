@@ -314,14 +314,15 @@ main {
 .modal-content {
     background: white;
     border-radius: 16px;
-    max-width: 800px;
-    width: 100%;
+    max-width: 900px;
+    width: 95%;
     max-height: 90vh;
     overflow-y: auto;
+    margin: 20px;
 }
 
 .modal-header {
-    padding: 25px;
+    padding: 30px 40px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;
     justify-content: space-between;
@@ -349,15 +350,15 @@ main {
 }
 
 .modal-body {
-    padding: 25px;
+    padding: 30px 40px;
 }
 
 .modal-footer {
-    padding: 20px 25px;
+    padding: 25px 40px;
     border-top: 1px solid #e0e0e0;
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 15px;
 }
 
 /* ============================================
@@ -366,14 +367,15 @@ main {
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 25px;
+    gap: 25px;
+    padding: 0;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .form-group.full-width {
@@ -383,6 +385,8 @@ main {
 .form-group label {
     font-weight: 600;
     color: #333;
+    font-size: 15px;
+    margin-bottom: 5px;
 }
 
 .form-group input[type="text"],
@@ -392,12 +396,13 @@ main {
 .form-group input[type="tel"],
 .form-group select,
 .form-group textarea {
-    padding: 12px;
+    padding: 14px 16px;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15px;
     font-family: inherit;
     transition: border-color 0.3s;
+    line-height: 1.5;
 }
 
 .form-group input:focus,
@@ -409,6 +414,96 @@ main {
 
 .form-group textarea {
     resize: vertical;
+    min-height: 100px;
+}
+
+/* Form Row (2열 레이아웃) */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+/* 사이즈별 재고 그리드 (3열) */
+.size-stock-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.size-stock-grid .size-stock-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.size-stock-grid .size-stock-item label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.size-stock-grid .size-stock-item input[type="number"] {
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+}
+
+.size-stock-grid .size-stock-item input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* 모바일에서는 1열로 */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .size-stock-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .modal-content {
+        width: 100%;
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 20px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="url"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+}
+
+/* 작은 화면 (모바일 세로) */
+@media (max-width: 480px) {
+    .size-stock-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 15px;
+    }
 }
 
 /* ============================================
