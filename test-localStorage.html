@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ localStorage 완벽 테스트 - 심석</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: #2c5f4f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .status-item h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .status-item p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c5f4f;
+        }
+        
+        .status-item.good {
+            border-left-color: #28a745;
+        }
+        
+        .status-item.good p {
+            color: #28a745;
+        }
+        
+        .status-item.bad {
+            border-left-color: #dc3545;
+        }
+        
+        .status-item.bad p {
+            color: #dc3545;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-success {
+            color: #00ff00;
+        }
+        
+        .log-error {
+            color: #ff4444;
+        }
+        
+        .log-warning {
+            color: #ffaa00;
+        }
+        
+        .log-info {
+            color: #4fc3f7;
+        }
+        
+        .product-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .product-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .product-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #2c5f4f;
+        }
+        
+        .product-card p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-check-circle"></i> localStorage 완벽 테스트</h1>
+        
+        <!-- 상태 카드 -->
+        <div class="card">
+            <h2><i class="fas fa-heartbeat"></i> localStorage 상태</h2>
+            <div class="status" id="statusGrid"></div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-success" onclick="runFullTest()">
+                    <i class="fas fa-play"></i> 전체 테스트 실행
+                </button>
+                <button class="btn btn-secondary" onclick="verifyData()">
+                    <i class="fas fa-search"></i> 데이터 검증
+                </button>
+                <button class="btn" onclick="location.reload()">
+                    <i class="fas fa-sync"></i> 새로고침
+                </button>
+            </div>
+        </div>
+        
+        <!-- 제품 미리보기 -->
+        <div class="card">
+            <h2><i class="fas fa-box"></i> 제품 미리보기</h2>
+            <div class="product-preview" id="productPreview"></div>
+        </div>
+        
+        <!-- 로그 -->
+        <div class="card">
+            <h2><i class="fas fa-terminal"></i> 실행 로그</h2>
+            <div class="log" id="logContainer"></div>
+        </div>
+        
+        <!-- 빠른 링크 -->
+        <div class="card">
+            <h2><i class="fas fa-link"></i> 빠른 링크</h2>
+            <button class="btn" onclick="window.open('admin.html', '_blank')">
+                <i class="fas fa-user-shield"></i> 관리자 페이지
+            </button>
+            <button class="btn" onclick="window.open('index.html', '_blank')">
+                <i class="fas fa-home"></i> 메인 페이지
+            </button>
+            <button class="btn btn-danger" onclick="clearAllData()">
+                <i class="fas fa-trash"></i> 전체 데이터 삭제
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        let logEntries = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = { timestamp, message, type };
+            logEntries.push(entry);
+            
+            const logContainer = document.getElementById('logContainer');
+            const logEl = document.createElement('div');
+            logEl.className = `log-entry log-${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            logEl.textContent = `[${timestamp}] ${icons[type]} ${message}`;
+            logContainer.appendChild(logEl);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateStatus() {
+            const statusGrid = document.getElementById('statusGrid');
+            
+            const adminProducts = localStorage.getItem('adminProducts');
+            const products = localStorage.getItem('products');
+            const protected = localStorage.getItem('PROTECTED_DATA_DO_NOT_DELETE');
+            
+            const adminCount = adminProducts ? JSON.parse(adminProducts).length : 0;
+            const productsCount = products ? JSON.parse(products).length : 0;
+            const protectedCount = protected ? JSON.parse(protected).length : 0;
+            
+            const allKeys = Object.keys(localStorage);
+            const backupKeys = allKeys.filter(key => key.startsWith('adminProducts_backup_'));
+            const permKeys = allKeys.filter(key => key.startsWith('backup_permanent_'));
+            
+            let totalSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += localStorage[key].length + key.length;
+                }
+            }
+            const sizeKB = (totalSize / 1024).toFixed(2);
+            
+            const statusHTML = `
+                <div class="status-item ${adminCount > 0 ? 'good' : 'bad'}">
+                    <h3>adminProducts</h3>
+                    <p>${adminCount}개</p>
+                </div>
+                <div class="status-item ${productsCount > 0 ? 'good' : 'bad'}">
+                    <h3>products</h3>
+                    <p>${productsCount}개</p>
+                </div>
+                <div class="status-item ${protectedCount > 0 ? 'good' : 'bad'}">
+                    <h3>보호된 데이터</h3>
+                    <p>${protectedCount}개</p>
+                </div>
+                <div class="status-item ${backupKeys.length > 0 ? 'good' : 'bad'}">
+                    <h3>자동 백업</h3>
+                    <p>${backupKeys.length}개</p>
+                </div>
+                <div class="status-item ${permKeys.length > 0 ? 'good' : 'bad'}">
+                    <h3>영구 백업</h3>
+                    <p>${permKeys.length}개</p>
+                </div>
+                <div class="status-item">
+                    <h3>총 용량</h3>
+                    <p>${sizeKB} KB</p>
+                </div>
+            `;
+            
+            statusGrid.innerHTML = statusHTML;
+            
+            log(`상태 업데이트: adminProducts=${adminCount}, products=${productsCount}, 보호됨=${protectedCount}`, 'info');
+        }
+        
+        function displayProducts() {
+            const productPreview = document.getElementById('productPreview');
+            
+            const adminProducts = localStorage.getItem('adminProducts');
+            
+            if (!adminProducts) {
+                productPreview.innerHTML = '<p style="text-align: center; color: #666;">제품 없음</p>';
+                return;
+            }
+            
+            const products = JSON.parse(adminProducts);
+            
+            productPreview.innerHTML = products.slice(0, 6).map(p => `
+                <div class="product-card">
+                    <img src="${p.image || p.image_url || 'https://placehold.co/150x100?text=No+Image'}" alt="${p.name}">
+                    <h4>${p.name}</h4>
+                    <p>${p.price.toLocaleString()}원</p>
+                </div>
+            `).join('');
+        }
+        
+        function verifyData() {
+            log('=== 데이터 검증 시작 ===', 'info');
+            
+            try {
+                // 1. localStorage 사용 가능 여부
+                const testKey = '__test__';
+                localStorage.setItem(testKey, '1');
+                localStorage.removeItem(testKey);
+                log('✓ localStorage 사용 가능', 'success');
+                
+                // 2. adminProducts 존재 여부
+                const adminProducts = localStorage.getItem('adminProducts');
+                if (adminProducts) {
+                    const parsed = JSON.parse(adminProducts);
+                    log(`✓ adminProducts: ${parsed.length}개`, 'success');
+                } else {
+                    log('✗ adminProducts 없음', 'error');
+                }
+                
+                // 3. products 존재 여부
+                const products = localStorage.getItem('products');
+                if (products) {
+                    const parsed = JSON.parse(products);
+                    log(`✓ products: ${parsed.length}개`, 'success');
+                } else {
+                    log('✗ products 없음', 'warning');
+                }
+                
+                // 4. 보호된 데이터 존재 여부
+                const protected = localStorage.getItem('PROTECTED_DATA_DO_NOT_DELETE');
+                if (protected) {
+                    const parsed = JSON.parse(protected);
+                    log(`✓ 보호된 데이터: ${parsed.length}개`, 'success');
+                } else {
+                    log('✗ 보호된 데이터 없음', 'warning');
+                }
+                
+                // 5. 백업 개수
+                const allKeys = Object.keys(localStorage);
+                const backupKeys = allKeys.filter(key => key.startsWith('adminProducts_backup_'));
+                log(`✓ 자동 백업: ${backupKeys.length}개`, backupKeys.length > 0 ? 'success' : 'warning');
+                
+                // 6. 동기화 검증
+                if (adminProducts && products) {
+                    const adminData = JSON.parse(adminProducts);
+                    const productsData = JSON.parse(products);
+                    
+                    if (adminData.length === productsData.length) {
+                        log(`✓ 동기화 OK: adminProducts=${adminData.length}, products=${productsData.length}`, 'success');
+                    } else {
+                        log(`✗ 동기화 오류: adminProducts=${adminData.length}, products=${productsData.length}`, 'error');
+                    }
+                }
+                
+                log('=== 검증 완료 ===', 'info');
+                updateStatus();
+                displayProducts();
+            } catch (error) {
+                log(`❌ 검증 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        function runFullTest() {
+            log('=== 전체 테스트 시작 ===', 'info');
+            
+            // 테스트 1: localStorage 쓰기/읽기
+            try {
+                const testData = { test: 'data', timestamp: Date.now() };
+                localStorage.setItem('__full_test__', JSON.stringify(testData));
+                const read = JSON.parse(localStorage.getItem('__full_test__'));
+                
+                if (read.test === 'data') {
+                    log('✓ Test 1: localStorage 쓰기/읽기 성공', 'success');
+                } else {
+                    log('✗ Test 1: localStorage 쓰기/읽기 실패', 'error');
+                }
+                
+                localStorage.removeItem('__full_test__');
+            } catch (e) {
+                log(`✗ Test 1: 오류 - ${e.message}`, 'error');
+            }
+            
+            // 테스트 2: 데이터 복구 시뮬레이션
+            setTimeout(() => {
+                try {
+                    const adminProducts = localStorage.getItem('adminProducts');
+                    
+                    if (adminProducts) {
+                        log('✓ Test 2: 데이터 존재 확인', 'success');
+                    } else {
+                        const protected = localStorage.getItem('PROTECTED_DATA_DO_NOT_DELETE');
+                        if (protected) {
+                            localStorage.setItem('adminProducts', protected);
+                            localStorage.setItem('products', protected);
+                            log('✓ Test 2: 보호된 데이터에서 복구 성공', 'success');
+                        } else {
+                            log('✗ Test 2: 복구할 데이터 없음', 'warning');
+                        }
+                    }
+                } catch (e) {
+                    log(`✗ Test 2: 오류 - ${e.message}`, 'error');
+                }
+                
+                updateStatus();
+                displayProducts();
+                log('=== 전체 테스트 완료 ===', 'info');
+            }, 500);
+        }
+        
+        function clearAllData() {
+            if (!confirm('⚠️ 정말로 모든 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+                return;
+            }
+            
+            if (!confirm('⚠️⚠️⚠️ 최종 확인!\n\n모든 제품 데이터가 삭제됩니다!')) {
+                return;
+            }
+            
+            log('=== 전체 데이터 삭제 시작 ===', 'warning');
+            
+            try {
+                const keys = Object.keys(localStorage);
+                const deleteKeys = keys.filter(key => 
+                    key.includes('product') || 
+                    key.includes('Product') || 
+                    key.includes('PROTECTED') ||
+                    key.includes('backup')
+                );
+                
+                deleteKeys.forEach(key => {
+                    localStorage.removeItem(key);
+                    log(`삭제: ${key}`, 'warning');
+                });
+                
+                log(`✓ ${deleteKeys.length}개 키 삭제 완료`, 'success');
+                log('=== 삭제 완료 ===', 'warning');
+                
+                updateStatus();
+                displayProducts();
+            } catch (e) {
+                log(`❌ 삭제 오류: ${e.message}`, 'error');
+            }
+        }
+        
+        // 초기 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            log('✅ localStorage 테스트 페이지 로드', 'success');
+            updateStatus();
+            displayProducts();
+        });
+    </script>
+</body>
+</html>
