@@ -1,3 +1,11 @@
+// ============================================
+// 심석 메인 페이지 - localStorage 완벽 버전
+// GitHub Pages 전용 (서버 불필요)
+// 작성일: 2026-03-11
+// ============================================
+
+console.log('✅ 심석 메인 localStorage 완벽 버전 로드 시작...');
+
 // ===== 전역 변수 =====
 let allProducts = [];
 let currentFilter = 'all';
@@ -6,112 +14,14 @@ let cart = [];
 
 // 페이지네이션 변수
 let currentPage = 1;
-let productsPerPage = 10;  // ⭐ 10개씩 표시
+let productsPerPage = 10;  // 10개씩 표시
 let totalPages = 1;
 
-// ===== 제품 데이터 =====
-const DEMO_PRODUCTS = [
-    {
-        id: 1,
-        name: '헤마타이트 목걸이',
-        category: '목걸이',
-        price: 69000,
-        description: '강력한 자기력을 가진 헤마타이트 목걸이입니다. 혈액순환을 도와주고 스트레스를 완화시켜줍니다.',
-        materials: '천연 헤마타이트',
-        benefits: '혈액순환 개선, 스트레스 완화',
-        image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Necklace',
-        featured: true,
-        in_stock: true,
-        birthstone_months: [1, 10],
-        special_occasions: ['일상', '건강'],
-        naver_link: 'https://smartstore.naver.com/simsuk',
-        coupang_link: 'https://www.coupang.com/np/search?q=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%AA%A9%EA%B1%B8%EC%9D%B4'
-    },
-    {
-        id: 2,
-        name: '헤마타이트 팔찌',
-        category: '팔찌',
-        price: 49000,
-        description: '일상에서 착용하기 좋은 헤마타이트 팔찌입니다.',
-        materials: '천연 헤마타이트',
-        benefits: '자기력 에너지, 혈액순환',
-        image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Bracelet',
-        featured: true,
-        in_stock: true,
-        birthstone_months: [1, 10],
-        special_occasions: ['일상'],
-        naver_link: 'https://smartstore.naver.com/simsuk',
-        coupang_link: 'https://www.coupang.com/np/search?q=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8'
-    },
-    {
-        id: 3,
-        name: '헤마타이트 반지',
-        category: '반지',
-        price: 39000,
-        description: '심플하고 세련된 헤마타이트 반지입니다.',
-        materials: '천연 헤마타이트',
-        benefits: '집중력 향상, 에너지 균형',
-        image_url: 'https://placehold.co/400x400/2c5f4f/ffffff?text=Hematite+Ring',
-        featured: false,
-        in_stock: true,
-        birthstone_months: [1, 10],
-        special_occasions: ['일상', '선물'],
-        naver_link: 'https://smartstore.naver.com/simsuk',
-        coupang_link: 'https://www.coupang.com/np/search?q=%ED%97%A4%EB%A7%88%ED%83%80%EC%9D%B4%ED%8A%B8+%EB%B0%98%EC%A7%80'
-    },
-    {
-        id: 4,
-        name: '가넷 목걸이 (1월 탄생석)',
-        category: '목걸이',
-        price: 79000,
-        description: '1월 탄생석 가넷이 박힌 아름다운 목걸이입니다.',
-        materials: '가넷, 실버',
-        benefits: '정열, 생명력 강화',
-        image_url: 'https://placehold.co/400x400/8b0000/ffffff?text=Garnet+Necklace',
-        featured: true,
-        in_stock: true,
-        birthstone_months: [1],
-        special_occasions: ['생일', '기념일'],
-        naver_link: 'https://smartstore.naver.com/simsuk',
-        coupang_link: 'https://www.coupang.com/np/search?q=%EA%B0%80%EB%84%B7+%EB%AA%A9%EA%B1%B8%EC%9D%B4'
-    },
-    {
-        id: 5,
-        name: '자수정 팔찌 (2월 탄생석)',
-        category: '팔찌',
-        price: 59000,
-        description: '2월 탄생석 자수정 팔찌입니다. 마음의 평화를 가져다줍니다.',
-        materials: '자수정',
-        benefits: '평온, 지혜',
-        image_url: 'https://placehold.co/400x400/9966cc/ffffff?text=Amethyst+Bracelet',
-        featured: false,
-        in_stock: true,
-        birthstone_months: [2],
-        special_occasions: ['생일', '힐링'],
-        naver_link: 'https://smartstore.naver.com/simsuk',
-        coupang_link: 'https://www.coupang.com/np/search?q=%EC%9E%90%EC%88%98%EC%A0%95+%ED%8C%94%EC%B0%8C'
-    },
-    {
-        id: 6,
-        name: '아쿠아마린 반지 (3월 탄생석)',
-        category: '반지',
-        price: 89000,
-        description: '3월 탄생석 아쿠아마린 반지입니다.',
-        materials: '아쿠아마린, 실버',
-        benefits: '용기, 평온',
-        image_url: 'https://placehold.co/400x400/7fffd4/000000?text=Aquamarine+Ring',
-        featured: false,
-        in_stock: true,
-        birthstone_months: [3],
-        special_occasions: ['생일', '여행'],
-        naver_link: 'https://smartstore.naver.com/simsuk',
-        coupang_link: 'https://www.coupang.com/np/search?q=%EC%95%84%EC%BF%A0%EC%95%84%EB%A7%88%EB%A6%B0+%EB%B0%98%EC%A7%80'
-    }
-];
-
 // ===== 초기화 =====
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 심석 웹사이트 시작');
+console.log('📱 심석 사이트 시작...');
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 DOM 로드 완료');
     initApp();
 });
 
@@ -122,21 +32,86 @@ function initApp() {
     updateCartBadge();
 }
 
-// ===== 제품 로드 =====
+// ===== 제품 로드 (완벽 버전) =====
 function loadProducts() {
     console.log('📦 제품 로드 시작...');
     
     try {
-        // localStorage 확인
-        const savedProducts = localStorage.getItem('adminProducts') || localStorage.getItem('products');
+        // ⭐ 3중 복구 시스템
+        let loadedProducts = null;
+        let loadSource = '';
         
-        if (savedProducts) {
-            allProducts = JSON.parse(savedProducts);
-            console.log(`✅ localStorage에서 ${allProducts.length}개 제품 로드`);
+        // 1차: adminProducts 확인
+        const adminProducts = localStorage.getItem('adminProducts');
+        if (adminProducts) {
+            loadedProducts = JSON.parse(adminProducts);
+            loadSource = 'adminProducts';
+        }
+        
+        // 2차: products 확인
+        if (!loadedProducts) {
+            const products = localStorage.getItem('products');
+            if (products) {
+                loadedProducts = JSON.parse(products);
+                loadSource = 'products';
+            }
+        }
+        
+        // 3차: 보호된 데이터 확인
+        if (!loadedProducts) {
+            const protected = localStorage.getItem('PROTECTED_DATA_DO_NOT_DELETE');
+            if (protected) {
+                loadedProducts = JSON.parse(protected);
+                loadSource = 'PROTECTED_DATA_DO_NOT_DELETE';
+                
+                // 보호된 데이터를 찾았으면 즉시 복구
+                localStorage.setItem('adminProducts', protected);
+                localStorage.setItem('products', protected);
+                console.log('🛡️ 보호된 데이터에서 자동 복구!');
+            }
+        }
+        
+        // 4차: 백업 데이터 확인
+        if (!loadedProducts) {
+            const allKeys = Object.keys(localStorage);
+            const backupKeys = allKeys.filter(key => key.startsWith('adminProducts_backup_')).sort().reverse();
+            
+            if (backupKeys.length > 0) {
+                loadedProducts = JSON.parse(localStorage.getItem(backupKeys[0]));
+                loadSource = backupKeys[0];
+                
+                // 백업을 찾았으면 즉시 복구
+                const backupData = localStorage.getItem(backupKeys[0]);
+                localStorage.setItem('adminProducts', backupData);
+                localStorage.setItem('products', backupData);
+                console.log('💾 백업 데이터에서 자동 복구!');
+            }
+        }
+        
+        // 5차: 영구 백업 확인
+        if (!loadedProducts) {
+            const permanentKeys = allKeys.filter(key => key.startsWith('backup_permanent_')).sort().reverse();
+            
+            if (permanentKeys.length > 0) {
+                loadedProducts = JSON.parse(localStorage.getItem(permanentKeys[0]));
+                loadSource = permanentKeys[0];
+                
+                const permData = localStorage.getItem(permanentKeys[0]);
+                localStorage.setItem('adminProducts', permData);
+                localStorage.setItem('products', permData);
+                console.log('💎 영구 백업에서 자동 복구!');
+            }
+        }
+        
+        if (loadedProducts && loadedProducts.length > 0) {
+            allProducts = loadedProducts;
+            console.log(`✅ localStorage에서 ${allProducts.length}개 제품 로드 (출처: ${loadSource})`);
+            console.log('✅ 첫 번째 제품:', allProducts[0].name, '|', allProducts[0].price.toLocaleString() + '원');
         } else {
-            // 데모 데이터 사용 (localStorage에 저장하지 않음!)
-            allProducts = DEMO_PRODUCTS;
-            console.log(`⚠️ localStorage 비어있음 - 데모 데이터 ${allProducts.length}개 사용 (저장 안 함)`);
+            // ⚠️ 데이터 없음 - 빈 배열 사용
+            allProducts = [];
+            console.log('⚠️ localStorage 완전히 비어있음 - 빈 배열 표시');
+            console.log('⚠️ admin.html에서 제품을 등록해주세요!');
         }
         
         // 현재 페이지 확인 (메인 페이지 vs 제품 페이지)
@@ -158,10 +133,18 @@ function loadProducts() {
         }
     } catch (error) {
         console.error('❌ 제품 로드 오류:', error);
-        allProducts = DEMO_PRODUCTS;
+        allProducts = [];
         
-        const isProductsPage = window.location.pathname.includes('products.html');
-        displayProducts(allProducts, isProductsPage ? null : 10);
+        const grid = document.getElementById('productsGrid');
+        if (grid) {
+            grid.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                    <p style="color: #dc3545;">제품 로드 오류</p>
+                    <p style="font-size: 0.9rem; color: #666;">admin.html에서 제품을 등록해주세요</p>
+                </div>
+            `;
+        }
     }
 }
 
@@ -181,6 +164,11 @@ function displayProducts(products, limit = null) {
             <div class="loading">
                 <i class="fas fa-box-open"></i>
                 <p>등록된 제품이 없습니다</p>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                    <a href="admin.html" style="color: #2c5f4f; text-decoration: underline;">
+                        관리자 페이지에서 제품을 등록하세요
+                    </a>
+                </p>
             </div>
         `;
         return;
@@ -193,47 +181,55 @@ function displayProducts(products, limit = null) {
         displayedProducts = products.slice(0, limit);
         totalPages = 1;
     } else {
-        // 전체 제품 페이지: 페이지네이션 적용
+        // 제품 페이지: 페이지네이션 적용
         totalPages = Math.ceil(products.length / productsPerPage);
         const startIndex = (currentPage - 1) * productsPerPage;
         const endIndex = startIndex + productsPerPage;
         displayedProducts = products.slice(startIndex, endIndex);
     }
     
-    grid.innerHTML = displayedProducts.map(product => `
-        <div class="product-card catalog-style" onclick="openProduct(${product.id})" style="cursor: pointer;">
-            <div class="product-image">
-                <img src="${product.image || product.image_url || 'https://placehold.co/400x400/2c5f4f/ffffff?text=' + encodeURIComponent(product.name)}" 
-                     alt="${product.name}" 
-                     loading="lazy"
-                     onerror="this.src='https://placehold.co/400x400/2c5f4f/ffffff?text=${encodeURIComponent(product.name)}'">
-                ${product.featured ? '<span class="product-badge">추천</span>' : ''}
-                ${!product.in_stock ? '<span class="product-badge sold-out">품절</span>' : ''}
-            </div>
-            <div class="product-info">
-                <div class="product-category">${product.category}</div>
-                <h3 class="product-name">${product.name}</h3>
-                <div class="product-price">${formatPrice(product.price)}원</div>
-                <div class="product-materials">
-                    <i class="fas fa-gem"></i> ${product.materials}
+    // 제품 카드 HTML 생성
+    grid.innerHTML = displayedProducts.map(product => {
+        // 이미지 URL (메인 이미지 1개)
+        const imageUrl = product.image || product.image_url || `https://placehold.co/400x400/667eea/ffffff?text=${encodeURIComponent(product.name)}`;
+        
+        // 재고 상태
+        const stockBadge = product.in_stock 
+            ? '<span class="badge badge-success">재고있음</span>' 
+            : '<span class="badge badge-danger">품절</span>';
+        
+        // 추천 제품 뱃지
+        const featuredBadge = product.featured 
+            ? '<span class="badge badge-featured">추천</span>' 
+            : '';
+        
+        // 네이버 스마트스토어 뱃지
+        const naverBadge = product.naver_link 
+            ? '<span class="badge badge-naver" style="background: #03C75A; color: white;"><i class="fas fa-shopping-bag"></i> 네이버 스마트스토어</span>' 
+            : '';
+        
+        return `
+            <div class="product-card" onclick="openProduct(${product.id})">
+                <div class="product-image">
+                    <img src="${imageUrl}" alt="${product.name}" loading="lazy">
+                    <div class="product-badges">
+                        ${featuredBadge}
+                        ${stockBadge}
+                    </div>
                 </div>
-                <div class="product-benefits">
-                    <i class="fas fa-heart"></i> ${product.benefits}
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-price">${product.price.toLocaleString()}원</p>
+                    ${product.description ? `<p class="product-description">${product.description.substring(0, 50)}${product.description.length > 50 ? '...' : ''}</p>` : ''}
+                    ${naverBadge}
                 </div>
-                ${product.naver_link ? '<div class="naver-store-badge"><i class="fas fa-external-link-alt"></i> 네이버 스토어에서 구매</div>' : ''}
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
-    // 페이지네이션 렌더링 (limit이 없을 때만, 즉 전체 제품 페이지에서만)
-    if (!limit && products.length > productsPerPage) {
+    // 페이지네이션 렌더링 (제품 페이지에서만)
+    if (!limit && totalPages > 1) {
         renderPagination(products.length);
-    } else {
-        // 메인 페이지에서는 페이지네이션 숨김
-        const paginationContainer = document.getElementById('pagination');
-        if (paginationContainer) {
-            paginationContainer.style.display = 'none';
-        }
     }
     
     console.log('✅ 제품 표시 완료');
@@ -243,136 +239,55 @@ function displayProducts(products, limit = null) {
 function renderPagination(totalProducts) {
     let paginationContainer = document.getElementById('pagination');
     
-    // 페이지네이션 컨테이너가 없으면 생성
     if (!paginationContainer) {
+        // 페이지네이션 컨테이너가 없으면 생성
         const grid = document.getElementById('productsGrid');
+        if (!grid) return;
+        
         paginationContainer = document.createElement('div');
         paginationContainer.id = 'pagination';
-        paginationContainer.className = 'pagination';
-        grid.parentNode.appendChild(paginationContainer);
+        grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
     }
     
     paginationContainer.style.display = 'flex';
+    paginationContainer.style.justifyContent = 'center';
+    paginationContainer.style.gap = '10px';
+    paginationContainer.style.marginTop = '40px';
     
-    const totalPages = Math.ceil(totalProducts / productsPerPage);
+    totalPages = Math.ceil(totalProducts / productsPerPage);
     
     let paginationHTML = '';
     
     // 이전 버튼
-    paginationHTML += `
-        <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
-                onclick="goToPage(${currentPage - 1})" 
-                ${currentPage === 1 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-left"></i>
-        </button>
-    `;
+    if (currentPage > 1) {
+        paginationHTML += `<button class="pagination-btn" onclick="changePage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></button>`;
+    }
     
     // 페이지 번호 버튼
     for (let i = 1; i <= totalPages; i++) {
-        // 첫 페이지, 마지막 페이지, 현재 페이지 근처만 표시
-        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-            paginationHTML += `
-                <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
-                        onclick="goToPage(${i})">
-                    ${i}
-                </button>
-            `;
-        } else if (i === currentPage - 3 || i === currentPage + 3) {
-            paginationHTML += `<span class="pagination-dots">...</span>`;
-        }
+        const activeClass = i === currentPage ? 'active' : '';
+        paginationHTML += `<button class="pagination-btn ${activeClass}" onclick="changePage(${i})">${i}</button>`;
     }
     
     // 다음 버튼
-    paginationHTML += `
-        <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
-                onclick="goToPage(${currentPage + 1})" 
-                ${currentPage === totalPages ? 'disabled' : ''}>
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    `;
+    if (currentPage < totalPages) {
+        paginationHTML += `<button class="pagination-btn" onclick="changePage(${currentPage + 1})"><i class="fas fa-chevron-right"></i></button>`;
+    }
     
     paginationContainer.innerHTML = paginationHTML;
 }
 
-// ===== 페이지 이동 =====
-function goToPage(pageNumber) {
-    if (pageNumber < 1 || pageNumber > totalPages) return;
-    
-    currentPage = pageNumber;
-    
-    // 현재 필터에 따라 제품 표시
-    if (currentBirthstoneFilter) {
-        filterByBirthstone(currentBirthstoneFilter);
-    } else if (currentFilter !== 'all') {
-        filterProducts(currentFilter);
-    } else {
-        displayProducts(allProducts);
-    }
-    
-    // 페이지 상단으로 스크롤
-    const productsSection = document.getElementById('products');
-    if (productsSection) {
-        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+// ===== 페이지 변경 =====
+function changePage(page) {
+    currentPage = page;
+    displayProducts(allProducts);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ===== 필터링 =====
-function filterProducts(category) {
-    currentFilter = category;
-    currentBirthstoneFilter = null;
-    
-    // 버튼 활성화 업데이트
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.includes(category === 'all' ? '전체' : category)) {
-            btn.classList.add('active');
-        }
-    });
-    
-    // 탄생석 필터 초기화
-    document.querySelectorAll('.birthstone-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.includes('전체')) {
-            btn.classList.add('active');
-        }
-    });
-    
-    const filtered = category === 'all' 
-        ? allProducts 
-        : allProducts.filter(p => p.category === category);
-    
-    displayProducts(filtered);
-}
-
-function filterByBirthstone(month) {
-    // 버튼 활성화 업데이트
-    document.querySelectorAll('.birthstone-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    if (month === 'all') {
-        currentBirthstoneFilter = null;
-        filterProducts(currentFilter);
-        return;
-    }
-    
-    currentBirthstoneFilter = parseInt(month);
-    
-    let filtered = allProducts.filter(p => {
-        const hasMonth = p.birthstone_months && p.birthstone_months.includes(currentBirthstoneFilter);
-        const matchesCategory = currentFilter === 'all' || p.category === currentFilter;
-        return hasMonth && matchesCategory;
-    });
-    
-    displayProducts(filtered);
-}
-
-// ===== 제품 상세 =====
+// ===== 제품 클릭 (네이버/쿠팡 링크로 이동) =====
 function openProduct(productId) {
-    console.log('🔍 제품 클릭:', productId);
+    console.log('🔗 제품 클릭:', productId);
     
-    // 제품 찾기
     const product = allProducts.find(p => p.id == productId);
     
     if (!product) {
@@ -380,25 +295,75 @@ function openProduct(productId) {
         return;
     }
     
-    // 네이버 링크가 있으면 네이버로, 없으면 상세 페이지로
+    // 네이버 스마트스토어 링크 우선
     if (product.naver_link) {
         console.log('✅ 네이버 스마트스토어로 이동:', product.naver_link);
         window.open(product.naver_link, '_blank');
-    } else if (product.coupang_link) {
+        return;
+    }
+    
+    // 쿠팡 링크 차선책
+    if (product.coupang_link) {
         console.log('✅ 쿠팡으로 이동:', product.coupang_link);
         window.open(product.coupang_link, '_blank');
-    } else {
-        console.log('⚠️ 구매 링크 없음, 상세 페이지로 이동');
-        window.location.href = `product-detail.html?id=${productId}`;
+        return;
     }
+    
+    // 링크가 없으면 상세 페이지로
+    console.log('⚠️ 외부 링크 없음 - 상세 페이지로 이동');
+    window.location.href = `product-detail.html?id=${productId}`;
+}
+
+// ===== 이벤트 리스너 설정 =====
+function setupEventListeners() {
+    // 카테고리 필터
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentFilter = this.dataset.category;
+            filterProducts();
+        });
+    });
+    
+    // 탄생석 필터
+    const birthstoneSelect = document.getElementById('birthstoneFilter');
+    if (birthstoneSelect) {
+        birthstoneSelect.addEventListener('change', function() {
+            currentBirthstoneFilter = this.value === 'all' ? null : parseInt(this.value);
+            filterProducts();
+        });
+    }
+}
+
+// ===== 필터링 =====
+function filterProducts() {
+    let filtered = allProducts;
+    
+    // 카테고리 필터
+    if (currentFilter !== 'all') {
+        filtered = filtered.filter(p => p.category === currentFilter);
+    }
+    
+    // 탄생석 필터
+    if (currentBirthstoneFilter) {
+        filtered = filtered.filter(p => 
+            p.birthstone_months && p.birthstone_months.includes(currentBirthstoneFilter)
+        );
+    }
+    
+    currentPage = 1;
+    displayProducts(filtered);
 }
 
 // ===== 장바구니 =====
 function loadCart() {
     try {
-        const savedCart = localStorage.getItem('cart');
-        cart = savedCart ? JSON.parse(savedCart) : [];
-        console.log(`🛒 장바구니 로드: ${cart.length}개 품목`);
+        const saved = localStorage.getItem('cart');
+        cart = saved ? JSON.parse(saved) : [];
+        console.log('🛒 장바구니 로드:', cart.length, '개 아이템');
     } catch (error) {
         console.error('❌ 장바구니 로드 오류:', error);
         cart = [];
@@ -406,34 +371,42 @@ function loadCart() {
 }
 
 function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(cart));
+    try {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    } catch (error) {
+        console.error('❌ 장바구니 저장 오류:', error);
+    }
 }
 
 function addToCart(productId) {
-    console.log('🛒 장바구니 추가:', productId);
+    console.log('🛒 장바구니에 추가:', productId);
     
-    const product = allProducts.find(p => p.id === productId);
+    const product = allProducts.find(p => p.id == productId);
     
     if (!product) {
-        console.error('❌ 제품을 찾을 수 없습니다:', productId);
-        showNotification('제품을 찾을 수 없습니다', 'error');
+        console.error('❌ 제품을 찾을 수 없습니다');
+        alert('제품을 찾을 수 없습니다');
         return;
     }
     
-    const existingItem = cart.find(item => item.id === productId);
+    // 이미 장바구니에 있는지 확인
+    const existingItem = cart.find(item => item.id == productId);
     
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         cart.push({
-            ...product,
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image || product.image_url,
             quantity: 1
         });
     }
     
     saveCart();
     updateCartBadge();
-    showNotification(`${product.name}이(가) 장바구니에 추가되었습니다!`, 'success');
+    showNotification('장바구니에 추가되었습니다!');
 }
 
 function updateCartBadge() {
@@ -441,126 +414,82 @@ function updateCartBadge() {
     if (badge) {
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'block' : 'none';
     }
 }
 
 function showCart() {
     const modal = document.getElementById('cartModal');
-    const modalBody = document.getElementById('cartModalBody');
+    if (!modal) return;
     
     if (cart.length === 0) {
-        modalBody.innerHTML = '<p>장바구니가 비어있습니다</p>';
-    } else {
-        const cartHTML = cart.map(item => `
+        alert('장바구니가 비어있습니다');
+        return;
+    }
+    
+    // 장바구니 내용 표시
+    const cartItems = document.getElementById('cartItems');
+    if (cartItems) {
+        cartItems.innerHTML = cart.map(item => `
             <div class="cart-item">
-                <img src="${item.image_url}" alt="${item.name}">
-                <div class="cart-item-info">
+                <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                <div style="flex: 1;">
                     <h4>${item.name}</h4>
-                    <p>${formatPrice(item.price)}원</p>
+                    <p>${item.price.toLocaleString()}원</p>
                 </div>
-                <div class="cart-item-quantity">
-                    <button onclick="updateQuantity(${item.id}, -1)">-</button>
-                    <span>${item.quantity}</span>
-                    <button onclick="updateQuantity(${item.id}, 1)">+</button>
+                <div>
+                    <span>수량: ${item.quantity}</span>
+                    <button onclick="removeFromCart(${item.id})">삭제</button>
                 </div>
             </div>
         `).join('');
-        
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        modalBody.innerHTML = `
-            ${cartHTML}
-            <div class="cart-total">
-                <h3>총 금액: ${formatPrice(total)}원</h3>
-                <button class="btn btn-primary" onclick="checkout()">주문하기</button>
-            </div>
-        `;
     }
     
     modal.classList.add('active');
 }
 
-function closeCart() {
-    const modal = document.getElementById('cartModal');
-    modal.classList.remove('active');
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id != productId);
+    saveCart();
+    updateCartBadge();
+    showCart(); // 새로고침
 }
 
-function updateQuantity(productId, change) {
-    const item = cart.find(i => i.id === productId);
-    
-    if (item) {
-        item.quantity += change;
-        
-        if (item.quantity <= 0) {
-            cart = cart.filter(i => i.id !== productId);
-        }
-        
-        saveCart();
-        updateCartBadge();
-        showCart();
-    }
-}
-
-function checkout() {
-    showNotification('주문 기능은 곧 추가될 예정입니다', 'info');
-}
-
-// ===== 이벤트 리스너 =====
-function setupEventListeners() {
-    const cartBtn = document.getElementById('cartBtn');
-    if (cartBtn) {
-        cartBtn.addEventListener('click', showCart);
-    }
-    
-    const searchBtn = document.getElementById('searchBtn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', () => {
-            showNotification('검색 기능은 곧 추가될 예정입니다', 'info');
-        });
-    }
-}
-
-// ===== 유틸리티 =====
-function formatPrice(price) {
-    return new Intl.NumberFormat('ko-KR').format(price);
-}
-
-function showNotification(message, type = 'success') {
+// ===== 알림 =====
+function showNotification(message) {
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i>
-        <span>${message}</span>
-    `;
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+        background: #28a745;
         color: white;
-        padding: 15px 25px;
+        padding: 15px 20px;
         border-radius: 8px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         z-index: 10000;
-        animation: slideIn 0.3s ease;
+        animation: slideIn 0.3s ease-out;
     `;
-    
+    notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
     document.body.appendChild(notification);
     
     setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
+        notification.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
 
-// ===== 전역 함수 노출 =====
-window.filterProducts = filterProducts;
-window.filterByBirthstone = filterByBirthstone;
+// ===== 전역 함수 등록 =====
 window.openProduct = openProduct;
 window.addToCart = addToCart;
 window.showCart = showCart;
-window.closeCart = closeCart;
-window.updateQuantity = updateQuantity;
-window.checkout = checkout;
+window.removeFromCart = removeFromCart;
+window.changePage = changePage;
 
-console.log('✅ main.js 로드 완료');
+console.log('✅ 심석 메인 localStorage 완벽 버전 로드 완료!');
+
+// 페이지 로드 완료 시간 측정
+window.addEventListener('load', () => {
+    const loadTime = performance.now() / 1000;
+    console.log(`⚡ 페이지 로드 완료: ${loadTime.toFixed(2)}초`);
+});
