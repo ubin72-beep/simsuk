@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>심석 긴급 제품 등록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c5f4f;
+            margin-bottom: 10px;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .product-list {
+            margin-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 30px;
+        }
+        
+        .product-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-info h3 {
+            color: #2c5f4f;
+            margin-bottom: 5px;
+        }
+        
+        .product-info p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .btn-delete {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 심석 긴급 제품 등록</h1>
+        <p style="color: #666; margin-bottom: 20px;">admin.html이 작동하지 않을 때 사용하는 임시 등록 페이지입니다.</p>
+        
+        <div class="alert">
+            ⚠️ <strong>주의:</strong> 이 페이지는 임시 솔루션입니다. GitHub에 새 파일을 올리시면 정식 admin.html을 사용하세요.
+        </div>
+        
+        <div id="successMessage" class="success" style="display: none;">
+            ✅ 제품이 성공적으로 등록되었습니다!
+        </div>
+        
+        <form id="productForm" onsubmit="saveProduct(event)">
+            <div class="form-group">
+                <label>제품명 *</label>
+                <input type="text" id="productName" required placeholder="예: 헤마타이트 목걸이">
+            </div>
+            
+            <div class="form-group">
+                <label>카테고리 *</label>
+                <select id="productCategory" required>
+                    <option value="">선택하세요</option>
+                    <option value="목걸이">목걸이</option>
+                    <option value="팔찌">팔찌</option>
+                    <option value="반지">반지</option>
+                    <option value="핸드폰 줄">핸드폰 줄</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>가격 (원) *</label>
+                <input type="number" id="productPrice" required min="0" step="1000" placeholder="예: 69000">
+            </div>
+            
+            <div class="form-group">
+                <label>네이버 스마트스토어 링크 *</label>
+                <input type="url" id="naverLink" required placeholder="https://smartstore.naver.com/simsuk/...">
+                <small style="color: #dc3545;">⚠️ 필수! 고객이 클릭하면 이 링크로 이동합니다.</small>
+            </div>
+            
+            <div class="form-group">
+                <label>쿠팡 링크 (선택)</label>
+                <input type="url" id="coupangLink" placeholder="https://link.coupang.com/...">
+            </div>
+            
+            <div class="form-group">
+                <label>재료/소재 (선택)</label>
+                <input type="text" id="materials" placeholder="예: 천연 헤마타이트, 실버 925">
+            </div>
+            
+            <div class="form-group">
+                <label>효능/특징 (선택)</label>
+                <textarea id="benefits" placeholder="예: 혈액순환 개선, 스트레스 완화"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>상세 설명 (선택)</label>
+                <textarea id="description" placeholder="제품에 대한 상세한 설명을 입력하세요"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>총 재고 *</label>
+                <input type="number" id="totalStock" required min="1" value="10">
+            </div>
+            
+            <button type="submit" class="btn">💾 제품 등록</button>
+            <button type="button" class="btn btn-secondary" onclick="viewProducts()">📦 등록된 제품 보기</button>
+        </form>
+        
+        <div class="product-list" id="productList" style="display: none;">
+            <h2>등록된 제품 목록</h2>
+            <div id="productItems"></div>
+        </div>
+    </div>
+    
+    <script>
+        // localStorage에서 제품 로드
+        function loadProducts() {
+            const stored = localStorage.getItem('adminProducts') || localStorage.getItem('products');
+            return stored ? JSON.parse(stored) : [];
+        }
+        
+        // localStorage에 제품 저장
+        function saveProducts(products) {
+            const dataStr = JSON.stringify(products);
+            
+            // 5중 보호 시스템
+            localStorage.setItem('adminProducts', dataStr);
+            localStorage.setItem('products', dataStr);
+            localStorage.setItem('PROTECTED_DATA_DO_NOT_DELETE', dataStr);
+            
+            // 백업
+            const timestamp = Date.now();
+            localStorage.setItem(`adminProducts_backup_${timestamp}`, dataStr);
+            
+            console.log('✅ 제품 저장 완료:', products.length, '개');
+            return true;
+        }
+        
+        // 제품 등록
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const products = loadProducts();
+            
+            const productData = {
+                id: Date.now(),
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                image: `https://placehold.co/400x400/667eea/ffffff?text=${encodeURIComponent(document.getElementById('productName').value)}`,
+                image_url: `https://placehold.co/400x400/667eea/ffffff?text=${encodeURIComponent(document.getElementById('productName').value)}`,
+                naver_link: document.getElementById('naverLink').value,
+                coupang_link: document.getElementById('coupangLink').value || '',
+                materials: document.getElementById('materials').value || '',
+                benefits: document.getElementById('benefits').value || '',
+                description: document.getElementById('description').value || '',
+                total_stock: parseInt(document.getElementById('totalStock').value),
+                in_stock: true,
+                featured: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            products.push(productData);
+            
+            if (saveProducts(products)) {
+                // 성공 메시지
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // 폼 초기화
+                document.getElementById('productForm').reset();
+                
+                // 3초 후 메시지 숨김
+                setTimeout(() => {
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 3000);
+                
+                alert('✅ 제품이 성공적으로 등록되었습니다!\n\nhttps://www.simsuk.com/index.html 에서 확인하세요.');
+            } else {
+                alert('❌ 제품 저장 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 제품 목록 보기
+        function viewProducts() {
+            const products = loadProducts();
+            const listDiv = document.getElementById('productList');
+            const itemsDiv = document.getElementById('productItems');
+            
+            if (products.length === 0) {
+                itemsDiv.innerHTML = '<p style="text-align: center; color: #666;">등록된 제품이 없습니다.</p>';
+            } else {
+                itemsDiv.innerHTML = products.map(p => `
+                    <div class="product-item">
+                        <div class="product-info">
+                            <h3>${p.name}</h3>
+                            <p>${p.category} | ${p.price.toLocaleString()}원 | 재고: ${p.total_stock || 0}개</p>
+                            <p style="font-size: 12px; color: #999;">등록일: ${new Date(p.created_at).toLocaleString()}</p>
+                        </div>
+                        <button class="btn-delete" onclick="deleteProduct(${p.id})">🗑️ 삭제</button>
+                    </div>
+                `).join('');
+            }
+            
+            listDiv.style.display = 'block';
+        }
+        
+        // 제품 삭제
+        function deleteProduct(id) {
+            if (!confirm('정말로 이 제품을 삭제하시겠습니까?')) return;
+            
+            let products = loadProducts();
+            products = products.filter(p => p.id !== id);
+            
+            if (saveProducts(products)) {
+                alert('✅ 제품이 삭제되었습니다.');
+                viewProducts(); // 목록 새로고침
+            } else {
+                alert('❌ 제품 삭제 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 페이지 로드 시 제품 개수 표시
+        window.addEventListener('DOMContentLoaded', () => {
+            const products = loadProducts();
+            console.log('✅ 현재 등록된 제품:', products.length, '개');
+        });
+    </script>
+</body>
+</html>
