@@ -314,8 +314,8 @@ main {
 .modal-content {
     background: white;
     border-radius: 12px;
-    max-width: 680px;
-    width: calc(100% - 30px);
+    max-width: 680px !important;
+    width: calc(100% - 30px) !important;
     max-height: 80vh;
     overflow-y: auto;
     margin: 0 auto;
@@ -609,8 +609,8 @@ main {
     }
     
     .modal-content {
-        max-width: calc(100% - 20px);
-        width: calc(100% - 20px);
+        max-width: calc(100% - 20px) !important;
+        width: calc(100% - 20px) !important;
     }
     
     .modal-header {
