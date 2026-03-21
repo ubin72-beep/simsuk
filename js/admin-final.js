@@ -463,7 +463,226 @@ function switchTab(tabName) {
 }
 
 // ========================================
-// 5. 자동 새로고침
+// 5. 제품 모달 관리
+// ========================================
+
+let currentEditId = null;
+
+/**
+ * 제품 모달 열기 (추가 또는 수정)
+ */
+function openProductModal(productId = null) {
+    currentEditId = productId;
+    const product = productId ? adminProducts.find(p => p.id === productId) : null;
+    
+    // 모달 제목
+    const modalTitle = document.getElementById('productModalTitle');
+    if (modalTitle) {
+        modalTitle.textContent = product ? '제품 수정' : '새 제품 추가';
+    }
+    
+    // 폼 초기화 또는 데이터 입력
+    if (product) {
+        document.getElementById('productName').value = product.name || '';
+        document.getElementById('productCategory').value = product.category || '목걸이';
+        document.getElementById('productPrice').value = product.price || '';
+        
+        // 이미지 URL이 있으면 표시
+        if (product.image_url) {
+            document.getElementById('productImageUrl1').value = product.image_url;
+            const preview = document.getElementById('imagePreview1');
+            const img = document.getElementById('previewImg1');
+            if (preview && img) {
+                img.src = product.image_url;
+                preview.style.display = 'block';
+            }
+        }
+    } else {
+        // 새 제품 추가
+        document.getElementById('productForm').reset();
+        
+        // 이미지 미리보기 초기화
+        const preview = document.getElementById('imagePreview1');
+        if (preview) {
+            preview.style.display = 'none';
+        }
+        document.getElementById('productImageUrl1').value = '';
+    }
+    
+    // 모달 표시
+    const modal = document.getElementById('productModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+    
+    console.log('🔧 제품 모달 열림:', productId ? '수정 모드' : '추가 모드');
+}
+
+/**
+ * 제품 모달 닫기
+ */
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    currentEditId = null;
+    
+    // 폼 초기화
+    const form = document.getElementById('productForm');
+    if (form) {
+        form.reset();
+    }
+    
+    // 이미지 미리보기 초기화
+    const preview = document.getElementById('imagePreview1');
+    if (preview) {
+        preview.style.display = 'none';
+    }
+    
+    console.log('🔧 제품 모달 닫힘');
+}
+
+/**
+ * 제품 폼 제출 처리
+ */
+function handleProductSubmit(event) {
+    event.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('productName').value.trim(),
+        category: document.getElementById('productCategory').value,
+        price: parseInt(document.getElementById('productPrice').value),
+        image_url: document.getElementById('productImageUrl1').value.trim() || null,
+        featured: false,
+        in_stock: true,
+        birthstone_months: [],
+        special_occasions: ['일상'],
+        naver_link: 'https://smartstore.naver.com/simsuk',
+        coupang_link: 'https://www.coupang.com'
+    };
+    
+    // 유효성 검사
+    if (!formData.name) {
+        alert('❌ 제품명을 입력해주세요.');
+        return;
+    }
+    
+    if (!formData.price || formData.price < 0) {
+        alert('❌ 올바른 가격을 입력해주세요.');
+        return;
+    }
+    
+    if (currentEditId) {
+        // 수정
+        const index = adminProducts.findIndex(p => p.id === currentEditId);
+        if (index !== -1) {
+            adminProducts[index] = { ...adminProducts[index], ...formData };
+            console.log('✅ 제품 수정:', formData.name);
+        }
+    } else {
+        // 추가
+        const newId = adminProducts.length > 0 ? Math.max(...adminProducts.map(p => p.id)) + 1 : 1;
+        const newProduct = { 
+            id: newId, 
+            ...formData,
+            created_at: new Date().toISOString()
+        };
+        adminProducts.push(newProduct);
+        console.log('✅ 제품 추가:', formData.name);
+    }
+    
+    // 저장 및 UI 업데이트
+    if (saveProducts(adminProducts)) {
+        closeProductModal();
+        renderProducts();
+        alert('✅ 제품이 저장되었습니다!\n\n메인 페이지와 제품 페이지에서 즉시 확인할 수 있습니다.');
+    }
+}
+
+/**
+ * 제품 수정 (편집 버튼 클릭)
+ */
+function editProduct(productId) {
+    openProductModal(productId);
+}
+
+/**
+ * 제품 삭제
+ */
+function deleteProduct(productId) {
+    const product = adminProducts.find(p => p.id === productId);
+    if (!product) {
+        alert('❌ 제품을 찾을 수 없습니다.');
+        return;
+    }
+    
+    if (confirm(`정말 "${product.name}"을(를) 삭제하시겠습니까?`)) {
+        adminProducts = adminProducts.filter(p => p.id !== productId);
+        saveProducts(adminProducts);
+        renderProducts();
+        alert('✅ 제품이 삭제되었습니다!');
+        console.log('🗑️ 제품 삭제:', product.name);
+    }
+}
+
+/**
+ * 이미지 업로드 처리
+ */
+function handleImageUpload(event, imageNumber) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // 파일 크기 체크 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('❌ 이미지 크기는 5MB 이하여야 합니다.');
+        return;
+    }
+    
+    // 파일 타입 체크
+    if (!file.type.match('image.*')) {
+        alert('❌ 이미지 파일만 업로드 가능합니다.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const imageUrl = e.target.result;
+        
+        // hidden input에 저장
+        document.getElementById('productImageUrl' + imageNumber).value = imageUrl;
+        
+        // 미리보기 표시
+        const preview = document.getElementById('imagePreview' + imageNumber);
+        const img = document.getElementById('previewImg' + imageNumber);
+        if (preview && img) {
+            img.src = imageUrl;
+            preview.style.display = 'block';
+        }
+        
+        console.log('✅ 이미지 업로드 완료:', file.name);
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 이미지 제거
+ */
+function removeImage(imageNumber) {
+    document.getElementById('productImageUrl' + imageNumber).value = '';
+    const preview = document.getElementById('imagePreview' + imageNumber);
+    if (preview) {
+        preview.style.display = 'none';
+    }
+    const fileInput = document.getElementById('productImageFile' + imageNumber);
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    console.log('🗑️ 이미지 제거:', imageNumber);
+}
+
+// ========================================
+// 6. 자동 새로고침
 // ========================================
 
 function toggleAutoRefresh() {
@@ -505,7 +724,7 @@ function stopAutoRefresh() {
 }
 
 // ========================================
-// 6. 로그아웃
+// 7. 로그아웃
 // ========================================
 
 function logout() {
@@ -516,7 +735,7 @@ function logout() {
 }
 
 // ========================================
-// 7. 초기화
+// 8. 초기화
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -545,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 폼 이벤트 리스너
     const productForm = document.getElementById('productForm');
     if (productForm) {
-        productForm.addEventListener('submit', saveProduct);
+        productForm.addEventListener('submit', handleProductSubmit);
     }
     
     // 모달 외부 클릭 시 닫기
