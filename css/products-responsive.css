@@ -1,0 +1,374 @@
+/*
+ * 심석 - 모바일 반응형 CSS 완벽 버전
+ * 버전: v10.0 ULTIMATE
+ * 작성일: 2026-03-21
+ * 
+ * ✅ 모든 디바이스에서 완벽한 제품 표시
+ * ✅ 반응형 그리드 최적화
+ * ✅ 모바일 UX 개선
+ */
+
+/* ========================================
+   1. 제품 그리드 - 기본 (데스크톱)
+======================================== */
+
+#productsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 데스크톱: 4열 */
+    gap: 30px;
+    padding: 20px 0;
+}
+
+/* ========================================
+   2. 태블릿 (1024px 이하)
+======================================== */
+
+@media (max-width: 1024px) {
+    #productsGrid {
+        grid-template-columns: repeat(3, 1fr); /* 태블릿: 3열 */
+        gap: 25px;
+    }
+}
+
+/* ========================================
+   3. 작은 태블릿 (768px 이하)
+======================================== */
+
+@media (max-width: 768px) {
+    #productsGrid {
+        grid-template-columns: repeat(2, 1fr); /* 작은 태블릿: 2열 */
+        gap: 20px;
+        padding: 15px 0;
+    }
+    
+    .product-card {
+        margin-bottom: 10px;
+    }
+    
+    .product-name {
+        font-size: 16px !important;
+    }
+    
+    .product-price {
+        font-size: 18px !important;
+    }
+}
+
+/* ========================================
+   4. 모바일 (480px 이하)
+======================================== */
+
+@media (max-width: 480px) {
+    #productsGrid {
+        grid-template-columns: 1fr; /* 모바일: 1열 */
+        gap: 15px;
+        padding: 10px 0;
+    }
+    
+    .product-card {
+        max-width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .product-image {
+        height: 250px; /* 모바일에서 이미지 높이 조정 */
+    }
+    
+    .product-name {
+        font-size: 18px !important;
+        line-height: 1.4;
+    }
+    
+    .product-description {
+        font-size: 13px !important;
+        line-height: 1.5;
+    }
+    
+    .product-price {
+        font-size: 20px !important;
+        font-weight: 700;
+    }
+    
+    .product-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}
+
+/* ========================================
+   5. 제품 카드 스타일 강제 적용
+======================================== */
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex !important; /* 강제 */
+    flex-direction: column !important; /* 강제 */
+    visibility: visible !important; /* 강제 */
+    opacity: 1 !important; /* 강제 */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    background: #f5f5f5;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.product-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.product-category {
+    font-size: 12px;
+    color: #d4af37;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.product-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c5f4f;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.product-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.product-price {
+    font-size: 22px;
+    font-weight: 800;
+    color: #2c5f4f;
+    margin: 10px 0;
+}
+
+.product-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #2c5f4f 0%, #1a4034 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.product-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1a4034 0%, #2c5f4f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 95, 79, 0.3);
+}
+
+.product-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   6. 배지 스타일
+======================================== */
+
+.featured-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #d4af37 0%, #c19b2f 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.stock-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.stock-badge.out-of-stock {
+    background: #ff4444;
+    color: white;
+}
+
+/* ========================================
+   7. 페이지네이션 반응형
+======================================== */
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    padding: 10px 15px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #2c5f4f;
+    color: white;
+    border-color: #2c5f4f;
+}
+
+.pagination-btn.active {
+    background: #2c5f4f;
+    color: white;
+    border-color: #2c5f4f;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .pagination-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* ========================================
+   8. 빈 상태 (제품 없음)
+======================================== */
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.empty-state-description {
+    font-size: 15px;
+    color: #999;
+}
+
+@media (max-width: 480px) {
+    .empty-state {
+        padding: 60px 20px;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+    }
+    
+    .empty-state-title {
+        font-size: 18px;
+    }
+    
+    .empty-state-description {
+        font-size: 14px;
+    }
+}
+
+/* ========================================
+   9. 로딩 상태
+======================================== */
+
+.loading-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2c5f4f;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   10. 컨테이너 반응형
+======================================== */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+}
