@@ -13,6 +13,98 @@
 console.log('🚀 심석 관리자 v10.0 ULTIMATE 로드 시작...');
 
 // ========================================
+// 전역 함수를 즉시 window 객체에 등록
+// ========================================
+
+// 탭 전환 함수를 전역으로 즉시 등록
+window.switchTab = function(tabName) {
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 모든 탭 콘텐츠 숨기기
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // 선택한 탭 활성화
+    const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => {
+        return btn.textContent.includes(tabName === 'dashboard' ? '대시보드' : 
+                                         tabName === 'products' ? '제품 관리' : 
+                                         tabName === 'orders' ? '주문 관리' : '할인 관리');
+    });
+    
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+    
+    const tabContent = document.getElementById(tabName + 'Tab');
+    if (tabContent) {
+        tabContent.classList.add('active');
+    }
+    
+    // 제품 탭이면 렌더링
+    if (tabName === 'products') {
+        if (typeof renderProducts === 'function') {
+            renderProducts();
+        }
+    }
+};
+
+// 로그아웃 함수를 전역으로 즉시 등록
+window.logout = function() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        sessionStorage.removeItem('adminLoggedIn');
+        window.location.href = 'admin.html';
+    }
+};
+
+// 제품 모달 열기 함수를 전역으로 즉시 등록
+window.openProductModal = function(productId = null) {
+    if (typeof _openProductModal === 'function') {
+        _openProductModal(productId);
+    }
+};
+
+// 제품 모달 닫기 함수를 전역으로 즉시 등록
+window.closeProductModal = function() {
+    if (typeof _closeProductModal === 'function') {
+        _closeProductModal();
+    }
+};
+
+// 자동 새로고침 토글 함수를 전역으로 즉시 등록
+window.toggleAutoRefresh = function() {
+    if (typeof _toggleAutoRefresh === 'function') {
+        _toggleAutoRefresh();
+    }
+};
+
+// 제품 제출 핸들러를 전역으로 즉시 등록
+window.handleProductSubmit = function(event) {
+    if (typeof _handleProductSubmit === 'function') {
+        _handleProductSubmit(event);
+    }
+};
+
+// 제품 수정 함수를 전역으로 즉시 등록
+window.editProduct = function(productId) {
+    if (typeof _editProduct === 'function') {
+        _editProduct(productId);
+    }
+};
+
+// 제품 삭제 함수를 전역으로 즉시 등록
+window.deleteProduct = function(productId) {
+    if (typeof _deleteProduct === 'function') {
+        _deleteProduct(productId);
+    }
+};
+
+console.log('✅ 전역 함수 등록 완료');
+
+// ========================================
 // 1. 전역 변수 선언
 // ========================================
 
@@ -508,7 +600,7 @@ let currentEditId = null;
 /**
  * 제품 모달 열기 (추가 또는 수정)
  */
-function openProductModal(productId = null) {
+function _openProductModal(productId = null) {
     currentEditId = productId;
     const product = productId ? adminProducts.find(p => p.id === productId) : null;
     
@@ -559,7 +651,7 @@ function openProductModal(productId = null) {
 /**
  * 제품 모달 닫기
  */
-function closeProductModal() {
+function _closeProductModal() {
     const modal = document.getElementById('productModal');
     if (modal) {
         modal.classList.remove('active');
@@ -585,7 +677,7 @@ function closeProductModal() {
 /**
  * 제품 폼 제출 처리
  */
-function handleProductSubmit(event) {
+function _handleProductSubmit(event) {
     event.preventDefault();
     
     const formData = {
@@ -633,7 +725,7 @@ function handleProductSubmit(event) {
     
     // 저장 및 UI 업데이트
     if (saveProducts(adminProducts)) {
-        closeProductModal();
+        _closeProductModal();
         renderProducts();
         alert('✅ 제품이 저장되었습니다!\n\n메인 페이지와 제품 페이지에서 즉시 확인할 수 있습니다.');
     }
@@ -642,14 +734,14 @@ function handleProductSubmit(event) {
 /**
  * 제품 수정 (편집 버튼 클릭)
  */
-function editProduct(productId) {
-    openProductModal(productId);
+function _editProduct(productId) {
+    _openProductModal(productId);
 }
 
 /**
  * 제품 삭제
  */
-function deleteProduct(productId) {
+function _deleteProduct(productId) {
     const product = adminProducts.find(p => p.id === productId);
     if (!product) {
         alert('❌ 제품을 찾을 수 없습니다.');
@@ -724,7 +816,7 @@ function removeImage(imageNumber) {
 // 6. 자동 새로고침
 // ========================================
 
-function toggleAutoRefresh() {
+function _toggleAutoRefresh() {
     isAutoRefreshEnabled = !isAutoRefreshEnabled;
     
     const btn = document.getElementById('autoRefreshToggle');
@@ -763,18 +855,7 @@ function stopAutoRefresh() {
 }
 
 // ========================================
-// 7. 로그아웃
-// ========================================
-
-function logout() {
-    if (confirm('로그아웃 하시겠습니까?')) {
-        sessionStorage.removeItem('adminLoggedIn');
-        window.location.href = 'admin.html';
-    }
-}
-
-// ========================================
-// 8. 초기화
+// 7. 초기화
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -807,14 +888,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // 폼 이벤트 리스너
     const productForm = document.getElementById('productForm');
     if (productForm) {
-        productForm.addEventListener('submit', handleProductSubmit);
+        productForm.addEventListener('submit', _handleProductSubmit);
     }
     
     // 모달 외부 클릭 시 닫기
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('productModal');
         if (event.target === modal) {
-            closeProductModal();
+            window.closeProductModal();
         }
     });
     
@@ -832,21 +913,5 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(`📦 주문: ${adminOrders.length}개`);
     console.log(`🎫 할인: ${adminDiscounts.length}개`);
 });
-
-// ========================================
-// 8. 전역 함수 노출
-// ========================================
-
-window.adminProducts = adminProducts;
-window.saveProducts = saveProducts;
-window.loadProducts = loadProducts;
-window.renderProducts = renderProducts;
-window.openAddProductModal = openAddProductModal;
-window.editProduct = editProduct;
-window.deleteProduct = deleteProduct;
-window.closeProductModal = closeProductModal;
-window.switchTab = switchTab;
-window.toggleAutoRefresh = toggleAutoRefresh;
-window.logout = logout;
 
 console.log('✅ 심석 관리자 v10.0 ULTIMATE 로드 완료! 🎉');
