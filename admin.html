@@ -435,40 +435,8 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="js/admin.js?v=20260311002"></script>
-    <script src="js/admin-discounts.js?v=20260301014"></script>
-    
-    <script>
-        // 페이지 로드 후 함수 확인
-        window.addEventListener('load', function() {
-            console.log('🔍 함수 로드 상태 확인:');
-            console.log('- logout:', typeof logout);
-            console.log('- toggleAutoRefresh:', typeof toggleAutoRefresh);
-            console.log('- switchTab:', typeof switchTab);
-            console.log('- openProductModal:', typeof openProductModal);
-            console.log('- handleProductSubmit:', typeof handleProductSubmit);
-            
-            const requiredFunctions = {
-                'logout': logout,
-                'toggleAutoRefresh': toggleAutoRefresh,
-                'switchTab': switchTab
-            };
-            
-            let missing = [];
-            for (let name in requiredFunctions) {
-                if (typeof requiredFunctions[name] !== 'function') {
-                    missing.push(name);
-                }
-            }
-            
-            if (missing.length > 0) {
-                console.error('❌ 함수 누락:', missing);
-                alert('⚠️ 일부 기능이 로드되지 않았습니다.\n\n누락된 함수: ' + missing.join(', ') + '\n\n페이지를 새로고침해주세요 (Ctrl+F5)');
-            } else {
-                console.log('✅ 모든 함수 정상 로드됨');
-            }
-        });
-    </script>
+    <!-- JavaScript: 최종 완벽 버전 -->
+    <script src="js/admin-final.js?v=20260321ULTIMATE"></script>
+    <script src="js/admin-discounts.js?v=20260321"></script>
 </body>
 </html>
