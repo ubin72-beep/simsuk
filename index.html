@@ -278,6 +278,12 @@
                 <!-- Pagination buttons will be added by JavaScript -->
             </div>
             
+            <!-- 제품 그리드 -->
+            <div id="productsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-top: 40px;"></div>
+            
+            <!-- 페이지네이션 -->
+            <div id="pagination" style="display: flex; justify-content: center; align-items: center; margin-top: 40px; gap: 10px;"></div>
+            
             <!-- 전체 제품 보기 버튼 -->
             <div class="view-all-products" style="text-align: center; margin-top: 40px;">
                 <a href="products.html" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem;">
@@ -914,7 +920,7 @@
 
     <script src="js/saju-curation.js?v=20260307001"></script>
     <script src="js/lunar-solar-converter.js"></script>
-    <script src="js/main-final.js?v=20260321WORKS"></script>
+    <script src="js/main-simple.js?v=20260321SIMPLE"></script>
     <script>
         // 사주 큐레이션 함수
         function analyzeBirthdate() {
