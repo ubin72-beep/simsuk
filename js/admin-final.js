@@ -185,9 +185,36 @@ function loadDiscounts() {
  * 제품 목록 렌더링
  */
 function renderProducts() {
+    const container = document.getElementById('productsTableContainer');
+    if (!container) {
+        console.error('❌ productsTableContainer를 찾을 수 없습니다!');
+        return;
+    }
+    
+    // 테이블이 없으면 생성
+    let table = container.querySelector('table');
+    if (!table) {
+        container.innerHTML = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 80px;">이미지</th>
+                        <th>제품명</th>
+                        <th style="width: 120px; text-align: right;">가격</th>
+                        <th style="width: 100px;">카테고리</th>
+                        <th style="width: 120px; text-align: center;">작업</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody"></tbody>
+            </table>
+        `;
+        table = container.querySelector('table');
+    }
+    
     const tbody = document.getElementById('productsTableBody');
     if (!tbody) {
-        console.error('❌ productsTableBody를 찾을 수 없습니다!');
+        console.error('❌ productsTableBody 생성 실패!');
         return;
     }
     
@@ -196,10 +223,10 @@ function renderProducts() {
     if (adminProducts.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 60px 20px;">
+                <td colspan="6" style="text-align: center; padding: 60px 20px;">
                     <div style="font-size: 48px; margin-bottom: 20px;">📦</div>
                     <div style="font-size: 18px; color: #666; margin-bottom: 10px;">등록된 제품이 없습니다</div>
-                    <div style="font-size: 14px; color: #999;">아래 "제품 추가" 버튼을 클릭하여 제품을 등록하세요</div>
+                    <div style="font-size: 14px; color: #999;">"새 제품 추가" 버튼을 클릭하여 제품을 등록하세요</div>
                 </td>
             </tr>
         `;
@@ -215,7 +242,7 @@ function renderProducts() {
         row.innerHTML = `
             <td>${product.id}</td>
             <td>
-                <img src="${product.image || 'https://via.placeholder.com/50'}" 
+                <img src="${product.image_url || product.image || 'https://via.placeholder.com/50?text=No+Image'}" 
                      alt="${product.name}" 
                      style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"
                      onerror="this.src='https://via.placeholder.com/50?text=No+Image'">
@@ -225,8 +252,18 @@ function renderProducts() {
                 <div style="font-size: 12px; color: #666;">${product.category || '미분류'}</div>
             </td>
             <td style="text-align: right; font-weight: 600;">${(product.price || 0).toLocaleString()}원</td>
-            <td>
-                <span class="badge badge-${product.featured ? 'success' : 'secondary'}">
+            <td>${product.category || '미분류'}</td>
+            <td style="text-align: center;">
+                <div style="display: flex; gap: 5px; justify-content: center;">
+                    <button onclick="editProduct(${product.id})" class="btn btn-sm btn-primary" title="수정">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteProduct(${product.id})" class="btn btn-sm btn-danger" title="삭제">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
                     ${product.featured ? '추천' : '일반'}
                 </span>
             </td>
@@ -743,14 +780,18 @@ function logout() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📋 DOM 로드 완료 - 초기화 시작');
     
-    // 로그인 체크
+    // 🔥 로그인 체크 비활성화 - 즉시 접속 가능
+    // 필요시 아래 코드 주석 해제
+    /*
     const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
     if (!isLoggedIn) {
         console.log('❌ 로그인 필요');
-        // 로그인 페이지로 리다이렉트 (있다면)
-        // window.location.href = 'admin-login.html';
-        // return;
+        window.location.href = 'admin-login.html';
+        return;
     }
+    */
+    
+    console.log('✅ 관리자 페이지 로드 시작');
     
     // 데이터 로드
     loadProducts();
