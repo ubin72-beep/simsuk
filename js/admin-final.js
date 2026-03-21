@@ -512,6 +512,7 @@ function openProductModal(productId = null) {
     // 모달 표시
     const modal = document.getElementById('productModal');
     if (modal) {
+        modal.classList.add('active');
         modal.style.display = 'flex';
     }
     
@@ -524,6 +525,7 @@ function openProductModal(productId = null) {
 function closeProductModal() {
     const modal = document.getElementById('productModal');
     if (modal) {
+        modal.classList.remove('active');
         modal.style.display = 'none';
     }
     currentEditId = null;
