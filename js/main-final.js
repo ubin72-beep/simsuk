@@ -187,9 +187,15 @@ function displayAllProducts(page = 1) {
 function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
+    
+    // 네이버 스마트스토어 링크 (없으면 기본값)
+    const naverLink = product.naver_link || 'https://smartstore.naver.com/simsuk';
+    
+    // 카드 클릭 시 네이버 스마트스토어로 이동
     card.onclick = () => {
-        window.location.href = `product-detail.html?id=${product.id}`;
+        window.open(naverLink, '_blank');
     };
+    card.style.cursor = 'pointer';
     
     // 추천 배지
     const featuredBadge = product.featured ? '<span class="featured-badge">추천</span>' : '';
@@ -201,18 +207,23 @@ function createProductCard(product) {
         <div class="product-image">
             ${featuredBadge}
             ${stockBadge}
-            <img src="${product.image || 'https://via.placeholder.com/300'}" 
+            <img src="${product.image_url || product.image || 'https://via.placeholder.com/300?text=제품+이미지'}" 
                  alt="${product.name}"
-                 onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
+                 onerror="this.src='https://via.placeholder.com/300?text=제품+이미지'">
         </div>
         <div class="product-info">
             <div class="product-category">${product.category || '제품'}</div>
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description || ''}</p>
             <div class="product-price">${(product.price || 0).toLocaleString()}원</div>
-            <button class="product-btn" ${product.stock === '품절' ? 'disabled' : ''}>
-                ${product.stock === '품절' ? '품절' : '자세히 보기'}
-            </button>
+            <div class="product-links" style="display: flex; gap: 8px; margin-top: 12px;">
+                <button class="product-btn" onclick="event.stopPropagation(); window.open('${naverLink}', '_blank');" style="flex: 1; background: #03C75A; border: none; padding: 10px; color: white; font-weight: 600; border-radius: 6px; cursor: pointer;">
+                    네이버 구매
+                </button>
+                <button class="product-btn" onclick="event.stopPropagation(); window.open('${product.coupang_link || 'https://www.coupang.com'}', '_blank');" style="flex: 1; background: #FF6B00; border: none; padding: 10px; color: white; font-weight: 600; border-radius: 6px; cursor: pointer;">
+                    쿠팡 구매
+                </button>
+            </div>
         </div>
     `;
     
